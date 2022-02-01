@@ -1,0 +1,12 @@
+Package: AnvilDataModels
+Version: 0.1.0
+Type: Package
+Title: Utilities for AnVIL data models
+Description: Utilities for AnVIL data models.
+Author: Stephanie Gogarten
+Maintainer: Stephanie Gogarten <sdmorris@uw.edu>
+Depends:
+Imports: dm, dplyr, readr
+Suggests: roxygen2, testthat
+License: MIT + file LICENSE
+RoxygenNote: 7.1.2

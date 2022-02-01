@@ -1,0 +1,33 @@
+entity	table	column	type	pk	ref	note
+Table	subject	subject_id	varchar	TRUE		Subject/Participant Identifier within project
+Table	subject	dbgap_subject_id	varchar			"Subject id used by dbGaP, if available"
+Table	subject	consent_code	varchar			consent abbreviation
+Table	subject	study_nickname	varchar			short name for study
+Table	subject	dbgap_submission	bool			Flag if sample has been submitted to dbGaP
+Table	subject	dbgap_study_id	varchar			PHS ID for study
+Table	subject	reported_sex	sex			reported sex
+enum	sex	F				
+enum	sex	M				
+enum	sex	X				
+Table	sample	sample_id	varchar	TRUE		sample identifier
+Table	sample	subject_id	varchar		< subject.subject_id	
+Table	sample	dbgap_sample_id	varchar			"Sample id used by dbGaP, if available"
+Table	sample	tissue_source	varchar			tissue type of sample (UBERON concepts)
+Table	sample	age_at_sample_collection	int			age of subject when sample was collected
+Table	sample_set	sample_set_id	varchar	TRUE		
+Table	sample_set	sample_id	varchar		< sample.sample_id	
+Table	dataset	dataset_id	varchar	TRUE		
+Table	dataset	dataset_type	dataset_type			type of dataset
+Table	dataset	sample_set_id	varchar		< sample_set.sample_set_id	
+enum	dataset_type	sequencing				
+enum	dataset_type	array				
+enum	dataset_type	imputation				
+Table	file	md5	varchar	TRUE		
+Table	file	dataset_id	varchar		< dataset.dataset_id	
+Table	file	filename	varchar			
+Table	array_dataset	dataset_id	varchar	TRUE	- dataset.dataset_id	
+Table	array_dataset	genotyping_center	varchar			
+Table	array_dataset	array_manufacturer	varchar			
+Table	array_dataset	array_name	varchar			
+Table	array_dataset	genotype_calling_software	varchar			
+Table	array_dataset	reference_genome_build	varchar			
