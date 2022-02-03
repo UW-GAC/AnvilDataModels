@@ -11,7 +11,7 @@
 #'   \item{entity}{"Table" or "enum"}
 #'   \item{table}{table or enum name}
 #'   \item{column}{column name within table}
-#'   \item{type}{"varchar", "bool", "int", "float", or name of enum}
+#'   \item{type}{"varchar", "bool", "int", "float", "date", "datetime", or name of enum}
 #'   \item{pk}{logical where TRUE indicates the column is a primary key, 
 #'     other values may be FALSE or missing}
 #'   \item{ref}{Reference string following the 
@@ -35,6 +35,7 @@
 #' @import dm
 #' @importFrom readr read_tsv
 #' @importFrom dplyr as_tibble filter .data %>%
+#' @importFrom lubridate ymd ymd_hms
 #' @export
 tsv_to_dm <- function(tsv) {
     dat <- read_tsv(tsv, col_names=TRUE, col_types="cccclcc")
@@ -55,7 +56,9 @@ tsv_to_dm <- function(tsv) {
     type_map <- list("varchar"=character(),
                     "bool"=logical(),
                     "int"=integer(),
-                    "float"=numeric())
+                    "float"=numeric(),
+                    "date"=ymd(),
+                    "datetime"=ymd_hms())
     
     # create 0-row tibbles for each table
     table_list <- lapply(tables, function(t) {

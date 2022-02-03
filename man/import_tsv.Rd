@@ -28,7 +28,7 @@ TSV files to be imported must have the following columns:
   \item{entity}{"Table" or "enum"}
   \item{table}{table or enum name}
   \item{column}{column name within table}
-  \item{type}{"varchar", "bool", "int", "float", or name of enum}
+  \item{type}{"varchar", "bool", "int", "float", "date", "datetime", or name of enum}
   \item{pk}{logical where TRUE indicates the column is a primary key, 
     other values may be FALSE or missing}
   \item{ref}{Reference string following the 

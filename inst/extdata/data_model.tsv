@@ -15,6 +15,7 @@ Table	sample	sample_id	varchar	TRUE		sample identifier
 Table	sample	subject_id	varchar		< subject.subject_id	
 Table	sample	tissue_source	varchar			tissue type of sample (UBERON concepts)
 Table	sample	age_at_sample_collection	int			age of subject when sample was collected
+Table	sample	date_of_sample_processing	date			date sample was processed in the lab
 Table	file	md5	varchar	TRUE		md5 checksum
 Table	file	sample_id	varchar		< sample.sample_id	
 Table	file	filename	varchar			name of file
