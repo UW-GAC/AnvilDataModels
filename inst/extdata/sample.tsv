@@ -1,0 +1,12 @@
+sample_id	subject_id	tissue_source	age_at_sample_collection	date_of_sample_processing
+sample1	subject1	blood	34	2000-01-02
+sample1	subject1	blood	40	2000-01-01
+sample2	subject2	blood	72	2000-01-01
+sample3	subject3	blood	28	2000-01-01
+sample4	subject4	blood	15	2000-01-01
+sample5	subject5	blood	54	2000-01-01
+sample6	subject6	blood	46	2000-01-01
+sample7	subject7	blood	38	2000-01-01
+sample8	subject8	blood	14	2000-01-01
+sample9	subject9	blood	39	2000-01-01
+sample10	subject10	blood	28	2000-01-01

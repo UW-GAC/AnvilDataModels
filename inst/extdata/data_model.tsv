@@ -19,3 +19,4 @@ Table	sample	date_of_sample_processing	date			date sample was processed in the l
 Table	file	md5	varchar	TRUE		md5 checksum
 Table	file	sample_id	varchar		< sample.sample_id	
 Table	file	filename	varchar			name of file
+Table	file	file_timestamp	datetime			time of file creation

@@ -15,6 +15,9 @@ tsv_to_dbml(tsv, dbml)
 
 \item{dbml}{Path for the DBML output file}
 }
+\value{
+\code{\link{dm}} object
+}
 \description{
 Import data model in tsv format
 }
@@ -25,15 +28,15 @@ Import data model in tsv format
 
 TSV files to be imported must have the following columns: 
 \itemize{
-  \item{entity}{"Table" or "enum"}
-  \item{table}{table or enum name}
-  \item{column}{column name within table}
-  \item{type}{"varchar", "bool", "int", "float", "date", "datetime", or name of enum}
-  \item{pk}{logical where TRUE indicates the column is a primary key, 
+  \item{entity: }{"Table" or "enum"}
+  \item{table: }{table or enum name}
+  \item{column: }{column name within table}
+  \item{type: }{"varchar", "bool", "int", "float", "date", "datetime", or name of enum}
+  \item{pk: }{logical where TRUE indicates the column is a primary key, 
     other values may be FALSE or missing}
-  \item{ref}{Reference string following the 
+  \item{ref: }{Reference string following the 
     \href{https://www.dbml.org/docs/#relationships-foreign-key-definitions}{DBML}
-    format}
+    format: }
   \item{note}{Note string (column description) following the
     \href{https://www.dbml.org/docs/#column-notes}{DBML} format}
 }
