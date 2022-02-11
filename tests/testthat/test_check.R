@@ -102,3 +102,29 @@ test_that("check column types", {
     expect_equal(check_column_types(x, model)$subject$reported_sex,
                  "Some values of subject.reported_sex not compatible with enum type")
 })
+
+
+test_that("check primary keys", {
+    tables <- .tables()
+    model <- .model()
+    expect_equal(check_primary_keys(tables, model)$problem, rep("", 3))
+    
+    # non-unique key
+    x <- tables
+    x$sample$sample_id[1] <- x$sample$sample_id[2]
+    expect_true("has duplicate values: sample1 (2)" %in%
+                    check_primary_keys(x, model)$problem)
+})
+
+
+test_that("check foreign keys", {
+    tables <- .tables()
+    model <- .model()
+    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 3))
+    
+    # missing value of foreign key in reference table
+    x <- tables
+    x$subject <- filter(x$subject, subject_id != "subject1")
+    chk <- check_foreign_keys(x, model)$problem
+    expect_equal(c(TRUE, TRUE, FALSE), grepl("subject1", chk))
+})

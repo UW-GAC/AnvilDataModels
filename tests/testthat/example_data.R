@@ -19,7 +19,7 @@ phenotype <- tibble(
 )
     
 sample <- tibble(
-    sample_id = paste0("sample", c(1, 1:n)),
+    sample_id = paste0("sample", c("1a", 1:n)),
     subject_id = c(subject$subject_id[1], subject$subject_id),
     tissue_source = "blood",
     age_at_sample_collection = round(rnorm(n+1, 40, 20)),

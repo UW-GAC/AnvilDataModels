@@ -22,6 +22,8 @@
 #' check_table_names(tables, model)
 #' check_column_names(tables, model)
 #' check_column_types(tables, model)
+#' check_primary_keys(tables, model)
+#' check_foreign_keys(tables, model)
 #' 
 #' @importFrom readr read_tsv
 #' @export
@@ -130,11 +132,33 @@ check_column_types <- function(tables, model) {
 }
 
 
+#' @rdname check_data_tables
+#' @return \code{check_primary_keys} returns the results of \code{\link{dm_examine_constraints}}
+#'     after applying primary keys from \code{model} to \code{tables}.
+#' @export
 check_primary_keys <- function(tables, model) {
-    
+    keys <- dm_get_all_pks(model)
+    tables_dm <- as_dm(tables)
+    for (i in 1:nrow(keys)) {
+        tables_dm <- dm_add_pk(tables_dm, table=!!keys$table[i], columns=!!keys$pk_col[[i]])
+    }
+    dm_examine_constraints(tables_dm)
 }
 
 
+#' @rdname check_data_tables
+#' @return \code{check_foreign_keys} returns the results of \code{\link{dm_examine_constraints}}
+#'     after applying foreign keys from \code{model} to \code{tables}.
+#' @export
 check_foreign_keys <- function(tables, model) {
-    
+    keys <- dm_get_all_fks(model)
+    tables_dm <- as_dm(tables)
+    for (i in 1:nrow(keys)) {
+        tables_dm <- dm_add_fk(tables_dm, 
+                               table=!!keys$child_table[i], 
+                               columns=!!keys$child_fk_cols[[i]],
+                               ref_table=!!keys$parent_table[i],
+                               ref_columns=!!keys$parent_key_cols[[i]])
+    }
+    dm_examine_constraints(tables_dm)
 }

@@ -2,6 +2,8 @@
 
 export(check_column_names)
 export(check_column_types)
+export(check_foreign_keys)
+export(check_primary_keys)
 export(check_table_names)
 export(read_data_tables)
 export(tsv_to_dbml)

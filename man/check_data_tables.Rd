@@ -6,6 +6,8 @@
 \alias{check_table_names}
 \alias{check_column_names}
 \alias{check_column_types}
+\alias{check_primary_keys}
+\alias{check_foreign_keys}
 \title{Check tables against data model}
 \usage{
 read_data_tables(files, table_names = names(files), quiet = TRUE)
@@ -15,6 +17,10 @@ check_table_names(tables, model)
 check_column_names(tables, model)
 
 check_column_types(tables, model)
+
+check_primary_keys(tables, model)
+
+check_foreign_keys(tables, model)
 }
 \arguments{
 \item{files}{Vector of file paths, one per data table.}
@@ -49,6 +55,12 @@ check_column_types(tables, model)
     and model. Each table element is a list of all columns in common between table and 
     model. Each column element is \code{NULL} if values in column are a compatible type 
     with the data model, or a string describing the mismatch.
+
+\code{check_primary_keys} returns the results of \code{\link{dm_examine_constraints}}
+    after applying primary keys from \code{model} to \code{tables}.
+
+\code{check_foreign_keys} returns the results of \code{\link{dm_examine_constraints}}
+    after applying foreign keys from \code{model} to \code{tables}.
 }
 \description{
 Read a set of files containing data tables and check them against a data model.
@@ -67,5 +79,7 @@ tables <- read_data_tables(files)
 check_table_names(tables, model)
 check_column_names(tables, model)
 check_column_types(tables, model)
+check_primary_keys(tables, model)
+check_foreign_keys(tables, model)
 
 }
