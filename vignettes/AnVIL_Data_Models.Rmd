@@ -1,0 +1,71 @@
+---
+title: "Validating data models in AnVIL"
+author: "Stephanie M. Gogarten"
+date: "`r Sys.Date()`"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Validating data models in AnVIL}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+BiocManager::install("dm")
+load_all()
+library(AnVIL)
+library(dplyr)
+```
+
+This vignette illustrates how to validate a set of tsv files against a data model, and then import them into AnVIL data tables.
+
+First, we read in the data model. It is stored in a TSV file following a very specific format compatible with [DBML](https://www.dbml.org/docs).
+
+```{r}
+tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
+(model <- tsv_to_dm(tsv))
+```
+
+The data model can be exported to DBML for display.
+
+```{r}
+tmp <- tempfile()
+tsv_to_dbml(tsv, tmp)
+readLines(tmp, n=14)
+unlink(tmp)
+```
+
+An AnVIL user would have uploaded data files to the AnVIL workspace bucket, so we copy some example files there to illustrate.
+
+```{r, eval=FALSE}
+table_names <- c("subject", "phenotype", "sample", "file")
+files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+bucket <- AnVIL::avbucket()
+lapply(files, AnVIL::gsutil_cp, bucket)
+```
+
+Next, we stream the contents of those files directly into R using pipes. 
+
+```{r}
+bucket_files <- paste0(bucket, "/", table_names, ".tsv")
+bucket_pipes <- lapply(bucket_files, gsutil_pipe, "rb")
+names(bucket_pipes) <- table_names
+tables <- read_data_tables(bucket_pipes)
+```
+
+
+We can check that the files we imported match the data model.
+
+```{r}
+check_table_names(tables, model)
+check_column_names(tables, model)
+check_column_types(tables, model)
+check_primary_keys(tables, model)
+check_foreign_keys(tables, model)
+```
+
+Since all the checks passed, we can import the data to workspace data tables.
+
