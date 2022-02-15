@@ -6,7 +6,7 @@ Description: Utilities for AnVIL data models.
 Author: Stephanie Gogarten
 Maintainer: Stephanie Gogarten <sdmorris@uw.edu>
 Depends:
-Imports: dm, dplyr, readr, lubridate
+Imports: AnVIL, dm, dplyr, readr, lubridate
 Suggests: roxygen2, testthat
 License: MIT + file LICENSE
 RoxygenNote: 7.1.2

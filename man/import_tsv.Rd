@@ -47,6 +47,8 @@ tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
 
 tmp <- tempfile()
 tsv_to_dbml(tsv, tmp)
-readLines(tmp, n=17)
+readLines(tmp, n=14)
+
+unlink(tmp)
 
 }
