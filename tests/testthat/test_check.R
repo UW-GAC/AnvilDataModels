@@ -107,7 +107,7 @@ test_that("check column types", {
 test_that("check primary keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_primary_keys(tables, model)$problem, rep("", 3))
+    expect_equal(check_primary_keys(tables, model)$problem, rep("", length(tables)))
     
     # non-unique key
     x <- tables
@@ -120,7 +120,7 @@ test_that("check primary keys", {
 test_that("check foreign keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 3))
+    expect_equal(check_foreign_keys(tables, model)$problem, rep("", length(tables)-1))
     
     # missing value of foreign key in reference table
     x <- tables

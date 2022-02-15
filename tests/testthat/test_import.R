@@ -6,7 +6,7 @@ test_that("import tsv", {
     x <- tsv_to_dm(tsv)
     expect_true(is_dm(x))
     expect_equal(names(dm_get_tables(x)), table_names)
-    expect_equal(nrow(dm_get_all_pks(x)), 3)
+    expect_equal(nrow(dm_get_all_pks(x)), 4)
     expect_equal(nrow(dm_get_all_fks(x)), 3)
 })
 
@@ -17,5 +17,7 @@ test_that("tsv to dbml", {
     tsv_to_dbml(tsv, tmp)
     dbml <- readLines(tmp)
     expect_true(all(paste("Table", table_names, "{") %in% dbml))
+    expect_true("  indexes {" %in% dbml)
+    expect_true("enum sex {" %in% dbml)
     unlink(tmp)
 })

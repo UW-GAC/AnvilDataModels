@@ -7,8 +7,8 @@ Table	subject	reported_sex	sex			reported sex
 enum	sex	F				
 enum	sex	M				
 enum	sex	X				
-Table	phenotype	subject_id	varchar		< subject.subject_id	
-Table	phenotype	visit_id	varchar			identifier for visit
+Table	phenotype	subject_id	varchar	TRUE	< subject.subject_id	
+Table	phenotype	visit_id	varchar	TRUE		identifier for visit
 Table	phenotype	height	float			height in cm
 Table	phenotype	weight	float			weight in kg
 Table	sample	sample_id	varchar	TRUE		sample identifier

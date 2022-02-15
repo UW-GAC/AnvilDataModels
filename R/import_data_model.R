@@ -31,7 +31,9 @@
 #' 
 #' tmp <- tempfile()
 #' tsv_to_dbml(tsv, tmp)
-#' readLines(tmp, n=17)
+#' readLines(tmp, n=14)
+#' 
+#' unlink(tmp)
 #' 
 #' @import dm
 #' @importFrom readr read_tsv
@@ -83,8 +85,10 @@ tsv_to_dm <- function(tsv) {
     
     # add primary keys
     pk <- filter(dat, .data[["pk"]])
-    for (i in 1:nrow(pk)) {
-        data_model <- dm_add_pk(data_model, table=!!pk$table[i], columns=!!pk$column[i])
+    tables_pk <- unique(pk$table)
+    for (t in tables_pk) {
+        this <- filter(pk, .data[["entity"]] == "Table" & .data[["table"]] == t)
+        data_model <- dm_add_pk(data_model, table=!!t, columns=!!this$column)
     }
     
     # add foreign keys
@@ -125,6 +129,14 @@ tsv_to_dbml <- function(tsv, dbml) {
             meta <- paste(na.omit(c(pk, ref, note)), collapse=", ")
             if (nchar(meta) > 0 ) meta <- paste0("[", meta, "]")
             writeLines(paste(" ", this$column[i], this$type[i], meta), con)
+        }
+        
+        # do we have a composite primary key?
+        if (sum(this$pk, na.rm=TRUE) > 1) {
+            writeLines("  indexes {", con)
+            index <- paste0(na.omit(this$column[this$pk]), collapse=", ")
+            writeLines(paste0("    (", index, ") [pk]"), con)
+            writeLines("  }\n", con)
         }
 
         writeLines("}\n", con)
