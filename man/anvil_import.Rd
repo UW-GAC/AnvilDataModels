@@ -5,7 +5,7 @@
 \alias{anvil_import_table}
 \title{Import data tables into AnVIL}
 \usage{
-anvil_import_table(table, table_name, model)
+anvil_import_table(table, table_name, model, overwrite = FALSE)
 }
 \arguments{
 \item{table}{Data table to import (tibble or data.frame)}
@@ -13,6 +13,8 @@ anvil_import_table(table, table_name, model)
 \item{table_name}{Name of data table in model}
 
 \item{model}{\code{\link{dm}} object describing data model}
+
+\item{overwrite}{Logical for whether to overwrite data for existing rows}
 }
 \description{
 Import data tables into AnVIL

@@ -6,6 +6,7 @@
 #' @param table Data table to import (tibble or data.frame)
 #' @param table_name Name of data table in model
 #' @param model \code{\link{dm}} object describing data model
+#' @param overwrite Logical for whether to overwrite data for existing rows
 #' 
 #' @import AnVIL
 #' @export
