@@ -1,6 +1,6 @@
 
 .tables <- function() {
-    table_names <- c("subject", "phenotype", "sample", "file")
+    table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
     files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
     read_data_tables(files, table_names=table_names, quiet=TRUE)
 }

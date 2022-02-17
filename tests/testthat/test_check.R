@@ -1,7 +1,7 @@
 context("check functions")
 
 test_that("read files", {
-    table_names <- c("subject", "phenotype", "sample", "file")
+    table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
     files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
     names(files) <- table_names
     x <- read_data_tables(files, quiet=TRUE)
@@ -96,7 +96,7 @@ test_that("check column types", {
 test_that("check primary keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_primary_keys(tables, model)$problem, rep("", length(tables)))
+    expect_equal(check_primary_keys(tables, model)$problem, rep("", 4))
     
     # non-unique key
     x <- tables
@@ -109,11 +109,11 @@ test_that("check primary keys", {
 test_that("check foreign keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_foreign_keys(tables, model)$problem, rep("", length(tables)-1))
+    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 4))
     
     # missing value of foreign key in reference table
     x <- tables
     x$subject <- filter(x$subject, subject_id != "subject1")
-    chk <- check_foreign_keys(x, model)$problem
-    expect_equal(c(TRUE, TRUE, FALSE), grepl("subject1", chk))
+    chk <- as_tibble(check_foreign_keys(x, model))
+    expect_equal(unlist(chk$columns) == "subject_id", grepl("subject1", chk$problem))
 })

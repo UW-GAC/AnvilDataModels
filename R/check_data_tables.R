@@ -14,7 +14,7 @@
 #' model <- tsv_to_dm(tsv)
 #' 
 #' # read tables to check
-#' table_names <- c("subject", "phenotype", "sample", "file")
+#' table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
 #' files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
 #' names(files) <- table_names
 #' tables <- read_data_tables(files)
