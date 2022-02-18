@@ -2,6 +2,14 @@
 #' 
 #' Import data tables into AnVIL
 #' 
+#' \code{anvil_import_table} imports a data table to an AnVIL workspace.
+#' 
+#' \code{anvil_import_set} imports a set table to an AnVIL workspace. The
+#' reference table must already exist in the workspace.
+#' 
+#' \code{create_set_all} creates a set table containing all entities in the
+#' reference table.
+#' 
 #' @name anvil_import
 #' @param table Data table to import (tibble or data.frame)
 #' @param table_name Name of data table in model
@@ -11,6 +19,55 @@
 #' @import AnVIL
 #' @export
 anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
+    # add entity id first, so we can compare to anvil
+    table <- add_entity_id(table, table_name, model)
+    .anvil_import_table(table, table_name, model, overwrite)
+}
+
+
+#' @rdname anvil_import
+#' @export
+anvil_import_set <- function(table, table_name, model, overwrite=FALSE) {
+    # check that table is named correctly (ends in '_set')
+    if (!(grepl("_set$", table_name))) {
+        stop("Name of set table must end in '_set'")
+    }
+    
+    # check that reference table exists in anvil
+    anvil_tables <- avtables()
+    ref_name <- sub("_set$", "", table_name)
+    if (!(ref_name %in% anvil_tables$table)) {
+        stop("Must import table ", ref_table, " before set table ", table_name)
+    }
+    
+    # check that all entities in set exist in reference table
+    ref_table <- avtable(ref_name)
+    entity_id <- paste0(ref_name, "_id")
+    anvil_entity <- ref_table[[entity_id]]
+    this_entity <- table[[entity_id]]
+    if (length(setdiff(this_entity, anvil_entity) > 0)) {
+        stop("Some entities in set table not present in ", ref_name)
+    }
+    
+    .anvil_import_table(table, table_name, model, overwrite)
+}
+
+
+#' @rdname anvil_import
+#' @return \code{create_set_all} returns a tibble with one set, 'all',
+#' containing all entities in \code{table}.
+#' @importFrom dplyr tibble
+#' @export
+create_set_all <- function(table, table_name) {
+    entity_id <- paste0(table_name, "_id")
+    set_id <- paste0(table_name, "_set_id")
+    df <- tibble(set_id="all", id=table[[entity_id]])
+    names(df) <- c(set_id, entity_id)
+    return(df)
+}
+
+
+.anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
     # add entity id first, so we can compare to anvil
     table <- add_entity_id(table, table_name, model)
   
@@ -72,3 +129,4 @@ add_entity_id <- function(table, table_name, model) {
     
     return(table)
 }
+

@@ -3,9 +3,15 @@
 \name{anvil_import}
 \alias{anvil_import}
 \alias{anvil_import_table}
+\alias{anvil_import_set}
+\alias{create_set_all}
 \title{Import data tables into AnVIL}
 \usage{
 anvil_import_table(table, table_name, model, overwrite = FALSE)
+
+anvil_import_set(table, table_name, model, overwrite = FALSE)
+
+create_set_all(table, table_name)
 }
 \arguments{
 \item{table}{Data table to import (tibble or data.frame)}
@@ -16,6 +22,19 @@ anvil_import_table(table, table_name, model, overwrite = FALSE)
 
 \item{overwrite}{Logical for whether to overwrite data for existing rows}
 }
+\value{
+\code{create_set_all} returns a tibble with one set, 'all',
+containing all entities in \code{table}.
+}
 \description{
 Import data tables into AnVIL
+}
+\details{
+\code{anvil_import_table} imports a data table to an AnVIL workspace.
+
+\code{anvil_import_set} imports a set table to an AnVIL workspace. The
+reference table must already exist in the workspace.
+
+\code{create_set_all} creates a set table containing all entities in the
+reference table.
 }

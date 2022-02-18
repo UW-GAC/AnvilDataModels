@@ -9,3 +9,11 @@ test_that("add entity id", {
         expect_true(paste0(t, "_id") %in% names(ent))
     }
 })
+
+
+test_that("create set", {
+    tables <- .tables()
+    expect_equal(create_set_all(tables$sample, "sample"),
+                 tibble(sample_set_id="all",
+                        sample_id=tables$sample$sample_id))
+})
