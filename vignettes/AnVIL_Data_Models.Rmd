@@ -34,14 +34,14 @@ The data model can be exported to DBML for display.
 ```{r}
 tmp <- tempfile()
 tsv_to_dbml(tsv, tmp)
-readLines(tmp, n=14)
+readLines(tmp, n=18)
 unlink(tmp)
 ```
 
 An AnVIL user would have uploaded data files to the AnVIL workspace bucket, so we copy some example files there to illustrate.
 
 ```{r, eval=FALSE}
-table_names <- c("subject", "phenotype", "sample", "file")
+table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
 files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
 bucket <- AnVIL::avbucket()
 lapply(files, AnVIL::gsutil_cp, bucket)
@@ -69,3 +69,23 @@ check_foreign_keys(tables, model)
 
 Since all the checks passed, we can import the data to workspace data tables.
 
+```{r}
+anvil_import_table(tables$subject, "subject", model, overwrite=TRUE)
+anvil_import_table(tables$phenotype, "phenotype", model, overwrite=TRUE)
+anvil_import_table(tables$sample, "sample", model, overwrite=TRUE)
+anvil_import_table(tables$file, "file", model, overwrite=TRUE)
+```
+
+Importing sets requires a different function.
+
+```{r}
+anvil_import_set(tables$sample_set, "sample_set", model, overwrite=TRUE)
+```
+
+We mgiht find it convenient to have a set containing all samples, so we can add that to the sample_set table.
+
+```{r}
+all <- create_set_all(tables$sample, "sample")
+anvil_import_set(all, "sample_set", model, overwrite=TRUE)
+avtable("sample_set")
+```
