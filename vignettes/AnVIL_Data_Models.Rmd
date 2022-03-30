@@ -13,11 +13,8 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
-```{r, echo=FALSE, eval=FALSE}
-BiocManager::install("dm")
-load_all()
-library(AnVIL)
-library(dplyr)
+```{r}
+library(AnvilDataModels)
 ```
 
 This vignette illustrates how to validate a set of tsv files against a data model, and then import them into AnVIL data tables.
@@ -49,13 +46,19 @@ lapply(files, AnVIL::gsutil_cp, bucket)
 
 Next, we stream the contents of those files directly into R using pipes. 
 
-```{r}
+```{r, eval=FALSE}
 bucket_files <- paste0(bucket, "/", table_names, ".tsv")
 bucket_pipes <- lapply(bucket_files, gsutil_pipe, "rb")
 names(bucket_pipes) <- table_names
 tables <- read_data_tables(bucket_pipes)
 ```
 
+```{r, echo=FALSE}
+# not connected to AnVIL when creating vignette
+table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
+files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+```
 
 We can check that the files we imported match the data model.
 
