@@ -72,7 +72,7 @@ check_foreign_keys(tables, model)
 
 Since all the checks passed, we can import the data to workspace data tables.
 
-```{r}
+```{r, eval=FALSE}
 anvil_import_table(tables$subject, "subject", model, overwrite=TRUE)
 anvil_import_table(tables$phenotype, "phenotype", model, overwrite=TRUE)
 anvil_import_table(tables$sample, "sample", model, overwrite=TRUE)
@@ -81,13 +81,13 @@ anvil_import_table(tables$file, "file", model, overwrite=TRUE)
 
 Importing sets requires a different function.
 
-```{r}
+```{r, eval=FALSE}
 anvil_import_set(tables$sample_set, "sample_set", model, overwrite=TRUE)
 ```
 
 We might find it convenient to have a set containing all samples, so we can add that to the sample_set table.
 
-```{r}
+```{r, eval=FALSE}
 all <- create_set_all(tables$sample, "sample")
 anvil_import_set(all, "sample_set", model, overwrite=TRUE)
 avtable("sample_set")
