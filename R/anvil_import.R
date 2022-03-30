@@ -37,7 +37,7 @@ anvil_import_set <- function(table, table_name, model, overwrite=FALSE) {
     anvil_tables <- avtables()
     ref_name <- sub("_set$", "", table_name)
     if (!(ref_name %in% anvil_tables$table)) {
-        stop("Must import table ", ref_table, " before set table ", table_name)
+        stop("Must import table ", ref_name, " before set table ", table_name)
     }
     
     # check that all entities in set exist in reference table
@@ -49,7 +49,10 @@ anvil_import_set <- function(table, table_name, model, overwrite=FALSE) {
         stop("Some entities in set table not present in ", ref_name)
     }
     
-    .anvil_import_table(table, table_name, model, overwrite)
+    # can't use avtable_import as it checks that entity_id is unique
+    #.anvil_import_table(table, table_name, model, overwrite)
+    set_id <- paste0(table_name, "_id")
+    avtable_import_set(table, origin=ref_name, set=set_id, member=entity_id)
 }
 
 
@@ -68,9 +71,6 @@ create_set_all <- function(table, table_name) {
 
 
 .anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
-    # add entity id first, so we can compare to anvil
-    table <- add_entity_id(table, table_name, model)
-  
     # does table already exist?
     anvil_tables <- avtables()
     if (table_name %in% anvil_tables$table) {
