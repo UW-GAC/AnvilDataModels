@@ -103,6 +103,10 @@ test_that("check primary keys", {
     x$sample$sample_id[1] <- x$sample$sample_id[2]
     expect_true("has duplicate values: sample1 (2)" %in%
                     check_primary_keys(x, model)$problem)
+    
+    # subset of model in tables
+    tables$file <- NULL
+    expect_equal(check_primary_keys(tables, model)$problem, rep("", 3))
 })
 
 
@@ -116,4 +120,8 @@ test_that("check foreign keys", {
     x$subject <- filter(x$subject, subject_id != "subject1")
     chk <- as_tibble(check_foreign_keys(x, model))
     expect_equal(unlist(chk$columns) == "subject_id", grepl("subject1", chk$problem))
+    
+    # subset of model in tables
+    tables$file <- NULL
+    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 3))
 })

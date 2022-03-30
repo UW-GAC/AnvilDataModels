@@ -137,7 +137,7 @@ check_column_types <- function(tables, model) {
 #'     after applying primary keys from \code{model} to \code{tables}.
 #' @export
 check_primary_keys <- function(tables, model) {
-    keys <- dm_get_all_pks(model)
+    keys <- dm_get_all_pks(model, table=names(tables))
     tables_dm <- as_dm(tables)
     for (i in 1:nrow(keys)) {
         tables_dm <- dm_add_pk(tables_dm, table=!!keys$table[i], columns=!!keys$pk_col[[i]])
@@ -151,7 +151,7 @@ check_primary_keys <- function(tables, model) {
 #'     after applying foreign keys from \code{model} to \code{tables}.
 #' @export
 check_foreign_keys <- function(tables, model) {
-    keys <- dm_get_all_fks(model)
+    keys <- dm_get_all_fks(model[names(tables)])
     tables_dm <- as_dm(tables)
     for (i in 1:nrow(keys)) {
         tables_dm <- dm_add_fk(tables_dm, 
