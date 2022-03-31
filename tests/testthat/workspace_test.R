@@ -95,4 +95,14 @@ test_that("set", {
   anvil_import_set(set_all, set_name, overwrite=TRUE)
   chk_set <- AnVIL::avtable(set_name)
   expect_setequal(chk_set$sample_set_id, c("set1", "set2", "all"))
+  
+  # can't overwrite existing set
+  expect_error(anvil_import_set(set_all, set_name, overwrite=FALSE),
+               "Some sets in table 'sample_set' already exist")
+  
+  # overwriting set doesn't duplicate values
+  anvil_import_set(set_all, set_name, overwrite=TRUE)
+  chk_set <- AnVIL::avtable(set_name)
+  samples <- chk_set$samples.items[chk_set$sample_set_id == "all"][[1]]$entityName
+  expect_true(sum(duplicated(samples)) == 0)
 })

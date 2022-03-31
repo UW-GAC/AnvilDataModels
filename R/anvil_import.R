@@ -49,9 +49,26 @@ anvil_import_set <- function(table, table_name, overwrite=FALSE) {
         stop("Some entities in set table not present in ", ref_name)
     }
     
+    # check if set already exists
+    set_id <- paste0(table_name, "_id")
+    if (table_name %in% anvil_tables$table) {
+        anvil_set <- avtable(table_name)
+        anvil_set_ids <- anvil_set[[set_id]]
+        overlaps <- intersect(anvil_set_ids, table[[set_id]])
+        if (length(overlaps) > 0) {
+            if (overwrite) {
+                message("  Overwriting sets: ", paste(overlaps, collapse=", "))
+                # must delete set before writing, otherwise entities will be duplicated
+                avtable_delete_values(table_name, overlaps)
+            } else {
+                stop("Some sets in table '", table_name, "' already exist\n",
+                     "  Set overwrite=TRUE to overwrite these rows")
+            }
+        }
+    }
+    
     # can't use avtable_import as it checks that entity_id is unique
     #.anvil_import_table(table, table_name, overwrite)
-    set_id <- paste0(table_name, "_id")
     avtable_import_set(table, origin=ref_name, set=set_id, member=entity_id)
 }
 
