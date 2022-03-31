@@ -6,7 +6,7 @@ test_that("import tsv", {
     x <- tsv_to_dm(tsv)
     expect_true(is_dm(x))
     expect_equal(names(dm_get_tables(x)), table_names)
-    expect_equal(nrow(dm_get_all_pks(x)), 4)
+    expect_equal(nrow(dm_get_all_pks(x)), 5)
     expect_equal(nrow(dm_get_all_fks(x)), 4)
 })
 

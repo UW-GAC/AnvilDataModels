@@ -137,7 +137,11 @@ check_column_types <- function(tables, model) {
 #'     after applying primary keys from \code{model} to \code{tables}.
 #' @export
 check_primary_keys <- function(tables, model) {
-    keys <- dm_get_all_pks(model, table=names(tables))
+    # set tables will have duplicate values for the set_id before import to AnVIL
+    # don't check these
+    table_names <- names(tables)
+    no_sets <- table_names[!(grepl("_set$", table_names))]
+    keys <- dm_get_all_pks(model, table=no_sets)
     tables_dm <- as_dm(tables)
     for (i in 1:nrow(keys)) {
         tables_dm <- dm_add_pk(tables_dm, table=!!keys$table[i], columns=!!keys$pk_col[[i]])
