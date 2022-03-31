@@ -9,7 +9,7 @@
 \usage{
 anvil_import_table(table, table_name, model, overwrite = FALSE)
 
-anvil_import_set(table, table_name, model, overwrite = FALSE)
+anvil_import_set(table, table_name, overwrite = FALSE)
 
 create_set_all(table, table_name)
 }

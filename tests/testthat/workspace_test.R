@@ -69,29 +69,29 @@ test_that("set", {
   set <- tables[[set_name]]
   
   # can't import non-set table as set
-  expect_error(anvil_import_set(x, table_name, model, overwrite=TRUE), 
+  expect_error(anvil_import_set(x, table_name, overwrite=TRUE), 
                "Name of set table must end in '_set'")
   
   # can't import set without table
   chk <- avtable(table_name)
   avtable_delete_values("sample", chk$sample_id)
-  expect_error(anvil_import_set(set, set_name, model, overwrite=TRUE), 
+  expect_error(anvil_import_set(set, set_name, overwrite=TRUE), 
                "Must import table sample before set table sample_set")
   
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
   # wrong set values
   set2 <- tibble(sample_set_id="a", sample_id="b")
-  expect_error(anvil_import_set(set2, set_name, model, overwrite=TRUE),
+  expect_error(anvil_import_set(set2, set_name, overwrite=TRUE),
                "Some entities in set table not present in sample")
   
-  anvil_import_set(set, set_name, model, overwrite=TRUE)
+  anvil_import_set(set, set_name, overwrite=TRUE)
   chk <- avtable(table_name)
   chk_set <- avtable(set_name)
   expect_true(all(chk$set$sample_id %in% chk$sample_id))
   
   set_all <- create_set_all(x, table_name)
-  anvil_import_set(set_all, set_name, model, overwrite=TRUE)
+  anvil_import_set(set_all, set_name, overwrite=TRUE)
   chk_set <- avtable(set_name)
   expect_setequal(chk_set$sample_set_id, c("set1", "set2", "all"))
 })

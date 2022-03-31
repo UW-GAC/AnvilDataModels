@@ -21,13 +21,13 @@
 anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
     # add entity id first, so we can compare to anvil
     table <- add_entity_id(table, table_name, model)
-    .anvil_import_table(table, table_name, model, overwrite)
+    .anvil_import_table(table, table_name, overwrite)
 }
 
 
 #' @rdname anvil_import
 #' @export
-anvil_import_set <- function(table, table_name, model, overwrite=FALSE) {
+anvil_import_set <- function(table, table_name, overwrite=FALSE) {
     # check that table is named correctly (ends in '_set')
     if (!(grepl("_set$", table_name))) {
         stop("Name of set table must end in '_set'")
@@ -50,7 +50,7 @@ anvil_import_set <- function(table, table_name, model, overwrite=FALSE) {
     }
     
     # can't use avtable_import as it checks that entity_id is unique
-    #.anvil_import_table(table, table_name, model, overwrite)
+    #.anvil_import_table(table, table_name, overwrite)
     set_id <- paste0(table_name, "_id")
     avtable_import_set(table, origin=ref_name, set=set_id, member=entity_id)
 }
@@ -70,7 +70,7 @@ create_set_all <- function(table, table_name) {
 }
 
 
-.anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
+.anvil_import_table <- function(table, table_name, overwrite=FALSE) {
     # does table already exist?
     anvil_tables <- avtables()
     if (table_name %in% anvil_tables$table) {

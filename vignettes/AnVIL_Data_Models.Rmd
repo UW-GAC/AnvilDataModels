@@ -82,13 +82,13 @@ anvil_import_table(tables$file, "file", model, overwrite=TRUE)
 Importing sets requires a different function.
 
 ```{r, eval=FALSE}
-anvil_import_set(tables$sample_set, "sample_set", model, overwrite=TRUE)
+anvil_import_set(tables$sample_set, "sample_set", overwrite=TRUE)
 ```
 
 We might find it convenient to have a set containing all samples, so we can add that to the sample_set table.
 
 ```{r, eval=FALSE}
 all <- create_set_all(tables$sample, "sample")
-anvil_import_set(all, "sample_set", model, overwrite=TRUE)
+anvil_import_set(all, "sample_set", overwrite=TRUE)
 avtable("sample_set")
 ```
