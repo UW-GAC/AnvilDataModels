@@ -48,7 +48,7 @@ Next, we stream the contents of those files directly into R using pipes.
 
 ```{r, eval=FALSE}
 bucket_files <- paste0(bucket, "/", table_names, ".tsv")
-bucket_pipes <- lapply(bucket_files, gsutil_pipe, "rb")
+bucket_pipes <- lapply(bucket_files, AnVIL::gsutil_pipe, "rb")
 names(bucket_pipes) <- table_names
 tables <- read_data_tables(bucket_pipes)
 ```

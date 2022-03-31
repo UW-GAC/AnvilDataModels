@@ -16,7 +16,7 @@ test_that("table with primary key matching table name", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- avtable(table_name)
+  chk <- AnVIL::avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(chk[[pk]], x[[pk]])
   # avtable reads logical as character
@@ -36,7 +36,7 @@ test_that("table with primary key not matching table name", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- avtable(table_name)
+  chk <- AnVIL::avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(names(chk), c(pk, names(x)))
   expect_equal(chk[[pk]], chk$md5)
@@ -51,7 +51,7 @@ test_that("table with >1 primary key", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- avtable(table_name)
+  chk <- AnVIL::avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(names(chk), c(pk, names(x)))
   expect_equal(chk[[pk]], paste(chk$subject_id, chk$visit_id, sep="_"))
@@ -73,25 +73,26 @@ test_that("set", {
                "Name of set table must end in '_set'")
   
   # can't import set without table
-  chk <- avtable(table_name)
-  avtable_delete_values("sample", chk$sample_id)
+  chk <- AnVIL::avtable(table_name)
+  AnVIL::avtable_delete_values("sample", chk$sample_id)
   expect_error(anvil_import_set(set, set_name, overwrite=TRUE), 
                "Must import table sample before set table sample_set")
   
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
   # wrong set values
-  set2 <- tibble(sample_set_id="a", sample_id="b")
+  set2 <- tibble::tibble(sample_set_id="a", sample_id="b")
   expect_error(anvil_import_set(set2, set_name, overwrite=TRUE),
                "Some entities in set table not present in sample")
   
   anvil_import_set(set, set_name, overwrite=TRUE)
-  chk <- avtable(table_name)
-  chk_set <- avtable(set_name)
-  expect_true(all(chk$set$sample_id %in% chk$sample_id))
+  chk <- AnVIL::avtable(table_name)
+  chk_set <- AnVIL::avtable(set_name)
+  samples <- dplyr::bind_rows(chk_set$samples.items)$entityName
+  expect_true(all(samples %in% chk$sample_id))
   
   set_all <- create_set_all(x, table_name)
   anvil_import_set(set_all, set_name, overwrite=TRUE)
-  chk_set <- avtable(set_name)
+  chk_set <- AnVIL::avtable(set_name)
   expect_setequal(chk_set$sample_set_id, c("set1", "set2", "all"))
 })
