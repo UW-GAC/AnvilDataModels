@@ -139,8 +139,8 @@ check_column_types <- function(tables, model) {
 check_primary_keys <- function(tables, model) {
     # set tables will have duplicate values for the set_id before import to AnVIL
     # don't check these
-    table_names <- names(tables)
-    no_sets <- table_names[!(grepl("_set$", table_names))]
+    common <- intersect(names(tables), names(model))
+    no_sets <- common[!(grepl("_set$", common))]
     keys <- dm_get_all_pks(model, table=no_sets)
     tables_dm <- as_dm(tables)
     for (i in 1:nrow(keys)) {
@@ -155,7 +155,8 @@ check_primary_keys <- function(tables, model) {
 #'     after applying foreign keys from \code{model} to \code{tables}.
 #' @export
 check_foreign_keys <- function(tables, model) {
-    keys <- dm_get_all_fks(model[names(tables)])
+    common <- intersect(names(tables), names(model))
+    keys <- dm_get_all_fks(model[common])
     tables_dm <- as_dm(tables)
     for (i in 1:nrow(keys)) {
         tables_dm <- dm_add_fk(tables_dm, 
