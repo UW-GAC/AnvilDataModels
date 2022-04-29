@@ -22,7 +22,7 @@
 #' }
 #' 
 #' @name import_tsv
-#' @param tsv Tab-separated variable file
+#' @param tsv Character vector with paths to tab-separated variable files. If more than one file is provided, they will be combined into a single data model.
 #' @return \code{\link{dm}} object
 #' 
 #' @examples 
@@ -36,13 +36,11 @@
 #' unlink(tmp)
 #' 
 #' @import dm
-#' @importFrom readr read_tsv
 #' @importFrom dplyr as_tibble filter .data %>%
 #' @importFrom lubridate ymd ymd_hms
 #' @export
 tsv_to_dm <- function(tsv) {
-    dat <- read_tsv(tsv, col_names=TRUE, col_types="cccclcc")
-    stopifnot(all(names(dat) == c("entity", "table", "column", "type", "pk", "ref", "note")))
+    dat <- .read_data_model(tsv)
     
     # unique tables and enums
     tables <- unique(filter(dat, .data[["entity"]] == "Table")$table)
@@ -110,8 +108,7 @@ tsv_to_dm <- function(tsv) {
 #' @importFrom stats na.omit
 #' @export
 tsv_to_dbml <- function(tsv, dbml) {
-    dat <- read_tsv(tsv, col_names=TRUE, col_types="cccclcc")
-    stopifnot(all(names(dat) == c("entity", "table", "column", "type", "pk", "ref", "note")))
+    dat <- .read_data_model(tsv)
     
     # output file stream
     con <- file(dbml, "w")
@@ -156,4 +153,14 @@ tsv_to_dbml <- function(tsv, dbml) {
     }
     
     close(con)
+}
+
+
+# read tsv file(s) to tibble
+#' @importFrom readr read_tsv
+#' @importFrom dplyr bind_rows
+.read_data_model <- function(tsv) {
+    dat <- bind_rows(lapply(tsv, read_tsv, col_names=TRUE, col_types="cccclcc"))
+    stopifnot(all(names(dat) == c("entity", "table", "column", "type", "pk", "ref", "note")))
+    return(dat)
 }

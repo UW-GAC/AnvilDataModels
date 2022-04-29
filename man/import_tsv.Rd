@@ -11,7 +11,7 @@ tsv_to_dm(tsv)
 tsv_to_dbml(tsv, dbml)
 }
 \arguments{
-\item{tsv}{Tab-separated variable file}
+\item{tsv}{Character vector with paths to tab-separated variable files. If more than one file is provided, they will be combined into a single data model.}
 
 \item{dbml}{Path for the DBML output file}
 }
