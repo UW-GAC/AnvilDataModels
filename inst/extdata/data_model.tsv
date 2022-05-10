@@ -1,24 +1,24 @@
 entity	table	column	type	required	pk	ref	note
-Table	subject	subject_id	varchar	TRUE	TRUE		Subject/Participant Identifier within project
-Table	subject	consent_code	varchar	TRUE			consent abbreviation
-Table	subject	study_nickname	varchar				short name for study
-Table	subject	dbgap_submission	bool				Flag if subject has been submitted to dbGaP
+Table	subject	subject_id	string	TRUE	TRUE		Subject/Participant's Identifier within project
+Table	subject	consent_code	string	TRUE			consent abbreviation
+Table	subject	study_nickname	string				short name for study
+Table	subject	dbgap_submission	boolean				Flag if subject has been submitted to dbGaP
 Table	subject	reported_sex	sex	TRUE			reported sex
 enum	sex	F					
 enum	sex	M					
 enum	sex	X					
-Table	phenotype	subject_id	varchar	TRUE	TRUE	> subject.subject_id	
-Table	phenotype	visit_id	varchar	TRUE	TRUE		identifier for visit
+Table	phenotype	subject_id	string	TRUE	TRUE	> subject.subject_id	
+Table	phenotype	visit_id	string	TRUE	TRUE		identifier for visit
 Table	phenotype	height	float				height in cm
 Table	phenotype	weight	float				weight in kg
-Table	sample	sample_id	varchar	TRUE	TRUE		sample identifier
-Table	sample	subject_id	varchar	TRUE		> subject.subject_id	
-Table	sample	tissue_source	varchar	TRUE			tissue type of sample (UBERON concepts)
-Table	sample	age_at_sample_collection	int				age of subject when sample was collected
+Table	sample	sample_id	string	TRUE	TRUE		sample identifier
+Table	sample	subject_id	string	TRUE		> subject.subject_id	
+Table	sample	tissue_source	string	TRUE			tissue type of sample (UBERON concepts)
+Table	sample	age_at_sample_collection	integer				age of subject when sample was collected
 Table	sample	date_of_sample_processing	date				date sample was processed in the lab
-Table	sample_set	sample_set_id	varchar	TRUE	TRUE		identifier for sample set
-Table	sample_set	sample_id	varchar	TRUE		> sample.sample_id	
-Table	file	md5	varchar	TRUE	TRUE		md5 checksum
-Table	file	sample_id	varchar	TRUE		> sample.sample_id	
-Table	file	filename	varchar	TRUE			name of file
-Table	file	file_timestamp	datetime				time of file creation
+Table	sample_set	sample_set_id	string	TRUE	TRUE		identifier for sample set
+Table	sample_set	sample_id	string	TRUE		> sample.sample_id	
+Table	file	md5	string	TRUE	TRUE		md5 checksum
+Table	file	sample_id	string	TRUE		> sample.sample_id	
+Table	file	filename	string	TRUE			name of file
+Table	file	file_timestamp	dateTime				time of file creation

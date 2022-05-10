@@ -54,12 +54,12 @@ tsv_to_dm <- function(tsv) {
     names(enum_list) <- enums
     
     # map database types to R types
-    type_map <- list("varchar"=character(),
-                    "bool"=logical(),
-                    "int"=integer(),
+    type_map <- list("string"=character(),
+                    "boolean"=logical(),
+                    "integer"=integer(),
                     "float"=numeric(),
                     "date"=ymd(),
-                    "datetime"=ymd_hms())
+                    "dateTime"=ymd_hms())
     
     # create 0-row tibbles for each table
     table_list <- lapply(tables, function(t) {
