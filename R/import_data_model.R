@@ -160,7 +160,10 @@ tsv_to_dbml <- function(tsv, dbml) {
 #' @importFrom readr read_tsv
 #' @importFrom dplyr bind_rows
 .read_data_model <- function(tsv) {
-    dat <- bind_rows(lapply(tsv, read_tsv, col_names=TRUE, col_types="cccclcc"))
-    stopifnot(all(names(dat) == c("entity", "table", "column", "type", "pk", "ref", "note")))
+    cols <- c("entity", "table", "column", "type", "required", "pk", "ref", "note")
+    dat <- bind_rows(lapply(tsv, read_tsv, col_names=TRUE, col_types=paste(rep("c", length(cols)), collapse="")))
+    stopifnot(setequal(names(dat), cols))
+    dat$required <- as.logical(dat$required)
+    dat$pk <- as.logical(dat$pk)
     return(dat)
 }
