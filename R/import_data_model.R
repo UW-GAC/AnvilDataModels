@@ -122,7 +122,8 @@ tsv_to_dbml <- function(tsv, dbml) {
         for (i in 1:nrow(this)) {
             pk <- if (!is.na(this$pk[i]) && this$pk[i]) "pk" else NA
             ref <- if (!is.na(this$ref[i])) paste("ref:", this$ref[i]) else NA
-            note <- if (!is.na(this$note[i])) paste0("note: '", this$note[i], "'") else NA
+            esc_quotes <- paste0("note: '", gsub("'", "\\'", this$note[i], fixed=TRUE), "'")
+            note <- if (!is.na(this$note[i])) esc_quotes else NA
             meta <- paste(na.omit(c(pk, ref, note)), collapse=", ")
             if (nchar(meta) > 0 ) meta <- paste0("[", meta, "]")
             writeLines(paste(" ", this$column[i], this$type[i], meta), con)
