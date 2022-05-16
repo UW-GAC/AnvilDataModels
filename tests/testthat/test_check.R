@@ -27,9 +27,12 @@ test_that("check column names", {
     expect_equal(check_column_names(tables, model), lapply(tables, function(x) NULL))
     
     tables$sample$sample_id <- NULL
+    tables$sample$age_at_sample_collection <- NULL
     tables$sample$foo <- "a"
     expect_equal(check_column_names(tables, model)$sample,
-                 list(missing_columns="sample_id", extra_columns="foo"))
+                 list(missing_required_columns="sample_id",
+                      missing_optional_columns="age_at_sample_collection",
+                      extra_columns="foo"))
 })
 
 

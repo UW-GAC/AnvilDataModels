@@ -11,7 +11,8 @@
 #'   \item{entity: }{"Table" or "enum"}
 #'   \item{table: }{table or enum name}
 #'   \item{column: }{column name within table}
-#'   \item{type: }{"varchar", "bool", "int", "float", "date", "datetime", or name of enum}
+#'   \item{type: }{"string", "boolean, "integer", "float", "date", "dateTime", or name of enum}
+#'   \item{required: }{logical where TRUE indicates the column is required}
 #'   \item{pk: }{logical where TRUE indicates the column is a primary key, 
 #'     other values may be FALSE or missing}
 #'   \item{ref: }{Reference string following the 
@@ -74,7 +75,9 @@ tsv_to_dm <- function(tsv) {
             }
         })
         names(tab) <- this$column
-        return(as_tibble(tab))
+        tib <- as_tibble(tab)
+        attr(tib, "required") <- ifelse(is.na(this$required), FALSE, this$required)
+        return(tib)
     })
     names(table_list) <- tables
     
