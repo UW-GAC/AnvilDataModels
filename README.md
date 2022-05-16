@@ -22,9 +22,9 @@ type | Column data type; must be one of 'string', 'integer', 'float', 'boolean',
 required | TRUE if column is required
 pk | TRUE if column is a primary key
 ref | Cross reference to another table in [DBML format](https://www.dbml.org/docs/#relationships-foreign-key-definitions); e.g., '> sample.sample_id'
-note | Description of column.
+note | Description of column
 
-If entity is 'enum', the 'table' should contain the name of the enumerated set (e.g., 'sex') and 'column'
+If entity is 'enum', 'table' should contain the name of the enumerated set (e.g., 'sex') and 'column'
 should contain a possible value (e.g., 'F', 'M', 'X'), with one row per possible values. All other columns should be left blank.
 
 [Example data model file](inst/extdata/data_model.tsv)
