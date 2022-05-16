@@ -59,7 +59,8 @@ check_table_names <- function(tables, model) {
 #'     and model. Each table element is \code{NULL} if columns in \code{tables} matches \code{model}, 
 #'     or a list:
 #'     \itemize{
-#'         \item{missing_columns: }{Vector of columns in \code{model} but not in \code{tables}}
+#'         \item{missing_required_columns: }{Vector of required columns in \code{model} but not in \code{tables}}
+#'         \item{missing_optional_columns: }{Vector of optional columns in \code{model} but not in \code{tables}}
 #'         \item{extra_columns: }{Vector of columns in \code{tables} but not in \code{model}}
 #'     }
 #'     
@@ -70,7 +71,10 @@ check_column_names <- function(tables, model) {
         if (setequal(names(tables[[t]]), names(model[[t]]))) {
             return(NULL)
         } else {
-            return(list(missing_columns=setdiff(names(model[[t]]), names(tables[[t]])),
+            required <- names(model[[t]])[attr(model[[t]], "required")]
+            optional <- names(model[[t]])[!attr(model[[t]], "required")]
+            return(list(missing_required_columns=setdiff(required, names(tables[[t]])),
+                        missing_optional_columns=setdiff(optional, names(tables[[t]])),
                         extra_columns=setdiff(names(tables[[t]]), names(model[[t]]))))
         }
     })
