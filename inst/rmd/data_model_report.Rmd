@@ -42,10 +42,11 @@ if (nrow(res) > 0) {
 ```{r}
 chk <- check_column_names(tables, model)
 res <- tibble(Table=names(chk),
-       `Missing columns`=sapply(chk, function(x) paste(x$missing_columns, collapse=", ")),
+       `Missing required columns`=sapply(chk, function(x) paste(x$missing_required_columns, collapse=", ")),
+       `Missing optional columns`=sapply(chk, function(x) paste(x$missing_optional_columns, collapse=", ")),
        `Extra columns`=sapply(chk, function(x) paste(x$extra_columns, collapse=", "))
 ) %>%
-    filter(`Missing columns` != "" | `Extra columns` != "")
+    filter(`Missing required columns` != "" | `Missing optional columns` != "" | `Extra columns` != "")
 if (nrow(res) > 0) {
     knitr::kable(res)
 } else {
