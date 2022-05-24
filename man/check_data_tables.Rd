@@ -47,7 +47,8 @@ check_foreign_keys(tables, model)
     and model. Each table element is \code{NULL} if columns in \code{tables} matches \code{model}, 
     or a list:
     \itemize{
-        \item{missing_columns: }{Vector of columns in \code{model} but not in \code{tables}}
+        \item{missing_required_columns: }{Vector of required columns in \code{model} but not in \code{tables}}
+        \item{missing_optional_columns: }{Vector of optional columns in \code{model} but not in \code{tables}}
         \item{extra_columns: }{Vector of columns in \code{tables} but not in \code{model}}
     }
 
