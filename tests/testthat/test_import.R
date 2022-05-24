@@ -34,3 +34,14 @@ test_that("multiple tsv files", {
     expect_true(all(c("subject", "dataset") %in% dat$table))
     unlink(tsv2)
 })
+
+test_that("field_value", {
+    dat <- tibble(field=c("char", "int", "float", "bool", "enum", "date"),
+                  value=c("a", "1", "1.1", "TRUE", "X", "2020-01-01"))
+    model <- as_dm(list(a=tibble(char=character(), int=integer(), float=numeric(),
+                             bool=logical(), enum=factor(levels=c("X","Y")),
+                             date=ymd())))
+    dat2 <- transpose_field_value(dat, table_name="a", model=model)
+    expect_equal(names(dat2), dat$field)
+    expect_equivalent(sapply(dat2, as.character), dat$value)
+})

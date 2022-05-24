@@ -171,3 +171,41 @@ tsv_to_dbml <- function(tsv, dbml) {
     dat$pk <- as.logical(dat$pk)
     return(dat)
 }
+
+
+#' transpose field,value pairs to a data model
+#' @param fv data frame with columns field, value
+#' @param table_name name of table in model
+#' @param model \code{\link{dm}} object describing data model
+#' @return single row data frame with names from \code{fv$field} and values from \code{fv$value}
+#' @importFrom dplyr bind_cols
+#' @export
+transpose_field_value <- function(fv, table_name, model) {
+    stopifnot(setequal(names(fv), c("field", "value")))
+    mod <- model[[table_name]]
+    stopifnot(length(setdiff(fv$field, names(mod))) == 0)
+    lapply(setNames(1:nrow(fv), fv$field), function(i) {
+        f <- fv$field[i]
+        v <- fv$value[i]
+        if (is.factor(mod[[f]])) {
+            x <- factor(v, levels=levels(mod[[f]]))
+        } else if (is.Date(mod[[f]])) {
+            x <- ymd(v)
+        } else {
+            x <- as(v, class(mod[[f]]))
+        }
+        return(x)
+    }) %>%
+        bind_cols()
+}
+
+
+#' create a hashed identifier
+#' @param x string use to create hash
+#' @param nchar number of characters in the resulting string (max 32)
+#' @return identifier based on a hash of \code{x}
+#' @importFrom openssl md5
+#' @export
+hash_id <- function(x, nchar=8) {
+    substr(md5(x), 1, nchar)
+}
