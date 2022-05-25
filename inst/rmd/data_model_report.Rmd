@@ -18,6 +18,7 @@ library(dplyr)
 ```{r}
 tables <- read_data_tables(params$tables)
 model <- tsv_to_dm(params$model)
+return_value <- TRUE # returned to render function to indicate T/F passing checks
 ```
 
 ## Required tables
@@ -35,6 +36,7 @@ if (nrow(res) > 0) {
 } else {
     cat("Table names match data model.")
 }
+if (length(chk$missing_tables) > 0) return_value <- FALSE
 ```
 
 ## Required columns
@@ -52,6 +54,7 @@ if (nrow(res) > 0) {
 } else {
     cat("All column names match data model.")
 }
+if (length(unlist(lapply(chk, function(x) x$missing_required_columns))) > 0) return_value <- FALSE
 ```
 
 ## Column types
@@ -67,6 +70,7 @@ res <- lapply(names(chk), function(x) {
 }) %>%
     bind_rows()
 if (nrow(res) > 0) {
+    return_value <- FALSE
     knitr::kable(res)
 } else {
     cat("All column types match data model.")
@@ -76,11 +80,13 @@ if (nrow(res) > 0) {
 ## Primary keys
 
 ```{r, message=TRUE}
-check_primary_keys(tables, model)
+(chk <- check_primary_keys(tables, model))
+if (any(chk$problem != "")) return_value <- FALSE
 ```
 
 ## Cross-table references
 
 ```{r, message=TRUE}
-check_foreign_keys(tables, model)
+(chk <- check_foreign_keys(tables, model))
+if (any(chk$problem != "")) return_value <- FALSE
 ```

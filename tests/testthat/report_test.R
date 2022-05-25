@@ -16,8 +16,8 @@ names(table_files) <- table_names
 #params <- list(tables=table_files, model=model_file)
 argv <- list(out_prefix="test", tables=table_files, model=model_file)
 
-custom_render_markdown("data_model_report", argv$out_prefix, 
-                       parameters=argv[c("tables", "model")])
+pass <- custom_render_markdown("data_model_report", argv$out_prefix, 
+                               parameters=argv[c("tables", "model")])
 
 
 # create some errors to report
@@ -40,5 +40,7 @@ table_files <- sapply(tables, function(t) {
 #params <- list(tables=table_files, model=model_file)
 argv <- list(out_prefix="test", tables=table_files, model=model_file)
 
-custom_render_markdown("data_model_report", argv$out_prefix, 
-                       parameters=argv[c("tables", "model")])
+pass <- custom_render_markdown("data_model_report", argv$out_prefix, 
+                               parameters=argv[c("tables", "model")])
+
+unlink(table_files)
