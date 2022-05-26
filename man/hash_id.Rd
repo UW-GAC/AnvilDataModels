@@ -9,7 +9,7 @@ hash_id(x, nchar = 8)
 \arguments{
 \item{x}{string use to create hash}
 
-\item{nchar}{number of characters in the resulting string}
+\item{nchar}{number of characters in the resulting string (max 32)}
 }
 \value{
 identifier based on a hash of \code{x}

@@ -13,6 +13,9 @@ custom_render_markdown(markdown_template_name, output_file, parameters = NULL)
 
 \item{parameters}{A named list of parameters to pass to the markdown document}
 }
+\value{
+The value of `return_value` as defined in the markdown document
+}
 \description{
 Internal function to render markdown documents
 }
