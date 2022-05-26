@@ -31,6 +31,7 @@ custom_render_markdown <- function(markdown_template_name, output_file, paramete
         stop(errmsg)
     }
     
+    return_value <- NULL # this value is set by markdown template
     rmarkdown::render(output_file, params=parameters, quiet=TRUE)
     return(return_value)
 }
