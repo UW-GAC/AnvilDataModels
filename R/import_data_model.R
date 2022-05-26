@@ -46,6 +46,7 @@ tsv_to_dm <- function(tsv) {
     
     # unique tables and enums
     tables <- unique(filter(dat, .data[["entity"]] == "Table")$table)
+    if (length(tables) == 0) stop("Data model must contain Table entities")
     enums <- unique(filter(dat, .data[["entity"]] == "enum")$table)
     
     # transform enums into factors
@@ -72,7 +73,7 @@ tsv_to_dm <- function(tsv) {
             } else if (y %in% enums) {
                 return(enum_list[[y]])
             } else {
-                stop("undefined type")
+                stop("Undefined data type. Do you need to add 'enum' rows?")
             }
         })
         names(tab) <- this$column

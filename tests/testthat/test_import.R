@@ -45,3 +45,41 @@ test_that("field_value", {
     expect_equal(names(dat2), dat$field)
     expect_equivalent(sapply(dat2, as.character), dat$value)
 })
+
+test_that("no tables", {
+    tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
+    tmp <- tempfile()
+    mod <- readr::read_tsv(tsv, show_col_types=FALSE) %>%
+        filter(entity != "Table")
+    readr::write_tsv(mod, tmp)
+    expect_error(tsv_to_dm(tmp), "Data model must contain Table entities")
+    unlink(tmp)
+})
+
+test_that("no enums", {
+    tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
+    tmp <- tempfile()
+    mod <- readr::read_tsv(tsv, show_col_types=FALSE) %>%
+        filter(entity != "enum")
+    readr::write_tsv(mod, tmp)
+    expect_error(tsv_to_dm(tmp), "Undefined data type")
+    
+    # remove column that required the enum
+    mod <- filter(mod, type != "sex")
+    readr::write_tsv(mod, tmp)
+    x <- tsv_to_dm(tmp)
+    expect_true(is_dm(x))
+    
+    unlink(tmp)
+})
+
+test_that("no meta", {
+    tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
+    tmp <- tempfile()
+    mod <- readr::read_tsv(tsv, show_col_types=FALSE) %>%
+        filter(entity != "meta")
+    readr::write_tsv(mod, tmp)
+    x <- tsv_to_dm(tmp)
+    expect_true(all(!attr(x, "required")))
+    unlink(tmp)
+})
