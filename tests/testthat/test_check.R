@@ -15,9 +15,12 @@ test_that("check table names", {
     expect_null(check_table_names(tables, model))
     
     tables$sample <- NULL
+    tables$phenotype <- NULL
     tables$foo <- dplyr::tibble()
     expect_equal(check_table_names(tables, model),
-                 list(missing_tables="sample", extra_tables="foo"))
+                 list(missing_required_tables="sample",
+                      missing_optional_tables="phenotype",
+                      extra_tables="foo"))
 })
 
 

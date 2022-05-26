@@ -39,6 +39,7 @@
 #' @import dm
 #' @importFrom dplyr as_tibble filter .data %>%
 #' @importFrom lubridate ymd ymd_hms
+#' @importFrom stats setNames
 #' @export
 tsv_to_dm <- function(tsv) {
     dat <- .read_data_model(tsv)
@@ -101,6 +102,14 @@ tsv_to_dm <- function(tsv) {
         data_model <- dm_add_fk(data_model, table=!!fk$table[i], columns=!!fk$column[i],
                                 ref_table=!!ref[1], ref_columns=!!ref[2])
     }
+    
+    # set which tables are required
+    meta <- filter(dat, .data[["entity"]] == "meta")
+    req <- setNames(meta$required, meta$table)
+    opt <- setdiff(tables, meta$table)
+    req <- c(req, setNames(rep(FALSE, length(opt)), opt))
+    req <- req[tables]
+    attr(data_model, "required") <- req[tables]
     
     return(data_model)
 }
@@ -179,6 +188,7 @@ tsv_to_dbml <- function(tsv, dbml) {
 #' @param model \code{\link{dm}} object describing data model
 #' @return single row data frame with names from \code{fv$field} and values from \code{fv$value}
 #' @importFrom dplyr bind_cols
+#' @importFrom methods as
 #' @export
 transpose_field_value <- function(fv, table_name, model) {
     stopifnot(setequal(names(fv), c("field", "value")))

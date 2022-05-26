@@ -25,9 +25,11 @@ return_value <- TRUE # returned to render function to indicate T/F passing check
 
 ```{r}
 chk <- check_table_names(tables, model)
-res <- tibble(a=c("Tables in data model missing from input",
+res <- tibble(a=c("Required tables in data model missing from input",
+                  "Optional tables in data model missing from input",
            "Extra tables not in data model"),
-       b=c(paste(chk$missing_tables, collapse=", "),
+       b=c(paste(chk$missing_required_tables, collapse=", "),
+           paste(chk$missing_optional_tables, collapse=", "),
            paste(chk$extra_tables, collapse=", "))
        ) %>%
     filter(b != "")
@@ -36,7 +38,7 @@ if (nrow(res) > 0) {
 } else {
     cat("Table names match data model.")
 }
-if (length(chk$missing_tables) > 0) return_value <- FALSE
+if (length(chk$missing_required_tables) > 0) return_value <- FALSE
 ```
 
 ## Required columns

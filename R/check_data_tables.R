@@ -48,7 +48,10 @@ check_table_names <- function(tables, model) {
     if (setequal(names(tables), names(model))) {
         return(NULL)
     } else {
-        return(list(missing_tables=setdiff(names(model), names(tables)),
+        required <- names(model)[attr(model, "required")]
+        optional <- names(model)[!attr(model, "required")]
+        return(list(missing_required_tables=setdiff(required, names(tables)),
+                    missing_optional_tables=setdiff(optional, names(tables)),
                     extra_tables=setdiff(names(tables), names(model))))
     }
 }

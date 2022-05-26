@@ -22,3 +22,7 @@ Table	file	md5	string	TRUE	TRUE		md5 checksum
 Table	file	sample_id	string	TRUE		> sample.sample_id	
 Table	file	filename	string	TRUE			name of file
 Table	file	file_timestamp	dateTime				time of file creation
+meta	subject			TRUE			
+meta	sample			TRUE			
+meta	sample_set			TRUE			
+meta	file			TRUE			
