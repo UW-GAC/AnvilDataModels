@@ -140,8 +140,12 @@ check_column_types <- function(tables, model) {
 
 
 #' @rdname check_data_tables
-#' @return \code{check_primary_keys} returns the results of \code{\link{dm_examine_constraints}}
-#'     after applying primary keys from \code{model} to \code{tables}.
+#' @return \code{check_primary_keys} returns the a list with two elements:
+#' \itemize{
+#'   \item{found_keys}{results of \code{\link{dm_examine_constraints}}
+#'     after applying primary keys from \code{model} to \code{tables}}
+#'   \item{missing_keys}{list of missing primary keys in each table}
+#' }
 #' @export
 check_primary_keys <- function(tables, model) {
     # set tables will have duplicate values for the set_id before import to AnVIL
@@ -150,10 +154,19 @@ check_primary_keys <- function(tables, model) {
     no_sets <- common[!(grepl("_set$", common))]
     keys <- dm_get_all_pks(model, table=no_sets)
     tables_dm <- as_dm(tables)
+    missing_keys <- list()
     for (i in 1:nrow(keys)) {
-        tables_dm <- dm_add_pk(tables_dm, table=!!keys$table[i], columns=!!keys$pk_col[[i]])
+        this_table <- keys$table[i]
+        expected_keys <- keys$pk_col[[i]]
+        absent_keys <- setdiff(expected_keys, names(tables_dm[[this_table]]))
+        if (length(absent_keys) == 0) {
+            tables_dm <- dm_add_pk(tables_dm, table=!!this_table, columns=!!expected_keys)
+        } else {
+            missing_keys[[this_table]] <- absent_keys
+        }
     }
-    dm_examine_constraints(tables_dm)
+    return(list(found_keys=dm_examine_constraints(tables_dm),
+                missing_keys=missing_keys))
 }
 
 

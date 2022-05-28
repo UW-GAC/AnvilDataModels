@@ -102,17 +102,29 @@ test_that("check column types", {
 test_that("check primary keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_primary_keys(tables, model)$problem, rep("", 4))
+    expect_equal(check_primary_keys(tables, model)$found_keys$problem, rep("", 4))
     
     # non-unique key
     x <- tables
     x$sample$sample_id[1] <- x$sample$sample_id[2]
     expect_true("has duplicate values: sample1 (2)" %in%
-                    check_primary_keys(x, model)$problem)
+                    check_primary_keys(x, model)$found_keys$problem)
     
     # subset of model in tables
     tables$file <- NULL
-    expect_equal(check_primary_keys(tables, model)$problem, rep("", 3))
+    expect_equal(check_primary_keys(tables, model)$found_keys$problem, rep("", 3))
+})
+
+
+test_that("missing primary key", {
+    tables <- .tables()
+    model <- .model()
+    
+    x <- tables
+    x$sample$sample_id <- NULL
+    chk <- check_primary_keys(x, model)
+    expect_equal(chk$found_keys$problem, rep("", 3))
+    expect_equal(chk$missing_keys, list(sample="sample_id"))
 })
 
 
