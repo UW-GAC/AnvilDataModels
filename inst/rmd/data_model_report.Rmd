@@ -98,6 +98,15 @@ if (any(chk$found_keys$problem != "")) return_value <- FALSE
 ## Cross-table references
 
 ```{r, message=TRUE}
-(chk <- check_foreign_keys(tables, model))
-if (any(chk$problem != "")) return_value <- FALSE
+chk <- check_foreign_keys(tables, model)
+if (length(chk$missing_keys) == 0) {
+    print(chk$found_keys)
+} else {
+    cat("Some foreign keys missing:")
+    ul <- unlist(chk$missing_keys)
+    print(knitr::kable(tibble(Table=names(ul), Column=ul)))
+    print(chk$found_keys)
+    return_value <- FALSE
+}
+if (any(chk$found_keys$problem != "")) return_value <- FALSE
 ```

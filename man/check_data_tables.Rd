@@ -57,15 +57,19 @@ check_foreign_keys(tables, model)
     model. Each column element is \code{NULL} if values in column are a compatible type 
     with the data model, or a string describing the mismatch.
 
-\code{check_primary_keys} returns the a list with two elements:
+\code{check_primary_keys} returns a list with two elements:
 \itemize{
   \item{found_keys}{results of \code{\link{dm_examine_constraints}}
     after applying primary keys from \code{model} to \code{tables}}
   \item{missing_keys}{list of missing primary keys in each table}
 }
 
-\code{check_foreign_keys} returns the results of \code{\link{dm_examine_constraints}}
-    after applying foreign keys from \code{model} to \code{tables}.
+\code{check_foreign_keys} returns a list with two elements:
+\itemize{
+  \item{found_keys}{results of \code{\link{dm_examine_constraints}}
+    after applying foreign keys from \code{model} to \code{tables}}
+  \item{missing_keys}{list of missing child or parent keys in each table}
+}
 }
 \description{
 Read a set of files containing data tables and check them against a data model.

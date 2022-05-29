@@ -140,7 +140,7 @@ check_column_types <- function(tables, model) {
 
 
 #' @rdname check_data_tables
-#' @return \code{check_primary_keys} returns the a list with two elements:
+#' @return \code{check_primary_keys} returns a list with two elements:
 #' \itemize{
 #'   \item{found_keys}{results of \code{\link{dm_examine_constraints}}
 #'     after applying primary keys from \code{model} to \code{tables}}
@@ -171,19 +171,39 @@ check_primary_keys <- function(tables, model) {
 
 
 #' @rdname check_data_tables
-#' @return \code{check_foreign_keys} returns the results of \code{\link{dm_examine_constraints}}
-#'     after applying foreign keys from \code{model} to \code{tables}.
+#' @return \code{check_foreign_keys} returns a list with two elements:
+#' \itemize{
+#'   \item{found_keys}{results of \code{\link{dm_examine_constraints}}
+#'     after applying foreign keys from \code{model} to \code{tables}}
+#'   \item{missing_keys}{list of missing child or parent keys in each table}
+#' }
 #' @export
 check_foreign_keys <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     keys <- dm_get_all_fks(model[common])
     tables_dm <- as_dm(tables)
+    missing_keys <- list()
     for (i in 1:nrow(keys)) {
-        tables_dm <- dm_add_fk(tables_dm, 
-                               table=!!keys$child_table[i], 
-                               columns=!!keys$child_fk_cols[[i]],
-                               ref_table=!!keys$parent_table[i],
-                               ref_columns=!!keys$parent_key_cols[[i]])
+        child_table <- keys$child_table[i]
+        child_keys <- keys$child_fk_cols[[i]]
+        missing_child_keys <- setdiff(child_keys, names(tables_dm[[child_table]]))
+        if (length(missing_child_keys) > 0) {
+            missing_keys[[child_table]] <- unique(c(missing_keys[[child_table]], missing_child_keys))
+        }
+        parent_table <- keys$parent_table[i]
+        parent_keys <- keys$parent_key_cols[[i]]
+        missing_parent_keys <- setdiff(parent_keys, names(tables_dm[[parent_table]]))
+        if (length(missing_parent_keys) > 0) {
+            missing_keys[[parent_table]] <- unique(c(missing_keys[[parent_table]], missing_parent_keys))
+        }
+        if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
+            tables_dm <- dm_add_fk(tables_dm, 
+                                   table=!!child_table, 
+                                   columns=!!child_keys,
+                                   ref_table=!!parent_table,
+                                   ref_columns=!!parent_keys)
+        }
     }
-    dm_examine_constraints(tables_dm)
+    return(list(found_keys=dm_examine_constraints(tables_dm),
+                missing_keys=missing_keys))
 }

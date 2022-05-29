@@ -131,15 +131,30 @@ test_that("missing primary key", {
 test_that("check foreign keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 4))
+    expect_equal(check_foreign_keys(tables, model)$found_keys$problem, rep("", 4))
     
     # missing value of foreign key in reference table
     x <- tables
     x$subject <- filter(x$subject, subject_id != "subject1")
-    chk <- as_tibble(check_foreign_keys(x, model))
+    chk <- as_tibble(check_foreign_keys(x, model)$found_keys)
     expect_equal(unlist(chk$columns) == "subject_id", grepl("subject1", chk$problem))
     
     # subset of model in tables
     tables$file <- NULL
-    expect_equal(check_foreign_keys(tables, model)$problem, rep("", 3))
+    expect_equal(check_foreign_keys(tables, model)$found_keys$problem, rep("", 3))
+})
+
+
+test_that("missing foreign key", {
+    tables <- .tables()
+    model <- .model()
+    
+    x <- tables
+    x$sample$sample_id <- NULL
+    x$subject$subject_id <- NULL
+    x$phenotype$subject_id <- NULL
+    chk <- check_foreign_keys(x, model)
+    expect_equal(length(chk$found_keys$problem), 0)
+    expect_equal(chk$missing_keys, 
+                 list(phenotype="subject_id", subject="subject_id", sample="sample_id"))
 })

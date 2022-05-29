@@ -31,6 +31,7 @@ tables$subject$reported_sex <- "A"
 tables$sample$sample_id[1] <- tables$sample$sample_id[2]
 tables$subject <- filter(tables$subject, subject_id != "subject1")
 tables$phenotype$visit_id <- NULL
+tables$sample_set$sample_id <- NULL
 
 table_files <- sapply(tables, function(t) {
     tmp <- tempfile()
