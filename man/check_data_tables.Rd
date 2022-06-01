@@ -8,6 +8,8 @@
 \alias{check_column_types}
 \alias{check_primary_keys}
 \alias{check_foreign_keys}
+\alias{parse_column_name_check}
+\alias{parse_column_type_check}
 \title{Check tables against data model}
 \usage{
 read_data_tables(files, table_names = names(files), quiet = TRUE)
@@ -21,6 +23,10 @@ check_column_types(tables, model)
 check_primary_keys(tables, model)
 
 check_foreign_keys(tables, model)
+
+parse_column_name_check(chk)
+
+parse_column_type_check(chk)
 }
 \arguments{
 \item{files}{Vector of file paths, one per data table.}
@@ -32,6 +38,8 @@ check_foreign_keys(tables, model)
 \item{tables}{Named list of data tables}
 
 \item{model}{\code{\link{dm}} object describing data model}
+
+\item{chk}{output of \code{check_column_names} or \code{check_column_types}}
 }
 \value{
 \code{read_data_tables} returns a named list of data frames.
@@ -70,6 +78,9 @@ check_foreign_keys(tables, model)
     after applying foreign keys from \code{model} to \code{tables}}
   \item{missing_keys}{list of missing child or parent keys in each table}
 }
+
+\code{parse_column_name_check} and \code{parse_column_type_check} 
+  each return a tibble with check results suitable for printing
 }
 \description{
 Read a set of files containing data tables and check them against a data model.

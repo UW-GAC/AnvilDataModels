@@ -207,3 +207,32 @@ check_foreign_keys <- function(tables, model) {
     return(list(found_keys=dm_examine_constraints(tables_dm),
                 missing_keys=missing_keys))
 }
+
+
+#' @rdname check_data_tables
+#' @param chk output of \code{check_column_names} or \code{check_column_types}
+#' @return \code{parse_column_name_check} and \code{parse_column_type_check} 
+#'   each return a tibble with check results suitable for printing
+#' @export
+parse_column_name_check <- function(chk) {
+    tibble(Table=names(chk),
+           `Missing required columns`=sapply(chk, function(x) paste(x$missing_required_columns, collapse=", ")),
+           `Missing optional columns`=sapply(chk, function(x) paste(x$missing_optional_columns, collapse=", ")),
+           `Extra columns`=sapply(chk, function(x) paste(x$extra_columns, collapse=", "))
+    ) %>%
+        filter(!!"Missing required columns" != "" | !!"Missing optional columns" != "" | !!"Extra columns" != "")
+}
+
+
+#' @rdname check_data_tables
+#' @export
+parse_column_type_check <- function(chk) {
+    lapply(names(chk), function(x) {
+        y <- unlist(chk[[x]])
+        if (is.null(y)) return(NULL)
+        tibble(Table=x,
+               Column=names(y),
+               Issue=y)
+    }) %>%
+        bind_rows()
+}

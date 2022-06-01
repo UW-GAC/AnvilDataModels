@@ -45,12 +45,7 @@ if (length(chk$missing_required_tables) > 0) return_value <- FALSE
 
 ```{r}
 chk <- check_column_names(tables, model)
-res <- tibble(Table=names(chk),
-       `Missing required columns`=sapply(chk, function(x) paste(x$missing_required_columns, collapse=", ")),
-       `Missing optional columns`=sapply(chk, function(x) paste(x$missing_optional_columns, collapse=", ")),
-       `Extra columns`=sapply(chk, function(x) paste(x$extra_columns, collapse=", "))
-) %>%
-    filter(`Missing required columns` != "" | `Missing optional columns` != "" | `Extra columns` != "")
+res <- parse_column_name_check(chk)
 if (nrow(res) > 0) {
     knitr::kable(res)
 } else {
@@ -63,14 +58,7 @@ if (length(unlist(lapply(chk, function(x) x$missing_required_columns))) > 0) ret
 
 ```{r}
 chk <- check_column_types(tables, model)
-res <- lapply(names(chk), function(x) {
-    y <- unlist(chk[[x]])
-    if (is.null(y)) return(NULL)
-    tibble(Table=x,
-           Column=names(y),
-           Issue=y)
-}) %>%
-    bind_rows()
+res <- parse_column_type_check(chk)
 if (nrow(res) > 0) {
     return_value <- FALSE
     knitr::kable(res)
