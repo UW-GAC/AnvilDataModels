@@ -96,12 +96,14 @@ tsv_to_dm <- function(tsv) {
     
     # add foreign keys
     fk <- filter(dat, !(is.na(.data[["ref"]])))
-    for (i in 1:nrow(fk)) {
-        ref <- strsplit(fk$ref[i], " ")[[1]][[2]] %>%
-            strsplit(".", fixed=TRUE) %>%
-            unlist()
-        data_model <- dm_add_fk(data_model, table=!!fk$table[i], columns=!!fk$column[i],
-                                ref_table=!!ref[1], ref_columns=!!ref[2])
+    if (nrow(fk) > 0) {
+        for (i in 1:nrow(fk)) {
+            ref <- strsplit(fk$ref[i], " ")[[1]][[2]] %>%
+                strsplit(".", fixed=TRUE) %>%
+                unlist()
+            data_model <- dm_add_fk(data_model, table=!!fk$table[i], columns=!!fk$column[i],
+                                    ref_table=!!ref[1], ref_columns=!!ref[2])
+        }
     }
     
     # set which tables are required
