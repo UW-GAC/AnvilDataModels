@@ -220,7 +220,9 @@ parse_column_name_check <- function(chk) {
            `Missing optional columns`=sapply(chk, function(x) paste(x$missing_optional_columns, collapse=", ")),
            `Extra columns`=sapply(chk, function(x) paste(x$extra_columns, collapse=", "))
     ) %>%
-        filter(!!"Missing required columns" != "" | !!"Missing optional columns" != "" | !!"Extra columns" != "")
+        filter(.data[["Missing required columns"]] != "" | 
+               .data[["Missing optional columns"]] != "" |
+               .data[["Extra columns"]] != "")
 }
 
 
