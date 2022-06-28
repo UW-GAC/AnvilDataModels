@@ -35,9 +35,12 @@ TSV files to be imported must have the following columns:
   \item{required: }{logical where TRUE indicates the column is required}
   \item{pk: }{logical where TRUE indicates the column is a primary key, 
     other values may be FALSE or missing}
-  \item{ref: }{Reference string following the 
+  \item{ref: }{Reference to other columns in the data model. Either 
+    1) a cross-table reference string following the 
     \href{https://www.dbml.org/docs/#relationships-foreign-key-definitions}{DBML}
-    format: }
+    format, or 
+    2) 'from:' followed by a comma-separated list of columns used to
+    automatically generate this column using a hash function.}
   \item{note}{Note string (column description) following the
     \href{https://www.dbml.org/docs/#column-notes}{DBML} format}
 }

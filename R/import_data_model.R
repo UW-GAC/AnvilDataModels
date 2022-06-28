@@ -15,9 +15,12 @@
 #'   \item{required: }{logical where TRUE indicates the column is required}
 #'   \item{pk: }{logical where TRUE indicates the column is a primary key, 
 #'     other values may be FALSE or missing}
-#'   \item{ref: }{Reference string following the 
+#'   \item{ref: }{Reference to other columns in the data model. Either 
+#'     1) a cross-table reference string following the 
 #'     \href{https://www.dbml.org/docs/#relationships-foreign-key-definitions}{DBML}
-#'     format: }
+#'     format, or 
+#'     2) 'from:' followed by a comma-separated list of columns used to
+#'     automatically generate this column using a hash function.}
 #'   \item{note}{Note string (column description) following the
 #'     \href{https://www.dbml.org/docs/#column-notes}{DBML} format}
 #' }
@@ -95,7 +98,7 @@ tsv_to_dm <- function(tsv) {
     }
     
     # add foreign keys
-    fk <- filter(dat, !(is.na(.data[["ref"]])))
+    fk <- filter(dat, .valid_ref(.data[["ref"]]))
     if (nrow(fk) > 0) {
         for (i in 1:nrow(fk)) {
             ref <- strsplit(fk$ref[i], " ")[[1]][[2]] %>%
@@ -113,6 +116,16 @@ tsv_to_dm <- function(tsv) {
     req <- c(req, setNames(rep(FALSE, length(opt)), opt))
     req <- req[tables]
     attr(data_model, "required") <- req[tables]
+    
+    # set which columns are generated from other columns
+    auto_id <- list()
+    auto <- filter(dat, .valid_from(.data[["ref"]]))
+    tables_auto <- unique(auto$table)
+    for (t in tables_auto) {
+        this <- filter(auto, .data[["entity"]] == "Table" & .data[["table"]] == t)
+        auto_id[[t]] <- .auto_id_columns(this)
+    }
+    attr(data_model, "auto_id") <- auto_id
     
     return(data_model)
 }
@@ -136,7 +149,7 @@ tsv_to_dbml <- function(tsv, dbml) {
         this <- filter(dat, .data[["entity"]] == "Table" & .data[["table"]] == t)
         for (i in 1:nrow(this)) {
             pk <- if (!is.na(this$pk[i]) && this$pk[i]) "pk" else NA
-            ref <- if (!is.na(this$ref[i])) paste("ref:", this$ref[i]) else NA
+            ref <- if (.valid_ref(this$ref[i])) paste("ref:", this$ref[i]) else NA
             esc_quotes <- paste0("note: '", gsub("'", "\\'", this$note[i], fixed=TRUE), "'")
             note <- if (!is.na(this$note[i])) esc_quotes else NA
             meta <- paste(na.omit(c(pk, ref, note)), collapse=", ")
@@ -184,6 +197,35 @@ tsv_to_dbml <- function(tsv, dbml) {
     return(dat)
 }
 
+# returns logical vector for whether a cross-table reference is valid
+.valid_ref <- function(x) {
+    !(is.na(x)) & !grepl("^from:", x)
+}
+
+
+# returns logical vector for whether an auto-id reference is valid
+.valid_from <- function(x) {
+    grepl("^from:", x)
+}
+
+
+# returns a list of column names used to create new column
+.auto_id_columns <- function(x) {
+    ind <- which(grepl("^from:", x$ref))
+    lapply(ind, function(i) .column_from(x$ref[i])) %>%
+        setNames(x$column[ind])
+}
+
+
+# parses 'from:' reference to return list of columns
+#' @importFrom stringr str_trim
+.column_from <- function(x) {
+    sub("^from:", "", x) %>%
+        strsplit(",", fixed=TRUE) %>%
+        unlist() %>%
+        str_trim()
+}
+
 
 #' transpose field,value pairs to a data model
 #' @param fv data frame with columns field, value
@@ -210,15 +252,4 @@ transpose_field_value <- function(fv, table_name, model) {
         return(x)
     }) %>%
         bind_cols()
-}
-
-
-#' create a hashed identifier
-#' @param x string use to create hash
-#' @param nchar number of characters in the resulting string (max 32)
-#' @return identifier based on a hash of \code{x}
-#' @importFrom openssl md5
-#' @export
-hash_id <- function(x, nchar=8) {
-    substr(md5(x), 1, nchar)
 }

@@ -32,10 +32,14 @@ sample_set <- tibble(
     sample_id = c(sample$sample_id[2:4], sample$sample_id[3:7])
 )
 
+rand_string <- function(x) {
+    paste0(sample(c(letters,0:9), x, replace=TRUE), collapse="")
+}
+
 nf <- (n+1)*2
-filename <- paste(sample$sample_id, sapply(1:(n+1), function(x) paste0(sample(letters, 6, replace=TRUE), collapse="")), sep="_")
+filename <- paste(sample$sample_id, sapply(1:(n+1), function(x) rand_string(6)), sep="_")
 file <- tibble(
-    md5 = sapply(1:nf, function(x) paste0(sample(c(letters,0:9), 32, replace=TRUE), collapse="")),
+    md5 = sapply(1:nf, function(x) rand_string(32)),
     sample_id = rep(sample$sample_id, each=2),
     filename = paste0(rep(filename, each=2), rep(c(".bam", ".bai"), length(filename))),
     file_timestamp = rep("2001-01-01 12:00:00", nf)
@@ -46,3 +50,34 @@ write_tsv(phenotype, "inst/extdata/phenotype.tsv")
 write_tsv(sample, "inst/extdata/sample.tsv")
 write_tsv(sample_set, "inst/extdata/sample_set.tsv")
 write_tsv(file, "inst/extdata/file.tsv")
+
+
+analysis1 <- tibble(
+    analysis_type = "GWAS",
+    outcome_type = "quantitative",
+    outcome = "SBP"
+)
+
+analysis2 <- tibble(
+    analysis_type = "GWAS",
+    outcome_type = "binary",
+    outcome = "hypertension"
+)
+
+set.seed(1)
+file1 <- tibble(
+    md5 = sapply(1:3, function(x) rand_string(32)),
+    filename = paste0(sapply(1:3, function(x) rand_string(6)), ".tsv")
+)
+
+set.seed(2)
+file2 <- tibble(
+    md5 = sapply(1:3, function(x) rand_string(32)),
+    filename = paste0(sapply(1:3, function(x) rand_string(6)), ".tsv")
+)
+
+write_tsv(analysis1, "inst/extdata/analysis1.tsv")
+write_tsv(analysis2, "inst/extdata/analysis2.tsv")
+write_tsv(file1, "inst/extdata/analysis_file1.tsv")
+write_tsv(file2, "inst/extdata/analysis_file2.tsv")
+
