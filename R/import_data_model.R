@@ -110,7 +110,8 @@ tsv_to_dm <- function(tsv) {
     }
     
     # set which tables are required
-    meta <- filter(dat, .data[["entity"]] == "meta")
+    meta <- filter(dat, .data[["entity"]] == "meta",
+                   ifelse(is.na(.data[["required"]]), FALSE, .data[["required"]]))
     req <- setNames(meta$required, meta$table)
     opt <- setdiff(tables, meta$table)
     req <- c(req, setNames(rep(FALSE, length(opt)), opt))
