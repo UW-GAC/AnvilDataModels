@@ -23,7 +23,7 @@ sample <- tibble(
     sample_id = paste0("sample", c("1a", 1:n)),
     subject_id = c(subject$subject_id[1], subject$subject_id),
     tissue_source = "blood",
-    age_at_sample_collection = round(rnorm(n+1, 40, 20)),
+    age_at_sample_collection = round(runif(n+1, 20, 80)),
     date_of_sample_processing = c("2000-01-02", rep("2000-01-01", n))
 )
 
