@@ -1,0 +1,8 @@
+entity	table	column	type	required	pk	ref	note
+Table	analysis	analysis_id	string	TRUE	TRUE	"from: analysis_type, outcome_type, outcome"	auto-generated analysis id
+Table	analysis	analysis_type	string	TRUE			
+Table	analysis	outcome_type	string	TRUE			
+Table	analysis	outcome	string	TRUE			
+Table	file	md5	string	TRUE	TRUE		md5 checksum
+Table	file	filename	string	TRUE			name of file
+Table	file	analysis_id	string	TRUE		> analysis.analysis_id	

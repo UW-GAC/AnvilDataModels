@@ -83,3 +83,18 @@ test_that("no meta", {
     expect_true(all(!attr(x, "required")))
     unlink(tmp)
 })
+
+test_that("auto ids", {
+    tsv <- system.file("extdata", "data_model_auto_id.tsv", package="AnvilDataModels")
+    table_names <- c("analysis", "file")
+    x <- tsv_to_dm(tsv)
+    expect_true(is_dm(x))
+    expect_equal(names(dm_get_tables(x)), table_names)
+    expect_equal(nrow(dm_get_all_fks(x)), 1)
+    
+    tmp <- tempfile()
+    tsv_to_dbml(tsv, tmp)
+    dbml <- readLines(tmp)
+    expect_false(any(grepl("ref: from: ", dbml, fixed=TRUE)))
+    unlink(tmp)
+})
