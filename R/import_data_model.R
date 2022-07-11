@@ -176,7 +176,7 @@ tsv_to_dbml <- function(tsv, dbml) {
         
         this <- filter(dat, .data[["entity"]] == "enum" & .data[["table"]] == e)
         for (i in 1:nrow(this)) {
-            writeLines(paste(" ", this$column[i]), con)
+            writeLines(paste0('  "', this$column[i], '"'), con)
         }
         
         writeLines("}\n", con)
