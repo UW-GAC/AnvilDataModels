@@ -15,33 +15,40 @@
 #' @param table_name Name of data table in model
 #' @param model \code{\link{dm}} object describing data model
 #' @param overwrite Logical for whether to overwrite data for existing rows
+#' @param namespace AnVIL workspace namespace
+#' @param name AnVIL workspace name
 #' 
 #' @import AnVIL
 #' @export
-anvil_import_table <- function(table, table_name, model, overwrite=FALSE) {
+anvil_import_table <- function(table, table_name, model, overwrite=FALSE,
+                               namespace = avworkspace_namespace(),
+                               name = avworkspace_name()) {
     # add entity id first, so we can compare to anvil
     table <- add_entity_id(table, table_name, model)
-    .anvil_import_table(table, table_name, overwrite)
+    .anvil_import_table(table, table_name, overwrite,
+                        namespace=namespace, name=name)
 }
 
 
 #' @rdname anvil_import
 #' @export
-anvil_import_set <- function(table, table_name, overwrite=FALSE) {
+anvil_import_set <- function(table, table_name, overwrite=FALSE,
+                             namespace = avworkspace_namespace(),
+                             name = avworkspace_name()) {
     # check that table is named correctly (ends in '_set')
     if (!(grepl("_set$", table_name))) {
         stop("Name of set table must end in '_set'")
     }
     
     # check that reference table exists in anvil
-    anvil_tables <- avtables()
+    anvil_tables <- avtables(namespace=namespace, name=name)
     ref_name <- sub("_set$", "", table_name)
     if (!(ref_name %in% anvil_tables$table)) {
         stop("Must import table ", ref_name, " before set table ", table_name)
     }
     
     # check that all entities in set exist in reference table
-    ref_table <- avtable(ref_name)
+    ref_table <- avtable(ref_name, namespace=namespace, name=name)
     entity_id <- paste0(ref_name, "_id")
     anvil_entity <- ref_table[[entity_id]]
     this_entity <- table[[entity_id]]
@@ -52,14 +59,14 @@ anvil_import_set <- function(table, table_name, overwrite=FALSE) {
     # check if set already exists
     set_id <- paste0(table_name, "_id")
     if (table_name %in% anvil_tables$table) {
-        anvil_set <- avtable(table_name)
+        anvil_set <- avtable(table_name, namespace=namespace, name=name)
         anvil_set_ids <- anvil_set[[set_id]]
         overlaps <- intersect(anvil_set_ids, table[[set_id]])
         if (length(overlaps) > 0) {
             if (overwrite) {
                 message("  Overwriting sets: ", paste(overlaps, collapse=", "))
                 # must delete set before writing, otherwise entities will be duplicated
-                avtable_delete_values(table_name, overlaps)
+                avtable_delete_values(table_name, overlaps, namespace=namespace, name=name)
             } else {
                 stop("Some sets in table '", table_name, "' already exist\n",
                      "  Set overwrite=TRUE to overwrite these rows")
@@ -69,7 +76,8 @@ anvil_import_set <- function(table, table_name, overwrite=FALSE) {
     
     # can't use avtable_import as it checks that entity_id is unique
     #.anvil_import_table(table, table_name, overwrite)
-    avtable_import_set(table, origin=ref_name, set=set_id, member=entity_id)
+    avtable_import_set(table, origin=ref_name, set=set_id, member=entity_id,
+                       namespace=namespace, name=name)
 }
 
 
@@ -87,12 +95,14 @@ create_set_all <- function(table, table_name) {
 }
 
 
-.anvil_import_table <- function(table, table_name, overwrite=FALSE) {
+.anvil_import_table <- function(table, table_name, overwrite=FALSE,
+                                namespace = avworkspace_namespace(),
+                                name = avworkspace_name()) {
     # does table already exist?
-    anvil_tables <- avtables()
+    anvil_tables <- avtables(namespace=namespace, name=name)
     if (table_name %in% anvil_tables$table) {
         message("Table ", table_name, " already exists")
-        anvil_table <- avtable(table_name)
+        anvil_table <- avtable(table_name, namespace=namespace, name=name)
         
         # do the columns match?
         if (!setequal(names(table), names(anvil_table))) {
@@ -119,12 +129,14 @@ create_set_all <- function(table, table_name) {
         }
     }
     
-    avtable_import(table, entity=paste0(table_name, "_id"))
+    avtable_import(table, entity=paste0(table_name, "_id"), 
+                   namespace=namespace, name=name)
 }
 
 
-anvil_get_table_columns <- function() {
-    tables <- avtables()
+anvil_get_table_columns <- function(namespace = avworkspace_namespace(),
+                                    name = avworkspace_name()) {
+    tables <- avtables(namespace=namespace, name=name)
     strsplit(tables$colnames, split=", ", fixed=TRUE)
 }
 

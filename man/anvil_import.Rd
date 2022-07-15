@@ -7,9 +7,22 @@
 \alias{create_set_all}
 \title{Import data tables into AnVIL}
 \usage{
-anvil_import_table(table, table_name, model, overwrite = FALSE)
+anvil_import_table(
+  table,
+  table_name,
+  model,
+  overwrite = FALSE,
+  namespace = avworkspace_namespace(),
+  name = avworkspace_name()
+)
 
-anvil_import_set(table, table_name, overwrite = FALSE)
+anvil_import_set(
+  table,
+  table_name,
+  overwrite = FALSE,
+  namespace = avworkspace_namespace(),
+  name = avworkspace_name()
+)
 
 create_set_all(table, table_name)
 }
@@ -21,6 +34,10 @@ create_set_all(table, table_name)
 \item{model}{\code{\link{dm}} object describing data model}
 
 \item{overwrite}{Logical for whether to overwrite data for existing rows}
+
+\item{namespace}{AnVIL workspace namespace}
+
+\item{name}{AnVIL workspace name}
 }
 \value{
 \code{create_set_all} returns a tibble with one set, 'all',
