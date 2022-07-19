@@ -10,13 +10,21 @@
 #' @param table_name Name of data table in model
 #' @param model \code{\link{dm}} object describing data model
 #' @param nchar number of characters in the resulting strings (max 32)
+#' @param error_on_missing Logical for whether to throw an error if any columns necessary to create another column are missing. If FALSE, the function will issue a warning but proceed without adding the column.
 #' @return \code{table} with additional columns
 #' @export
-add_auto_columns <- function(table, table_name, model, nchar=8) {
+add_auto_columns <- function(table, table_name, model, nchar=8, error_on_missing=TRUE) {
     auto_ids <- attr(model, "auto_id")[[table_name]]
     for (col in names(auto_ids)) {
-        table[[col]] <- apply(table[,auto_ids[[col]]], 1, paste, collapse="") %>%
-            hash_id(nchar=nchar)
+        missing_ids <- setdiff(auto_ids[[col]], names(table))
+        if (length(missing_ids) == 0) {
+            table[[col]] <- apply(table[,auto_ids[[col]]], 1, paste, collapse="") %>%
+                hash_id(nchar=nchar)
+        } else if (length(missing_ids) > 0 & error_on_missing) {
+            stop("Cannot create id ", col, "; missing required columns ", paste(missing_ids, collapse=", "))
+        } else if (length(missing_ids) > 0 & !error_on_missing) {
+            warning("Cannot create id ", col, "; missing required columns ", paste(missing_ids, collapse=", "))
+        }
     }
     table
 }

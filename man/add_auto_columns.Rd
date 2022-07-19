@@ -5,7 +5,7 @@
 \alias{hash_id}
 \title{Add columns with auto-generated ids}
 \usage{
-add_auto_columns(table, table_name, model, nchar = 8)
+add_auto_columns(table, table_name, model, nchar = 8, error_on_missing = TRUE)
 
 hash_id(x, nchar = 8)
 }
@@ -17,6 +17,8 @@ hash_id(x, nchar = 8)
 \item{model}{\code{\link{dm}} object describing data model}
 
 \item{nchar}{number of characters in the resulting strings (max 32)}
+
+\item{error_on_missing}{Logical for whether to throw an error if any columns necessary to create another column are missing. If FALSE, the function will issue a warning but proceed without adding the column.}
 
 \item{x}{string use to create hash}
 }
