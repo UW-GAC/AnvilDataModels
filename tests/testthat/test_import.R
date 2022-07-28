@@ -46,6 +46,16 @@ test_that("field_value", {
     expect_equivalent(sapply(dat2, as.character), dat$value)
 })
 
+test_that("field_value_extra_cols", {
+    dat <- tibble(field=c("char", "int", "float", "bool", "other"),
+                  value=c("a", "1", "1.1", "TRUE", "hi"))
+    model <- as_dm(list(a=tibble(char=character(), int=integer(), float=numeric(),
+                                 bool=logical())))
+    dat2 <- transpose_field_value(dat, table_name="a", model=model)
+    expect_equal(names(dat2), dat$field)
+    expect_equal(dat2$other, "hi")
+})
+
 test_that("no tables", {
     tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
     tmp <- tempfile()

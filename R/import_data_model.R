@@ -239,10 +239,13 @@ tsv_to_dbml <- function(tsv, dbml) {
 transpose_field_value <- function(fv, table_name, model) {
     stopifnot(setequal(names(fv), c("field", "value")))
     mod <- model[[table_name]]
-    stopifnot(length(setdiff(fv$field, names(mod))) == 0)
     lapply(setNames(1:nrow(fv), fv$field), function(i) {
         f <- fv$field[i]
         v <- fv$value[i]
+        # if field is not in model, can't do anything with it
+        if (!(f %in% names(mod))) { 
+            return(v)
+        }
         if (is.factor(mod[[f]])) {
             x <- factor(v, levels=levels(mod[[f]]))
         } else if (is.Date(mod[[f]])) {
