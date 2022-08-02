@@ -158,3 +158,41 @@ test_that("missing foreign key", {
     expect_equal(chk$missing_keys, 
                  list(phenotype="subject_id", subject="subject_id", sample="sample_id"))
 })
+
+
+test_that("missing data", {
+    model <- tibble(
+        entity="Table",
+        table="tbl",
+        column=c("s", "i", "f", "b", "d", "e"),
+        type=c("string", "integer", "float", "boolean", "date", "e"),
+        required=NA,
+        pk=NA,
+        ref=NA,
+        note=NA
+    ) %>%
+        bind_rows(tibble(
+            entity="enum",
+            table="e",
+            column=letters[1:2]
+        ))
+    modfile <- tempfile()
+    readr::write_tsv(model, modfile, na="")
+    model <- tsv_to_dm(modfile)
+    
+    dat <- tibble(
+        s=c("a", NA),
+        i=c(NA, 2),
+        f=c(1.5, NA),
+        b=c(NA, TRUE),
+        d=c("2000-01-01", NA),
+        e=c(NA, "a")
+    )
+    datfile <- tempfile()
+    readr::write_tsv(dat, datfile, na="")
+    tables <- read_data_tables(datfile, table_names="tbl")
+    chk <- check_column_types(tables, model)
+    expect_true(all(sapply(chk$tbl, is.null)))
+    
+    unlink(c(modfile, datfile))
+})

@@ -110,7 +110,7 @@ check_column_types <- function(tables, model) {
     chk <- lapply(common, function(t) {
         cols <- intersect(names(tables[[t]]), names(model[[t]]))
         chk2 <- lapply(cols, function(c) {
-            ct <- tables[[t]][[c]]
+            ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
             cm <- model[[t]][[c]]
             if (is.character(cm)) {
                 .try_conversion(ct, name=paste(t, c, sep="."), type="character", FUN=as.character)
