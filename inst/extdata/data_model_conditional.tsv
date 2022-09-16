@@ -1,0 +1,16 @@
+entity	table	column	type	required	pk	ref	note
+Table	t1	t1_id	string	TRUE	TRUE		
+Table	t1	condition	boolean	TRUE			
+Table	t1	if_condition	string	CONDITIONAL (condition = TRUE)			
+Table	t1	variable	variable	TRUE			
+Table	t1	if_variable	string	CONDITIONAL (variable = yes)			
+Table	t1	something	string				
+enum	variable	yes					
+enum	variable	no					
+Table	t2	t2_id	string	TRUE	TRUE		
+Table	t2	something	string				
+Table	t3	t3_id	string	TRUE	TRUE		
+Table	t3	something	string				
+meta	t1			TRUE			
+meta	t2						
+meta	t3			CONDITIONAL (t2)			

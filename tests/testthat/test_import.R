@@ -108,3 +108,21 @@ test_that("auto ids", {
     expect_false(any(grepl("ref: from: ", dbml, fixed=TRUE)))
     unlink(tmp)
 })
+
+
+test_that("conditional columns", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    expect_setequal(attr(x$t1, "required"), c("t1_id", "condition", "variable"))
+    expect_setequal(attr(x$t1, "conditions"), c("condition = TRUE", "variable = yes"))
+    expect_setequal(attr(x$t2, "required"), "t2_id")
+    expect_setequal(attr(x$t2, "conditions"), character())
+})
+
+
+test_that("conditional tables", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    expect_equal(attr(x, "required"), "t1")
+    expect_equal(attr(x, "conditions"), c(t3="t2"))
+})

@@ -196,3 +196,75 @@ test_that("missing data", {
     
     unlink(c(modfile, datfile))
 })
+
+
+test_that("conditional columns - parsing", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    dat <- tibble(t1_id=1:2,
+                  condition=c(TRUE, FALSE),
+                  if_condition=c("a", "b"),
+                  variable=c("yes", "no"),
+                  if_variable=c("a", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, names(dat))
+    expect_equal(chk$optional, "something")
+    
+    dat$condition[1] <- FALSE
+    dat$variable[1] <- "no"
+    dat$something <- "a"
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "condition", "variable"))
+    expect_setequal(chk$optional, c("if_condition", "if_variable", "something"))
+})
+
+test_that("conditional columns - check", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    dat <- tibble(t1_id=1:2,
+                  condition=c(TRUE, FALSE),
+                  if_condition=c("a", "b"),
+                  variable=c("yes", "no"),
+                  if_variable=c("a", "b"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, "something")
+    
+    dat2 <- tibble(t1_id=1:2,
+                  condition=c(FALSE, FALSE),
+                  variable=c("no", "no"))
+    chk <- check_column_names(tables=list(t1=dat2), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "if_variable", "something"))
+    
+    dat$something <- "a"
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_null(chk$t1)
+})
+
+test_that("conditional tables - parsing", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    chk <- .parse_required_tables(c("t1", "t2", "t3"), x)
+    expect_setequal(chk$required, c("t1", "t3"))
+    expect_setequal(chk$optional, c("t2"))
+    
+    chk <- .parse_required_tables(c("t1"), x)
+    expect_setequal(chk$required, c("t1"))
+    expect_setequal(chk$optional, c("t2", "t3"))
+})
+
+test_that("conditional tables - check", {
+    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+    x <- tsv_to_dm(tsv)
+    chk <- check_table_names(tables=list(t1=tibble()), model=x)
+    expect_setequal(chk$missing_required_tables, character())
+    expect_setequal(chk$missing_optional_tables, c("t2", "t3"))
+    
+    chk <- check_table_names(tables=list(t1=tibble(), t2=tibble()), model=x)
+    expect_setequal(chk$missing_required_tables, c("t3"))
+    expect_setequal(chk$missing_optional_tables, character())
+    
+    chk <- check_table_names(tables=list(t1=tibble(), t2=tibble(), t3=tibble()), model=x)
+    expect_null(chk)
+})

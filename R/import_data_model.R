@@ -8,11 +8,14 @@
 #' 
 #' TSV files to be imported must have the following columns: 
 #' \itemize{
-#'   \item{entity: }{"Table" or "enum"}
+#'   \item{entity: }{"Table", "enum", or "meta"}
 #'   \item{table: }{table or enum name}
 #'   \item{column: }{column name within table}
 #'   \item{type: }{"string", "boolean, "integer", "float", "date", "dateTime", or name of enum}
-#'   \item{required: }{logical where TRUE indicates the column is required}
+#'   \item{required: }{TRUE indicates the column is required, FALSE or missing if the column
+#'    is optional.'CONDITIONAL (column = value)' indicates a requirement only if any element of 
+#'    'column' contains 'value'. To indicate that table 't2' is only required if table 't1' is 
+#'    present, entity='meta', table='t2' and required='CONDITIONAL (t1)'}
 #'   \item{pk: }{logical where TRUE indicates the column is a primary key, 
 #'     other values may be FALSE or missing}
 #'   \item{ref: }{Reference to other columns in the data model. Either 
@@ -32,12 +35,19 @@
 #' @examples 
 #' tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
 #' (dm <- tsv_to_dm(tsv))
+#' attr(dm, "required")
+#' lapply(dm, attr, "required")
 #' 
 #' tmp <- tempfile()
 #' tsv_to_dbml(tsv, tmp)
 #' readLines(tmp, n=14)
 #' 
 #' unlink(tmp)
+#' 
+#' tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+#' (dm <- tsv_to_dm(tsv))
+#' attr(dm, "conditions")
+#' lapply(dm, attr, "conditions")
 #' 
 #' @import dm
 #' @importFrom dplyr as_tibble filter .data %>%
@@ -81,7 +91,9 @@ tsv_to_dm <- function(tsv) {
         })
         names(tab) <- this$column
         tib <- as_tibble(tab)
-        attr(tib, "required") <- ifelse(is.na(this$required), FALSE, this$required)
+        req <- .parse_requirements(this, type="column")
+        attr(tib, "required") <- req$required
+        attr(tib, "conditions") <- req$conditions
         return(tib)
     })
     names(table_list) <- tables
@@ -110,13 +122,10 @@ tsv_to_dm <- function(tsv) {
     }
     
     # set which tables are required
-    meta <- filter(dat, .data[["entity"]] == "meta",
-                   ifelse(is.na(.data[["required"]]), FALSE, .data[["required"]]))
-    req <- setNames(meta$required, meta$table)
-    opt <- setdiff(tables, meta$table)
-    req <- c(req, setNames(rep(FALSE, length(opt)), opt))
-    req <- req[tables]
-    attr(data_model, "required") <- req[tables]
+    meta <- filter(dat, .data[["entity"]] == "meta")
+    req <- .parse_requirements(meta, type="table")
+    attr(data_model, "required") <- req$required
+    attr(data_model, "conditions") <- req$conditions
     
     # set which columns are generated from other columns
     auto_id <- list()
@@ -193,10 +202,33 @@ tsv_to_dbml <- function(tsv, dbml) {
     cols <- c("entity", "table", "column", "type", "required", "pk", "ref", "note")
     dat <- bind_rows(lapply(tsv, read_tsv, col_names=TRUE, col_types=paste(rep("c", length(cols)), collapse="")))
     stopifnot(setequal(names(dat), cols))
-    dat$required <- as.logical(dat$required)
+    #dat$required <- as.logical(dat$required)
     dat$pk <- as.logical(dat$pk)
     return(dat)
 }
+
+
+# parses required column to separate logical from conditional
+#' @importFrom stringr str_extract_all
+.parse_requirements <- function(x, type=c("column", "table")) {
+    type <- match.arg(type)
+    if (type == "column") {
+        col <- setNames(x$required, x$column)
+    } else {
+        col <- setNames(x$required, x$table)
+    }
+    col[is.na(col)] <- "FALSE"
+    ind <- grepl("^CONDITIONAL", col)
+    req <- col[!ind]
+    mode(req) <- "logical"
+    req <- names(req)[req]
+    cond <- col[ind]
+    if (length(cond) > 0) {
+        cond <- setNames(unlist(str_extract_all(cond, "(?<=\\().+?(?=\\))")), names(cond))
+    }
+    return(list(required=req, conditions=cond))
+}
+
 
 # returns logical vector for whether a cross-table reference is valid
 .valid_ref <- function(x) {

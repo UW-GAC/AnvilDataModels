@@ -28,11 +28,14 @@ Import data model in tsv format
 
 TSV files to be imported must have the following columns: 
 \itemize{
-  \item{entity: }{"Table" or "enum"}
+  \item{entity: }{"Table", "enum", or "meta"}
   \item{table: }{table or enum name}
   \item{column: }{column name within table}
   \item{type: }{"string", "boolean, "integer", "float", "date", "dateTime", or name of enum}
-  \item{required: }{logical where TRUE indicates the column is required}
+  \item{required: }{TRUE indicates the column is required, FALSE or missing if the column
+   is optional.'CONDITIONAL (column = value)' indicates a requirement only if any element of 
+   'column' contains 'value'. To indicate that table 't2' is only required if table 't1' is 
+   present, entity='meta', table='t2' and required='CONDITIONAL (t1)'}
   \item{pk: }{logical where TRUE indicates the column is a primary key, 
     other values may be FALSE or missing}
   \item{ref: }{Reference to other columns in the data model. Either 
@@ -48,11 +51,18 @@ TSV files to be imported must have the following columns:
 \examples{
 tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
 (dm <- tsv_to_dm(tsv))
+attr(dm, "required")
+lapply(dm, attr, "required")
 
 tmp <- tempfile()
 tsv_to_dbml(tsv, tmp)
 readLines(tmp, n=14)
 
 unlink(tmp)
+
+tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
+(dm <- tsv_to_dm(tsv))
+attr(dm, "conditions")
+lapply(dm, attr, "conditions")
 
 }

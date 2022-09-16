@@ -33,6 +33,23 @@ read_data_tables <- function(files, table_names=names(files), quiet=TRUE) {
 }
 
 
+.parse_required_tables <- function(table_names, model) {
+    required <- attr(model, "required")
+    optional <- character()
+    cond <- attr(model, "conditions")
+    for (c in names(cond)) {
+        # if condition is met, add to 'required'
+        if (cond[[c]] %in% table_names) {
+            required <- c(required, c)
+        } else {
+            # if condition not met, add to 'optional'
+            optional <- c(optional, c)
+        }
+    }
+    optional <- unique(c(optional, setdiff(names(model), required)))
+    return(list(required=required, optional=optional))
+}
+
 #' @rdname check_data_tables
 #' @param tables Named list of data tables
 #' @param model \code{\link{dm}} object describing data model
@@ -48,12 +65,45 @@ check_table_names <- function(tables, model) {
     if (setequal(names(tables), names(model))) {
         return(NULL)
     } else {
-        required <- names(model)[attr(model, "required")]
-        optional <- names(model)[!attr(model, "required")]
+        req <- .parse_required_tables(names(tables), model)
+        required <- req$required
+        optional <- req$optional
+        #required <- names(model)[attr(model, "required")]
+        #optional <- names(model)[!attr(model, "required")]
         return(list(missing_required_tables=setdiff(required, names(tables)),
                     missing_optional_tables=setdiff(optional, names(tables)),
                     extra_tables=setdiff(names(tables), names(model))))
     }
+}
+
+
+#' @importFrom stringr str_trim
+.parse_condition <- function(x) {
+    tmp <- unlist(strsplit(x, "="))
+    column <- str_trim(tmp[1])
+    value <- str_trim(tmp[2])
+    return(list(column=column, value=value))
+}
+
+.parse_required_columns <- function(table, model) {
+    required <- attr(model, "required")
+    optional <- character()
+    cond <- attr(model, "conditions")
+    # for all columns in names(cond)
+    for (c in names(cond)) {
+        cond_parsed <- .parse_condition(cond[[c]])
+        column <- cond_parsed$column
+        value <- cond_parsed$value
+        # if condition is met, add to 'required'
+        if (any(table[[column]] == value)) {
+            required <- c(required, c)
+        } else {
+        # if condition not met, add to 'optional'
+            optional <- c(optional, c)
+        }
+    }
+    optional <- unique(c(optional, setdiff(names(model), required)))
+    return(list(required=required, optional=optional))
 }
 
 
@@ -74,8 +124,11 @@ check_column_names <- function(tables, model) {
         if (setequal(names(tables[[t]]), names(model[[t]]))) {
             return(NULL)
         } else {
-            required <- names(model[[t]])[attr(model[[t]], "required")]
-            optional <- names(model[[t]])[!attr(model[[t]], "required")]
+            req <- .parse_required_columns(tables[[t]], model[[t]])
+            required <- req$required
+            optional <- req$optional
+            #required <- names(model[[t]])[attr(model[[t]], "required")]
+            #optional <- names(model[[t]])[!attr(model[[t]], "required")]
             return(list(missing_required_columns=setdiff(required, names(tables[[t]])),
                         missing_optional_columns=setdiff(optional, names(tables[[t]])),
                         extra_columns=setdiff(names(tables[[t]]), names(model[[t]]))))
@@ -181,6 +234,11 @@ check_primary_keys <- function(tables, model) {
 check_foreign_keys <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     keys <- dm_get_all_fks(model[common])
+    # sets <- names(tables)[grepl("_set$", names(tables))]
+    # for (s in sets) {
+    #     set_id <- paste0(s, "_id")
+    #     tables[[s]] <- distinct(tables[[s]], !!set_id, .keep_all=TRUE)
+    # }
     tables_dm <- as_dm(tables)
     missing_keys <- list()
     for (i in 1:nrow(keys)) {
