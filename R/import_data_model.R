@@ -13,7 +13,7 @@
 #'   \item{column: }{column name within table}
 #'   \item{type: }{"string", "boolean, "integer", "float", "date", "dateTime", or name of enum}
 #'   \item{required: }{TRUE indicates the column is required, FALSE or missing if the column
-#'    is optional.'CONDITIONAL (column = value)' indicates a requirement only if any element of 
+#'    is optional. 'CONDITIONAL (column = value)' indicates a requirement only if any element of 
 #'    'column' contains 'value'. To indicate that table 't2' is only required if table 't1' is 
 #'    present, entity='meta', table='t2' and required='CONDITIONAL (t1)'}
 #'   \item{pk: }{logical where TRUE indicates the column is a primary key, 
