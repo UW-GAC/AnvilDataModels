@@ -2,12 +2,12 @@
 # 
 # argp <- argparser("report")
 # argp <- add_argument(argp, "--tables", nargs=Inf, help="tsv files with data tables")
-# argp <- add_argument(argp, "--model", help="tsv file with data model")
+# argp <- add_argument(argp, "--model", help="json file with data model")
 # argp <- add_argument(argp, "--out_prefix", help="output prefix")
 # argv <- parse_args(argp)
 
 
-model_file <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
+model_file <- system.file("extdata", "data_model.json", package="AnvilDataModels")
 
 table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
 table_files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")

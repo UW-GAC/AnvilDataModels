@@ -8,8 +8,8 @@ test_that("upload example files", {
 })
 
 test_that("table with primary key matching table name", {
-  tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-  model <- tsv_to_dm(tsv)
+  json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+  model <- json_to_dm(json)
   table_name <- "subject"
   file <- system.file("extdata", paste0(table_name, ".tsv"), package="AnvilDataModels")
   tables <- read_data_tables(file, table_name, quiet=TRUE)
@@ -28,8 +28,8 @@ test_that("table with primary key matching table name", {
 })
 
 test_that("table with primary key not matching table name", {
-  tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-  model <- tsv_to_dm(tsv)
+  json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+  model <- json_to_dm(json)
   table_name <- "file"
   file <- system.file("extdata", paste0(table_name, ".tsv"), package="AnvilDataModels")
   tables <- read_data_tables(file, table_name, quiet=TRUE)
@@ -43,8 +43,8 @@ test_that("table with primary key not matching table name", {
 })
 
 test_that("table with >1 primary key", {
-  tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-  model <- tsv_to_dm(tsv)
+  json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+  model <- json_to_dm(json)
   table_name <- "phenotype"
   file <- system.file("extdata", paste0(table_name, ".tsv"), package="AnvilDataModels")
   tables <- read_data_tables(file, table_name, quiet=TRUE)
@@ -58,8 +58,8 @@ test_that("table with >1 primary key", {
 })
 
 test_that("set", {
-  tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-  model <- tsv_to_dm(tsv)
+  json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+  model <- json_to_dm(json)
   table_name <- "sample"
   set_name <- paste0(table_name, "_set")
   files <- system.file("extdata", paste0(c(table_name, set_name), ".tsv"), package="AnvilDataModels")

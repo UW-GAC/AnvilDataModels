@@ -87,8 +87,8 @@ Read a set of files containing data tables and check them against a data model.
 }
 \examples{
 # read data model
-tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-model <- tsv_to_dm(tsv)
+json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+model <- json_to_dm(json)
 
 # read tables to check
 table_names <- c("subject", "phenotype", "sample", "sample_set", "file")

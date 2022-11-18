@@ -1,0 +1,75 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "t1",
+        "required": true,
+        "columns": [
+        {
+            "column": "t1_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "condition",
+            "required": true,
+            "data_type": "boolean"
+        },
+        {
+            "column": "if_condition",
+            "required": "CONDITIONAL (condition = TRUE)",
+            "data_type": "string"
+        },
+        {
+            "column": "variable",
+            "required": true,
+            "data_type": "enumeration",
+            "enumerations": ["yes", "no"]
+        },
+        {
+            "column": "if_variable",
+            "required": "CONDITIONAL (variable = yes)",
+            "data_type": "string"
+        },
+        {
+            "column": "something",
+            "data_type": "string"
+        }
+        ]
+    },
+    {
+        "table": "t2",
+        "columns": [
+        {
+            "column": "t2_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "something",
+            "data_type": "string"
+        }
+        ]
+    },
+    {
+        "table": "t3",
+        "required": "CONDITIONAL (t2)",
+        "columns": [
+        {
+            "column": "t3_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "something",
+            "data_type": "string"
+        }
+        ]
+    }
+    ]
+}

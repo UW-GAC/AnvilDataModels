@@ -19,18 +19,18 @@ library(AnvilDataModels)
 
 This vignette illustrates how to validate a set of tsv files against a data model, and then import them into AnVIL data tables.
 
-First, we read in the data model. It is stored in a TSV file following a very specific format compatible with [DBML](https://www.dbml.org/docs).
+First, we read in the data model from a JSON file.
 
 ```{r}
-tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-(model <- tsv_to_dm(tsv))
+json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+(model <- json_to_dm(json))
 ```
 
 The data model can be exported to DBML for display.
 
 ```{r}
 tmp <- tempfile()
-tsv_to_dbml(tsv, tmp)
+json_to_dbml(json, tmp)
 readLines(tmp, n=18)
 unlink(tmp)
 ```

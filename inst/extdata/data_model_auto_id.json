@@ -1,0 +1,59 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "analysis",
+        "columns": [
+        {
+            "column": "analysis_id",
+            "primary_key": true,
+            "required": true,
+            "description": "auto-generated analysis id",
+            "data_type": "string",
+            "references": "from: analysis_type, outcome_type, outcome"
+        },
+        {
+            "column": "analysis_type",
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "outcome_type",
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "outcome",
+            "required": true,
+            "data_type": "string"
+        }
+        ]
+    },
+    {
+        "table": "file",
+        "columns": [
+            {
+                "column": "md5",
+                "primary_key": true,
+                "required": true,
+                "description": "md5 checksum",
+                "data_type": "string"
+            },
+            {
+                "column": "filename",
+                "required": true,
+                "description": "name of file",
+                "data_type": "string"
+            },
+            {
+                "column": "analysis_id",
+                "required": true,
+                "data_type": "string",
+                "references": "> analysis.analysis_id"
+            }
+        ]
+    }
+    ]
+}
