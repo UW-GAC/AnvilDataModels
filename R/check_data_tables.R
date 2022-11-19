@@ -10,8 +10,8 @@
 #' 
 #' @examples
 #' # read data model
-#' tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-#' model <- tsv_to_dm(tsv)
+#' json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+#' model <- json_to_dm(json)
 #' 
 #' # read tables to check
 #' table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
@@ -271,6 +271,7 @@ check_foreign_keys <- function(tables, model) {
 #' @param chk output of \code{check_column_names} or \code{check_column_types}
 #' @return \code{parse_column_name_check} and \code{parse_column_type_check} 
 #'   each return a tibble with check results suitable for printing
+#' @importFrom dplyr .data
 #' @export
 parse_column_name_check <- function(chk) {
     tibble(Table=names(chk),
@@ -285,6 +286,7 @@ parse_column_name_check <- function(chk) {
 
 
 #' @rdname check_data_tables
+#' @importFrom dplyr bind_rows
 #' @export
 parse_column_type_check <- function(chk) {
     lapply(names(chk), function(x) {

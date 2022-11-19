@@ -6,6 +6,6 @@
 }
 
 .model <- function() {
-    tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-    tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+    json_to_dm(json)
 }

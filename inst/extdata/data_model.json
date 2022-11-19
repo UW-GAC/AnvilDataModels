@@ -1,0 +1,158 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "subject",
+        "required": true,
+        "columns": [
+        {
+            "column": "subject_id",
+            "primary_key": true,
+            "required": true,
+            "description": "Subject/Participant's Identifier within project",
+            "data_type": "string"
+        },
+        {
+            "column": "consent_code",
+            "required": true,
+            "description": "consent abbreviation",
+            "data_type": "string"
+        },
+        {
+            "column": "study_nickname",
+            "required": false,
+            "description": "short name for study",
+            "data_type": "string"
+        },
+        {
+            "column": "dbgap_submission",
+            "description": "Flag if subject has been submitted to dbGaP",
+            "data_type": "boolean"
+        },
+        {
+            "column": "reported_sex",
+            "required": true,
+            "description": "reported sex",
+            "data_type": "enumeration",
+            "enumerations": ["F", "M", "X"]
+        }
+        ]
+    },
+    {
+        "table": "phenotype",
+        "required": false,
+        "columns": [
+        {
+            "column": "subject_id",
+            "primary_key": true,
+            "data_type": "string",
+            "references": "> subject.subject_id"
+        },
+        {
+            "column": "visit_id",
+            "primary_key": true,
+            "required": true,
+            "description": "identifier for visit",
+            "data_type": "string"
+        },
+        {
+            "column": "height",
+            "description": "height in cm",
+            "data_type": "float"
+        },
+        {
+            "column": "weight",
+            "description": "weight in kg",
+            "data_type": "float"
+        }
+        ]
+    },
+    {
+        "table": "sample",
+        "required": true,
+        "columns": [
+        {
+            "column": "sample_id",
+            "primary_key": true,
+            "required": true,
+            "description": "sample identifier",
+            "data_type": "string"
+        },
+        {
+            "column": "subject_id",
+            "required": true,
+            "data_type": "string",
+            "references": "> subject.subject_id"
+        },
+        {
+            "column": "tissue_source",
+            "required": true,
+            "description": "tissue type of sample",
+            "data_type": "string"
+        },
+        {
+            "column": "age_at_sample_collection",
+            "description": "age of subject when sample was collected",
+            "data_type": "integer"
+        },
+        {
+            "column": "date_of_sample_processing",
+            "description": "date sample was processed in the lab",
+            "data_type": "date"
+        }
+        ]
+    },
+    {
+        "table": "sample_set",
+        "required": true,
+        "columns": [
+        {
+            "column": "sample_set_id",
+            "primary_key": true,
+            "required": true,
+            "description": "identifier for sample set",
+            "data_type": "string"
+        },
+        {
+            "column": "sample_id",
+            "required": true,
+            "data_type": "string",
+            "references": "> sample.sample_id"
+        }
+        ]
+    },
+    {
+        "table": "file",
+        "required": true,
+        "columns": [
+        {
+            "column": "md5",
+            "primary_key": true,
+            "required": true,
+            "description": "md5 checksum",
+            "data_type": "string"
+        },
+        {
+            "column": "sample_id",
+            "required": true,
+            "data_type": "string",
+            "references": "> sample.sample_id"
+        },
+        {
+            "column": "filename",
+            "required": true,
+            "description": "name of file",
+            "data_type": "string"
+        },
+        {
+            "column": "file_timestamp",
+            "required": false,
+            "description": "time of file creation",
+            "data_type": "dateTime"
+        }
+        ]
+    }
+    ]
+}

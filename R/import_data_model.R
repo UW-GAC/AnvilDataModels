@@ -1,139 +1,139 @@
-#' Import data from tsv file
+#' Import data from json file
 #' 
-#' Import data model in tsv format
+#' Import data model in json format
 #' 
-#' \code{tsv_to_dm} returns a \code{\link{dm}} object.
+#' \code{json_to_dm} returns a \code{\link{dm}} object.
 #' 
-#' \code{tsv_to_dbml} writes a \href{https://www.dbml.org}{DBML} file.
+#' \code{json_to_dbml} writes a \href{https://www.dbml.org}{DBML} file.
 #' 
-#' TSV files to be imported must have the following columns: 
+#' json files to be imported should contain a list "tables". Each table object should
+#' contain the following elements: 
 #' \itemize{
-#'   \item{entity: }{"Table", "enum", or "meta"}
-#'   \item{table: }{table or enum name}
-#'   \item{column: }{column name within table}
-#'   \item{type: }{"string", "boolean, "integer", "float", "date", "dateTime", or name of enum}
+#'   \item{table: }{table name}
+#'   \item{columns: }{list of "column" objects}
+#'   \item{required: }{TRUE indicates the table is required, FALSE or missing if the table
+#'    is optional. 'CONDITIONAL (t1)' indicates that a table is only required if table 't1' is 
+#'    present.}
+#' }
+#' 
+#' Each column object should contain the following elements:
+#' \itemize{
+#'   \item{column: }{column namee}
+#'   \item{data_type: }{"string", "boolean, "integer", "float", "date", "dateTime", or "enumeration"}
 #'   \item{required: }{TRUE indicates the column is required, FALSE or missing if the column
 #'    is optional. 'CONDITIONAL (column = value)' indicates a requirement only if any element of 
-#'    'column' contains 'value'. To indicate that table 't2' is only required if table 't1' is 
-#'    present, entity='meta', table='t2' and required='CONDITIONAL (t1)'}
-#'   \item{pk: }{logical where TRUE indicates the column is a primary key, 
+#'    'column' contains 'value'.}
+#'   \item{primary_key: }{logical where TRUE indicates the column is a primary key, 
 #'     other values may be FALSE or missing}
-#'   \item{ref: }{Reference to other columns in the data model. Either 
+#'   \item{references: }{Reference to other columns in the data model. Either 
 #'     1) a cross-table reference string following the 
 #'     \href{https://www.dbml.org/docs/#relationships-foreign-key-definitions}{DBML}
 #'     format, or 
 #'     2) 'from:' followed by a comma-separated list of columns used to
 #'     automatically generate this column using a hash function.}
-#'   \item{note}{Note string (column description) following the
+#'   \item{description}{Note string (column description) following the
 #'     \href{https://www.dbml.org/docs/#column-notes}{DBML} format}
 #' }
 #' 
-#' @name import_tsv
-#' @param tsv Character vector with paths to tab-separated variable files. If more than one file is provided, they will be combined into a single data model.
+#' @name import_json
+#' @param json Character vector with paths to json files. If more than one file is provided, they will be combined into a single data model.
 #' @return \code{\link{dm}} object
 #' 
 #' @examples 
-#' tsv <- system.file("extdata", "data_model.tsv", package="AnvilDataModels")
-#' (dm <- tsv_to_dm(tsv))
+#' json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+#' (dm <- json_to_dm(json))
 #' attr(dm, "required")
 #' lapply(dm, attr, "required")
 #' 
 #' tmp <- tempfile()
-#' tsv_to_dbml(tsv, tmp)
+#' json_to_dbml(json, tmp)
 #' readLines(tmp, n=14)
 #' 
 #' unlink(tmp)
 #' 
-#' tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
-#' (dm <- tsv_to_dm(tsv))
+#' json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+#' (dm <- json_to_dm(json))
 #' attr(dm, "conditions")
 #' lapply(dm, attr, "conditions")
 #' 
 #' @import dm
-#' @importFrom dplyr as_tibble filter .data %>%
+#' @importFrom dplyr as_tibble %>%
 #' @importFrom lubridate ymd ymd_hms
 #' @importFrom stats setNames
 #' @export
-tsv_to_dm <- function(tsv) {
-    dat <- .read_data_model(tsv)
+json_to_dm <- function(json) {
+    dat <- .read_data_model(json)
     
-    # unique tables and enums
-    tables <- unique(filter(dat, .data[["entity"]] == "Table")$table)
+    # unique tables
+    tables <- dat$tables
     if (length(tables) == 0) stop("Data model must contain Table entities")
-    enums <- unique(filter(dat, .data[["entity"]] == "enum")$table)
-    
-    # transform enums into factors
-    enum_list <- lapply(enums, function(e) {
-        this <- filter(dat, .data[["entity"]] == "enum" & .data[["table"]] == e)
-        return(factor(levels=this$column))
-    })
-    names(enum_list) <- enums
     
     # map database types to R types
     type_map <- list("string"=character(),
-                    "boolean"=logical(),
-                    "integer"=integer(),
-                    "float"=numeric(),
-                    "date"=ymd(),
-                    "dateTime"=ymd_hms())
+                     "boolean"=logical(),
+                     "integer"=integer(),
+                     "float"=numeric(),
+                     "date"=ymd(),
+                     "dateTime"=ymd_hms())
     
     # create 0-row tibbles for each table
     table_list <- lapply(tables, function(t) {
-        this <- filter(dat, .data[["entity"]] == "Table" & .data[["table"]] == t)
-        tab <- lapply(this[["type"]], function(y) {
-            if (y %in% names(type_map)) {
-                return(type_map[[y]])
-            } else if (y %in% enums) {
-                return(enum_list[[y]])
+        tab <- lapply(t$columns, function(c) {
+            type <- c$data_type
+            if (type %in% names(type_map)) {
+                return(type_map[[type]])
+            } else if (type == "enumeration") {
+                return(factor(levels=c$enumerations))
             } else {
-                stop("Undefined data type. Do you need to add 'enum' rows?")
+                stop("Undefined data type")
             }
         })
-        names(tab) <- this$column
+        names(tab) <- sapply(t$columns, function(c) c$column)
         tib <- as_tibble(tab)
-        req <- .parse_requirements(this, type="column")
+        req <- .parse_requirements(t, type="column")
         attr(tib, "required") <- req$required
         attr(tib, "conditions") <- req$conditions
         return(tib)
     })
-    names(table_list) <- tables
+    names(table_list) <- sapply(tables, function(t) t$table)
     
     # coerce list of tables to dm object
     data_model <- as_dm(table_list)
     
     # add primary keys
-    pk <- filter(dat, .data[["pk"]])
-    tables_pk <- unique(pk$table)
-    for (t in tables_pk) {
-        this <- filter(pk, .data[["entity"]] == "Table" & .data[["table"]] == t)
-        data_model <- dm_add_pk(data_model, table=!!t, columns=!!this$column)
+    for (t in tables) {
+        pk <- .named_elements(t$columns, "column", "primary_key")
+        if (length(pk) > 0) {
+            data_model <- dm_add_pk(data_model, table=!!t$table, columns=!!names(pk))
+        }
     }
     
     # add foreign keys
-    fk <- filter(dat, .valid_ref(.data[["ref"]]))
-    if (nrow(fk) > 0) {
-        for (i in 1:nrow(fk)) {
-            ref <- strsplit(fk$ref[i], " ")[[1]][[2]] %>%
+    for (t in tables) {
+        fk <- .named_elements(t$columns, "column", "references")
+        fk <- fk[.valid_ref(fk)]
+        for (i in seq_along(fk)) {
+            ref <- strsplit(fk[i], " ")[[1]][[2]] %>%
                 strsplit(".", fixed=TRUE) %>%
                 unlist()
-            data_model <- dm_add_fk(data_model, table=!!fk$table[i], columns=!!fk$column[i],
+            data_model <- dm_add_fk(data_model, table=!!t$table, columns=!!names(fk)[i],
                                     ref_table=!!ref[1], ref_columns=!!ref[2])
         }
     }
     
     # set which tables are required
-    meta <- filter(dat, .data[["entity"]] == "meta")
-    req <- .parse_requirements(meta, type="table")
+    req <- .parse_requirements(tables, type="table")
     attr(data_model, "required") <- req$required
     attr(data_model, "conditions") <- req$conditions
     
     # set which columns are generated from other columns
     auto_id <- list()
-    auto <- filter(dat, .valid_from(.data[["ref"]]))
-    tables_auto <- unique(auto$table)
-    for (t in tables_auto) {
-        this <- filter(auto, .data[["entity"]] == "Table" & .data[["table"]] == t)
-        auto_id[[t]] <- .auto_id_columns(this)
+    for (t in tables) {
+        auto <- .named_elements(t$columns, "column", "references")
+        auto <- auto[.valid_from(auto)]
+        if (length(auto) > 0) {
+            auto_id[[t$table]] <- lapply(auto, .column_from)
+        }
     }
     attr(data_model, "auto_id") <- auto_id
     
@@ -141,36 +141,37 @@ tsv_to_dm <- function(tsv) {
 }
 
 
-#' @rdname import_tsv
+
+#' @rdname import_json
 #' @param dbml Path for the DBML output file
 #' @importFrom stats na.omit
 #' @export
-tsv_to_dbml <- function(tsv, dbml) {
-    dat <- .read_data_model(tsv)
+json_to_dbml <- function(json, dbml) {
+    dat <- .read_data_model(json)
     
     # output file stream
     con <- file(dbml, "w")
     
     # tables
-    tables <- unique(filter(dat, .data[["entity"]] == "Table")$table)
+    tables <- dat$tables
     for (t in tables) {
-        writeLines(paste("Table", t, "{"), con)
+        writeLines(paste("Table", t$table, "{"), con)
         
-        this <- filter(dat, .data[["entity"]] == "Table" & .data[["table"]] == t)
-        for (i in 1:nrow(this)) {
-            pk <- if (!is.na(this$pk[i]) && this$pk[i]) "pk" else NA
-            ref <- if (.valid_ref(this$ref[i])) paste("ref:", this$ref[i]) else NA
-            esc_quotes <- paste0("note: '", gsub("'", "\\'", this$note[i], fixed=TRUE), "'")
-            note <- if (!is.na(this$note[i])) esc_quotes else NA
+        for (c in t$columns) {
+            pk <- if (!is.null(c$primary_key) && c$primary_key) "pk" else NA
+            ref <- if (!is.null(c$references) && .valid_ref(c$references)) paste("ref:", c$references) else NA
+            esc_quotes <- paste0("note: '", gsub("'", "\\'", c$description, fixed=TRUE), "'")
+            note <- if (!is.null(c$description)) esc_quotes else NA
             meta <- paste(na.omit(c(pk, ref, note)), collapse=", ")
             if (nchar(meta) > 0 ) meta <- paste0("[", meta, "]")
-            writeLines(paste(" ", this$column[i], this$type[i], meta), con)
+            writeLines(paste(" ", c$column, c$data_type, meta), con)
         }
         
         # do we have a composite primary key?
-        if (sum(this$pk, na.rm=TRUE) > 1) {
+        pk <- .named_elements(t$columns, "column", "primary_key")
+        if (length(pk) > 1) {
             writeLines("  indexes {", con)
-            index <- paste0(na.omit(this$column[this$pk]), collapse=", ")
+            index <- paste0(names(pk)[pk], collapse=", ")
             writeLines(paste0("    (", index, ") [pk]"), con)
             writeLines("  }\n", con)
         }
@@ -178,33 +179,29 @@ tsv_to_dbml <- function(tsv, dbml) {
         writeLines("}\n", con)
     }
     
-    # enums
-    enums <- unique(filter(dat, .data[["entity"]] == "enum")$table)
-    for (e in enums) {
-        writeLines(paste("enum", e, "{"), con)
-        
-        this <- filter(dat, .data[["entity"]] == "enum" & .data[["table"]] == e)
-        for (i in 1:nrow(this)) {
-            writeLines(paste0('  "', this$column[i], '"'), con)
-        }
-        
-        writeLines("}\n", con)
-    }
-    
     close(con)
 }
 
 
-# read tsv file(s) to tibble
-#' @importFrom readr read_tsv
-#' @importFrom dplyr bind_rows
-.read_data_model <- function(tsv) {
-    cols <- c("entity", "table", "column", "type", "required", "pk", "ref", "note")
-    dat <- bind_rows(lapply(tsv, read_tsv, col_names=TRUE, col_types=paste(rep("c", length(cols)), collapse="")))
-    stopifnot(setequal(names(dat), cols))
-    #dat$required <- as.logical(dat$required)
-    dat$pk <- as.logical(dat$pk)
-    return(dat)
+# read json file(s) to list
+#' @importFrom jsonlite fromJSON
+.read_data_model <- function(json) {
+    if (length(json) == 1) {
+        return(fromJSON(json, simplifyDataFrame=FALSE))
+    } else {
+        dat_list <- lapply(json, fromJSON, simplifyDataFrame=FALSE)
+        dat <- dat_list[[1]]
+        dat$tables <- c(dat$tables, dat_list[[2]]$tables)
+        return(dat)
+    }
+}
+
+
+# returns named vector of elements in list
+.named_elements <- function(x, name, element) {
+    setNames(lapply(x, function(y) y[[element]]),
+             lapply(x, function(y) y[[name]])) %>%
+        unlist()
 }
 
 
@@ -213,11 +210,10 @@ tsv_to_dbml <- function(tsv, dbml) {
 .parse_requirements <- function(x, type=c("column", "table")) {
     type <- match.arg(type)
     if (type == "column") {
-        col <- setNames(x$required, x$column)
+        col <- .named_elements(x$columns, "column", "required")
     } else {
-        col <- setNames(x$required, x$table)
+        col <- .named_elements(x, "table", "required")
     }
-    col[is.na(col)] <- "FALSE"
     ind <- grepl("^CONDITIONAL", col)
     req <- col[!ind]
     mode(req) <- "logical"
@@ -239,14 +235,6 @@ tsv_to_dbml <- function(tsv, dbml) {
 # returns logical vector for whether an auto-id reference is valid
 .valid_from <- function(x) {
     grepl("^from:", x)
-}
-
-
-# returns a list of column names used to create new column
-.auto_id_columns <- function(x) {
-    ind <- which(grepl("^from:", x$ref))
-    lapply(ind, function(i) .column_from(x$ref[i])) %>%
-        setNames(x$column[ind])
 }
 
 

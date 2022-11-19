@@ -161,24 +161,29 @@ test_that("missing foreign key", {
 
 
 test_that("missing data", {
-    model <- tibble(
-        entity="Table",
-        table="tbl",
-        column=c("s", "i", "f", "b", "d", "e"),
-        type=c("string", "integer", "float", "boolean", "date", "e"),
-        required=NA,
-        pk=NA,
-        ref=NA,
-        note=NA
-    ) %>%
-        bind_rows(tibble(
-            entity="enum",
-            table="e",
-            column=letters[1:2]
-        ))
+    model <- list(tables=list(
+        list(table="tbl",
+             columns=list(
+                 list(column="s",
+                      data_type="string"),
+                 list(column="i",
+                      data_type="integer"),
+                 list(column="f",
+                      data_type="float"),
+                 list(column="b",
+                      data_type="boolean"),
+                 list(column="d",
+                      data_type="date"),
+                 list(column="e",
+                      data_type="enumeration",
+                      enumerations=letters[1:2])
+             ))
+    )) %>%
+        jsonlite::toJSON(auto_unbox=TRUE, unbox=TRUE)
+
     modfile <- tempfile()
-    readr::write_tsv(model, modfile, na="")
-    model <- tsv_to_dm(modfile)
+    write(model, modfile)
+    model <- json_to_dm(modfile)
     
     dat <- tibble(
         s=c("a", NA),
@@ -199,8 +204,8 @@ test_that("missing data", {
 
 
 test_that("conditional columns - parsing", {
-    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
-    x <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
     dat <- tibble(t1_id=1:2,
                   condition=c(TRUE, FALSE),
                   if_condition=c("a", "b"),
@@ -219,8 +224,8 @@ test_that("conditional columns - parsing", {
 })
 
 test_that("conditional columns - check", {
-    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
-    x <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
     dat <- tibble(t1_id=1:2,
                   condition=c(TRUE, FALSE),
                   if_condition=c("a", "b"),
@@ -243,8 +248,8 @@ test_that("conditional columns - check", {
 })
 
 test_that("conditional tables - parsing", {
-    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
-    x <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
     chk <- .parse_required_tables(c("t1", "t2", "t3"), x)
     expect_setequal(chk$required, c("t1", "t3"))
     expect_setequal(chk$optional, c("t2"))
@@ -255,8 +260,8 @@ test_that("conditional tables - parsing", {
 })
 
 test_that("conditional tables - check", {
-    tsv <- system.file("extdata", "data_model_conditional.tsv", package="AnvilDataModels")
-    x <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
     chk <- check_table_names(tables=list(t1=tibble()), model=x)
     expect_setequal(chk$missing_required_tables, character())
     expect_setequal(chk$missing_optional_tables, c("t2", "t3"))

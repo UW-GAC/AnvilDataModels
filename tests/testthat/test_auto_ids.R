@@ -1,7 +1,7 @@
 
 test_that("auto ids", {
-    tsv <- system.file("extdata", "data_model_auto_id.tsv", package="AnvilDataModels")
-    model <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_auto_id.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
     table_name <- "analysis"
     file <- system.file("extdata", "analysis1.tsv", package="AnvilDataModels")
     tables <- read_data_tables(file, table_names=table_name, quiet=TRUE)
@@ -10,8 +10,8 @@ test_that("auto ids", {
 })
 
 test_that("table with no auto ids", {
-    tsv <- system.file("extdata", "data_model_auto_id.tsv", package="AnvilDataModels")
-    model <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_auto_id.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
     table_name <- "file"
     file <- system.file("extdata", "analysis_file1.tsv", package="AnvilDataModels")
     tables <- read_data_tables(file, table_names=table_name, quiet=TRUE)
@@ -20,8 +20,8 @@ test_that("table with no auto ids", {
 })
 
 test_that("missing columns for auto ids", {
-    tsv <- system.file("extdata", "data_model_auto_id.tsv", package="AnvilDataModels")
-    model <- tsv_to_dm(tsv)
+    json <- system.file("extdata", "data_model_auto_id.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
     table_name <- "analysis"
     file <- system.file("extdata", "analysis1.tsv", package="AnvilDataModels")
     tables <- read_data_tables(file, table_names=table_name, quiet=TRUE)
