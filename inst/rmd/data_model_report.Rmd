@@ -21,7 +21,7 @@ model <- json_to_dm(params$model)
 return_value <- TRUE # returned to render function to indicate T/F passing checks
 ```
 
-Data model version: `r attr(model, "version")`
+Data model version: `r attr(model, "data_model_version")`
 
 ## Required tables
 

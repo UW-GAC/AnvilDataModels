@@ -8,7 +8,7 @@ test_that("import json", {
     expect_equal(names(dm_get_tables(x)), table_names)
     expect_equal(nrow(dm_get_all_pks(x)), 5)
     expect_equal(nrow(dm_get_all_fks(x)), 4)
-    expect_equal(attr(x, "version"), "0")
+    expect_equal(attr(x, "data_model_version"), "0")
 })
 
 test_that("json to dbml", {

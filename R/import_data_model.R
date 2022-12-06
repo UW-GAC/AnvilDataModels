@@ -138,7 +138,7 @@ json_to_dm <- function(json) {
     attr(data_model, "auto_id") <- auto_id
     
     # add version
-    attr(data_model, "version") <- dat$version
+    attr(data_model, "data_model_version") <- dat$version
     
     return(data_model)
 }
