@@ -68,8 +68,6 @@ check_table_names <- function(tables, model) {
         req <- .parse_required_tables(names(tables), model)
         required <- req$required
         optional <- req$optional
-        #required <- names(model)[attr(model, "required")]
-        #optional <- names(model)[!attr(model, "required")]
         return(list(missing_required_tables=setdiff(required, names(tables)),
                     missing_optional_tables=setdiff(optional, names(tables)),
                     extra_tables=setdiff(names(tables), names(model))))
@@ -127,8 +125,6 @@ check_column_names <- function(tables, model) {
             req <- .parse_required_columns(tables[[t]], model[[t]])
             required <- req$required
             optional <- req$optional
-            #required <- names(model[[t]])[attr(model[[t]], "required")]
-            #optional <- names(model[[t]])[!attr(model[[t]], "required")]
             return(list(missing_required_columns=setdiff(required, names(tables[[t]])),
                         missing_optional_columns=setdiff(optional, names(tables[[t]])),
                         extra_columns=setdiff(names(tables[[t]]), names(model[[t]]))))
