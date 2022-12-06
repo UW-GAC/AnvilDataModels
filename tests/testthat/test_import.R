@@ -8,6 +8,7 @@ test_that("import json", {
     expect_equal(names(dm_get_tables(x)), table_names)
     expect_equal(nrow(dm_get_all_pks(x)), 5)
     expect_equal(nrow(dm_get_all_fks(x)), 4)
+    expect_equal(attr(x, "version"), "0")
 })
 
 test_that("json to dbml", {
@@ -18,6 +19,7 @@ test_that("json to dbml", {
     dbml <- readLines(tmp)
     expect_true(all(paste("Table", table_names, "{") %in% dbml))
     expect_true("  indexes {" %in% dbml)
+    expect_true("// version 0" %in% dbml)
     unlink(tmp)
 })
 

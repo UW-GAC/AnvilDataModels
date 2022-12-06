@@ -137,6 +137,9 @@ json_to_dm <- function(json) {
     }
     attr(data_model, "auto_id") <- auto_id
     
+    # add version
+    attr(data_model, "version") <- dat$version
+    
     return(data_model)
 }
 
@@ -151,6 +154,9 @@ json_to_dbml <- function(json, dbml) {
     
     # output file stream
     con <- file(dbml, "w")
+    
+    # version
+    writeLines(paste("// version", dat$version), con)
     
     # tables
     tables <- dat$tables
