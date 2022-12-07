@@ -230,13 +230,9 @@ check_primary_keys <- function(tables, model) {
 check_foreign_keys <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     keys <- dm_get_all_fks(model[common])
-    # sets <- names(tables)[grepl("_set$", names(tables))]
-    # for (s in sets) {
-    #     set_id <- paste0(s, "_id")
-    #     tables[[s]] <- distinct(tables[[s]], !!set_id, .keep_all=TRUE)
-    # }
     tables_dm <- as_dm(tables)
     missing_keys <- list()
+    set_key_problems <- list()
     for (i in 1:nrow(keys)) {
         child_table <- keys$child_table[i]
         child_keys <- keys$child_fk_cols[[i]]
@@ -251,15 +247,30 @@ check_foreign_keys <- function(tables, model) {
             missing_keys[[parent_table]] <- unique(c(missing_keys[[parent_table]], missing_parent_keys))
         }
         if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
-            tables_dm <- dm_add_fk(tables_dm, 
-                                   table=!!child_table, 
-                                   columns=!!child_keys,
-                                   ref_table=!!parent_table,
-                                   ref_columns=!!parent_keys)
+            # foreign keys to set tables will not be unique before import to AnVIL
+            if (!(grepl("_set$", parent_table))) {
+                tables_dm <- dm_add_fk(tables_dm, 
+                                       table=!!child_table, 
+                                       columns=!!child_keys,
+                                       ref_table=!!parent_table,
+                                       ref_columns=!!parent_keys)
+            } else {
+                for (kc in child_keys) {
+                    for (kp in parent_keys) {
+                        child_vals <- tables[[child_table]][[kc]]
+                        parent_vals <- tables[[parent_table]][[kp]]
+                        if (!all(child_vals %in% parent_vals)) {
+                            set_key_problems[[paste(child_table, kc, sep=".")]] <- 
+                                paste0("Not all values present in ", parent_table, ".", kp)
+                        }
+                    }
+                }
+            }
         }
     }
     return(list(found_keys=dm_examine_constraints(tables_dm),
-                missing_keys=missing_keys))
+                missing_keys=missing_keys,
+                set_key_problems=set_key_problems))
 }
 
 

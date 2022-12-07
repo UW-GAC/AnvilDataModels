@@ -20,6 +20,19 @@ pass <- custom_render_markdown("data_model_report", argv$out_prefix,
                                parameters=argv[c("tables", "model")])
 
 
+# check set foreign keys
+model_file <- system.file("extdata", "data_model_set_fk.json", package="AnvilDataModels")
+
+table_names <- c("sample", "sample_set", "file_multi")
+table_files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+names(table_files) <- table_names
+
+argv <- list(out_prefix="test", tables=table_files, model=model_file)
+
+pass <- custom_render_markdown("data_model_report", argv$out_prefix, 
+                               parameters=argv[c("tables", "model")])
+
+
 # create some errors to report
 tables <- read_data_tables(table_files)
 names(tables)[5] <- "notfile"

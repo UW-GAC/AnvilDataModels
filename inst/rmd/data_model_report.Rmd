@@ -98,5 +98,10 @@ if (length(chk$missing_keys) == 0) {
     print(chk$found_keys)
     return_value <- FALSE
 }
+if (length(chk$set_key_problems) > 0) {
+    ul <- unlist(chk$set_key_problems)
+    print(knitr::kable(tibble(Child=names(ul), Parent=ul)))
+    return_value <- FALSE
+}
 if (any(chk$found_keys$problem != "")) return_value <- FALSE
 ```

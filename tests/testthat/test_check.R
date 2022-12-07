@@ -131,17 +131,23 @@ test_that("missing primary key", {
 test_that("check foreign keys", {
     tables <- .tables()
     model <- .model()
-    expect_equal(check_foreign_keys(tables, model)$found_keys$problem, rep("", 4))
+    chk <- check_foreign_keys(tables, model)$found_keys
+    fk_ind <- which(chk$kind == "FK")
+    expect_equal(length(fk_ind), 4)
+    expect_setequal(chk$problem, "")
     
     # missing value of foreign key in reference table
     x <- tables
     x$subject <- filter(x$subject, subject_id != "subject1")
-    chk <- as_tibble(check_foreign_keys(x, model)$found_keys)
+    chk <- as_tibble(check_foreign_keys(x, model)$found_keys) %>%
+        filter(kind == "FK")
     expect_equal(unlist(chk$columns) == "subject_id", grepl("subject1", chk$problem))
     
     # subset of model in tables
     tables$file <- NULL
-    expect_equal(check_foreign_keys(tables, model)$found_keys$problem, rep("", 3))
+    chk <- check_foreign_keys(tables, model)$found_keys
+    fk_ind <- which(chk$kind == "FK")
+    expect_equal(length(fk_ind), 3)
 })
 
 
@@ -272,4 +278,18 @@ test_that("conditional tables - check", {
     
     chk <- check_table_names(tables=list(t1=tibble(), t2=tibble(), t3=tibble()), model=x)
     expect_null(chk)
+})
+
+test_that("foreign keys with sets", {
+    json <- system.file("extdata", "data_model_set_fk.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    
+    table_names <- c("sample", "sample_set", "file_multi")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+    
+    chk <- check_foreign_keys(tables, model)
+    expect_setequal(chk$found_keys$problem, "")
+    expect_equal(chk$set_key_problems, 
+                 list("file_multi.sample_set_id"="Not all values present in sample_set.sample_set_id"))
 })

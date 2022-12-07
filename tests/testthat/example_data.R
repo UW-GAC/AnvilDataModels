@@ -81,3 +81,13 @@ write_tsv(analysis2, "inst/extdata/analysis2.tsv")
 write_tsv(file1, "inst/extdata/analysis_file1.tsv")
 write_tsv(file2, "inst/extdata/analysis_file2.tsv")
 
+
+sets <- c(unique(sample_set$sample_set_id), "missing_set")
+nf <- length(sets)
+file_multi <- tibble(
+    md5 = sapply(1:3, function(x) rand_string(32)),
+    sample_set_id = sets,
+    filename = paste0(sets, ".vcf")
+)
+write_tsv(file_multi, "inst/extdata/file_multi.tsv")
+
