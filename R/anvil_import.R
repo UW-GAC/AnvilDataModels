@@ -106,7 +106,7 @@ create_set_all <- function(table, table_name) {
         
         # do the columns match?
         if (!setequal(names(table), names(anvil_table))) {
-            stop("Columns of new table do not match existing table\n",
+            warning("Columns of new table do not match existing table\n",
                  "  AnVIL: ", paste(names(anvil_table), collapse=", "), "\n",
                  "  table: ", paste(names(table), collapse=", "))
         }
