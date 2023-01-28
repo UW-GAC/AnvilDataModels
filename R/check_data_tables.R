@@ -25,11 +25,18 @@
 #' check_primary_keys(tables, model)
 #' check_foreign_keys(tables, model)
 #' 
-#' @importFrom readr read_tsv
+#' @importFrom readr read_tsv cols col_character
 #' @export
 read_data_tables <- function(files, table_names=names(files), quiet=TRUE) {
     names(files) <- table_names
-    lapply(files, read_tsv, show_col_types=!quiet)
+    lapply(files, function(f) {
+        t <- read_tsv(f, col_types=cols(.default=col_character()))
+        cols_no_id <- names(t)[!grepl("_id$", names(t))] # id columns should always be character
+        for (c in cols_no_id) {
+            t[[c]] <- utils::type.convert(t[[c]], as.is=TRUE)
+        }
+        t
+    })
 }
 
 
@@ -135,10 +142,12 @@ check_column_names <- function(tables, model) {
 }
 
 
-.try_conversion <- function(x, name, type, FUN) {
+.try_conversion <- function(x, name, type, FUN, na_only=FALSE) {
     err_string <- paste("Some values of", name, "not compatible with", type, "type")
     tryCatch({
-        if (all(FUN(x) == x)) {
+        if (na_only & all(is.na(FUN(x)) == is.na(x))) {
+            return(NULL)
+        } else if (all(FUN(x) == x)) {
             return(NULL)
         } else {
             return(err_string)
@@ -170,9 +179,9 @@ check_column_types <- function(tables, model) {
             } else if (is.numeric(cm)) {
                 .try_conversion(ct, name=paste(t, c, sep="."), type="float", FUN=as.numeric)
             } else if (is.Date(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="date", FUN=ymd)
+                .try_conversion(ct, name=paste(t, c, sep="."), type="date", FUN=ymd, na_only=TRUE)
             } else if (is.timepoint(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="datetime", FUN=ymd_hms)
+                .try_conversion(ct, name=paste(t, c, sep="."), type="datetime", FUN=ymd_hms, na_only=TRUE)
             } else if (is.factor(cm)) {
                 .try_conversion(ct, name=paste(t, c, sep="."), type="enum", 
                                 FUN=function(x) factor(x, levels=levels(cm)))

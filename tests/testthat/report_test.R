@@ -20,7 +20,7 @@ pass <- custom_render_markdown("data_model_report", argv$out_prefix,
                                parameters=argv[c("tables", "model")])
 
 
-# check set foreign keys
+# check set foreign keys - expect failure
 model_file <- system.file("extdata", "data_model_set_fk.json", package="AnvilDataModels")
 
 table_names <- c("sample", "sample_set", "file_multi")
@@ -34,6 +34,9 @@ pass <- custom_render_markdown("data_model_report", argv$out_prefix,
 
 
 # create some errors to report
+table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
+table_files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+names(table_files) <- table_names
 tables <- read_data_tables(table_files)
 names(tables)[5] <- "notfile"
 tables$sample$tissue_source <- NULL
@@ -42,6 +45,7 @@ tables$sample$shoe <- "b"
 tables$sample$age_at_sample_collection <- "a"
 tables$subject$reported_sex <- "A"
 tables$sample$sample_id[1] <- tables$sample$sample_id[2]
+tables$sample$date_of_sample_processing[1] <- "a"
 tables$subject <- filter(tables$subject, subject_id != "subject1")
 tables$phenotype$visit_id <- NULL
 tables$sample_set$sample_id <- NULL
