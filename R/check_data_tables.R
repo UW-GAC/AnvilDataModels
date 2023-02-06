@@ -162,28 +162,39 @@ check_column_names <- function(tables, model) {
 #'     with the data model, or a string describing the mismatch.
 #'     
 #' @importFrom lubridate is.Date is.timepoint ymd ymd_hms
+#' @importFrom methods is
 #' @export
 check_column_types <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     chk <- lapply(common, function(t) {
         cols <- intersect(names(tables[[t]]), names(model[[t]]))
         chk2 <- lapply(cols, function(c) {
+            name <- paste(t, c, sep=".")
             ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
             cm <- model[[t]][[c]]
+            delim <- attr(model[[t]], "multi_value_delimiters")
+            if (c %in% names(delim)) {
+                ct <- tryCatch({
+                    unlist(strsplit(ct, delim[c], fixed=TRUE))
+                }, warning=function(w) w, error=function(e) e)
+                if (is(ct, "error")) {
+                    return(paste("Error extracting delimited strings from", name, "\n", ct))
+                }
+            }
             if (is.character(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="character", FUN=as.character)
+                .try_conversion(ct, name=name, type="character", FUN=as.character)
             } else if (is.logical(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="boolean", FUN=as.logical)
+                .try_conversion(ct, name=name, type="boolean", FUN=as.logical)
             } else if (is.integer(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="integer", FUN=as.integer)
+                .try_conversion(ct, name=name, type="integer", FUN=as.integer)
             } else if (is.numeric(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="float", FUN=as.numeric)
+                .try_conversion(ct, name=name, type="float", FUN=as.numeric)
             } else if (is.Date(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="date", FUN=ymd, na_only=TRUE)
+                .try_conversion(ct, name=name, type="date", FUN=ymd, na_only=TRUE)
             } else if (is.timepoint(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="datetime", FUN=ymd_hms, na_only=TRUE)
+                .try_conversion(ct, name=name, type="datetime", FUN=ymd_hms, na_only=TRUE)
             } else if (is.factor(cm)) {
-                .try_conversion(ct, name=paste(t, c, sep="."), type="enum", 
+                .try_conversion(ct, name=name, type="enum", 
                                 FUN=function(x) factor(x, levels=levels(cm)))
             } else {
                 stop("unrecognized data type in model for ", t, ".", c)

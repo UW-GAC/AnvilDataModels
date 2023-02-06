@@ -293,3 +293,22 @@ test_that("foreign keys with sets", {
     expect_equal(chk$set_key_problems, 
                  list("file_multi.sample_set_id"="Not all values present in sample_set.sample_set_id"))
 })
+
+test_that("enumeration with delimiter", {
+    json <- system.file("extdata", "data_model_delim.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:3,
+                  value=c("A", "A|B", "A|B|C"))
+    chk <- check_column_types(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$value)
+    
+    dat <- tibble(t1_id=1:3,
+                  value=c("A", "A|D", "A|B|C"))
+    chk <- check_column_types(tables=list(t1=dat), model=x)
+    expect_equal("Some values of t1.value not compatible with enum type", chk$t1$value)
+    
+    dat <- tibble(t1_id=1:3,
+                  value=1:3)
+    chk <- check_column_types(tables=list(t1=dat), model=x)
+    expect_true(grepl("^Error extracting", chk$t1$value))
+})

@@ -91,3 +91,10 @@ test_that("conditional tables", {
     expect_equal(attr(x, "required"), "t1")
     expect_equal(attr(x, "conditions"), c(t3="t2"))
 })
+
+
+test_that("delimiter", {
+    json <- system.file("extdata", "data_model_delim.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    expect_equal(attr(x$t1, "multi_value_delimiters"), c("value"="|"))
+})

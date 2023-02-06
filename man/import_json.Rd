@@ -36,10 +36,12 @@ contain the following elements:
    present.}
 }
 
-Each column object should contain the following elements:
+Each column object can contain the following elements. 'column' and 'data_type' are required.
 \itemize{
-  \item{column: }{column namee}
+  \item{column: }{column name}
   \item{data_type: }{"string", "boolean, "integer", "float", "date", "dateTime", or "enumeration"}
+  \item{enumerations: }{if data_type is enumeration, list values here}
+  \item{multi_value_delimiter: }{if data values may be delimited, this contains the delimiter value}
   \item{required: }{TRUE indicates the column is required, FALSE or missing if the column
    is optional. 'CONDITIONAL (column = value)' indicates a requirement only if any element of 
    'column' contains 'value'.}
