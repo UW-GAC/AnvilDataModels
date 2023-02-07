@@ -308,7 +308,7 @@ test_that("enumeration with delimiter", {
     expect_equal("Some values of t1.value not compatible with enum type", chk$t1$value)
     
     dat <- tibble(t1_id=1:3,
-                  value=1:3)
+                  value=NA)
     chk <- check_column_types(tables=list(t1=dat), model=x)
-    expect_true(grepl("^Error extracting", chk$t1$value))
+    expect_null(chk$t1$value)
 })

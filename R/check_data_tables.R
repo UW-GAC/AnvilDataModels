@@ -174,7 +174,7 @@ check_column_types <- function(tables, model) {
             ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
             cm <- model[[t]][[c]]
             delim <- attr(model[[t]], "multi_value_delimiters")
-            if (c %in% names(delim)) {
+            if (c %in% names(delim) & length(ct) > 0) {
                 ct <- tryCatch({
                     str_trim(unlist(strsplit(ct, delim[c], fixed=TRUE)))
                 }, warning=function(w) w, error=function(e) e)
