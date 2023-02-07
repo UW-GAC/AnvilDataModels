@@ -298,7 +298,7 @@ test_that("enumeration with delimiter", {
     json <- system.file("extdata", "data_model_delim.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     dat <- tibble(t1_id=1:3,
-                  value=c("A", "A|B", "A|B|C"))
+                  value=c("A", "A | B", "A|B|C"))
     chk <- check_column_types(tables=list(t1=dat), model=x)
     expect_null(chk$t1$value)
     

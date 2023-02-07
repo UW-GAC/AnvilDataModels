@@ -163,6 +163,7 @@ check_column_names <- function(tables, model) {
 #'     
 #' @importFrom lubridate is.Date is.timepoint ymd ymd_hms
 #' @importFrom methods is
+#' @importFrom stringr str_trim
 #' @export
 check_column_types <- function(tables, model) {
     common <- intersect(names(tables), names(model))
@@ -175,7 +176,7 @@ check_column_types <- function(tables, model) {
             delim <- attr(model[[t]], "multi_value_delimiters")
             if (c %in% names(delim)) {
                 ct <- tryCatch({
-                    unlist(strsplit(ct, delim[c], fixed=TRUE))
+                    str_trim(unlist(strsplit(ct, delim[c], fixed=TRUE)))
                 }, warning=function(w) w, error=function(e) e)
                 if (is(ct, "error")) {
                     return(paste("Error extracting delimited strings from", name, "\n", ct))
