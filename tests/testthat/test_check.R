@@ -312,3 +312,15 @@ test_that("enumeration with delimiter", {
     chk <- check_column_types(tables=list(t1=dat), model=x)
     expect_null(chk$t1$value)
 })
+
+test_that("no keys", {
+    json <- system.file("extdata", "data_model_no_keys.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(a=letters, b=LETTERS)
+    chk <- check_primary_keys(tables=list(t1=dat), model=x)
+    expect_equal(length(chk$found_keys$problem), 0)
+    expect_equal(length(chk$missing_keys), 0)
+    chk <- check_foreign_keys(tables=list(t1=dat), model=x)
+    expect_equal(length(chk$found_keys$problem), 0)
+    expect_equal(length(chk$missing_keys), 0)
+})

@@ -225,14 +225,16 @@ check_primary_keys <- function(tables, model) {
     keys <- dm_get_all_pks(model, table=no_sets)
     tables_dm <- as_dm(tables)
     missing_keys <- list()
-    for (i in 1:nrow(keys)) {
-        this_table <- keys$table[i]
-        expected_keys <- keys$pk_col[[i]]
-        absent_keys <- setdiff(expected_keys, names(tables_dm[[this_table]]))
-        if (length(absent_keys) == 0) {
-            tables_dm <- dm_add_pk(tables_dm, table=!!this_table, columns=!!expected_keys)
-        } else {
-            missing_keys[[this_table]] <- absent_keys
+    if (nrow(keys) > 0) {
+        for (i in 1:nrow(keys)) {
+            this_table <- keys$table[i]
+            expected_keys <- keys$pk_col[[i]]
+            absent_keys <- setdiff(expected_keys, names(tables_dm[[this_table]]))
+            if (length(absent_keys) == 0) {
+                tables_dm <- dm_add_pk(tables_dm, table=!!this_table, columns=!!expected_keys)
+            } else {
+                missing_keys[[this_table]] <- absent_keys
+            }
         }
     }
     return(list(found_keys=dm_examine_constraints(tables_dm),
@@ -254,35 +256,37 @@ check_foreign_keys <- function(tables, model) {
     tables_dm <- as_dm(tables)
     missing_keys <- list()
     set_key_problems <- list()
-    for (i in 1:nrow(keys)) {
-        child_table <- keys$child_table[i]
-        child_keys <- keys$child_fk_cols[[i]]
-        missing_child_keys <- setdiff(child_keys, names(tables_dm[[child_table]]))
-        if (length(missing_child_keys) > 0) {
-            missing_keys[[child_table]] <- unique(c(missing_keys[[child_table]], missing_child_keys))
-        }
-        parent_table <- keys$parent_table[i]
-        parent_keys <- keys$parent_key_cols[[i]]
-        missing_parent_keys <- setdiff(parent_keys, names(tables_dm[[parent_table]]))
-        if (length(missing_parent_keys) > 0) {
-            missing_keys[[parent_table]] <- unique(c(missing_keys[[parent_table]], missing_parent_keys))
-        }
-        if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
-            # foreign keys to set tables will not be unique before import to AnVIL
-            if (!(grepl("_set$", parent_table))) {
-                tables_dm <- dm_add_fk(tables_dm, 
-                                       table=!!child_table, 
-                                       columns=!!child_keys,
-                                       ref_table=!!parent_table,
-                                       ref_columns=!!parent_keys)
-            } else {
-                for (kc in child_keys) {
-                    for (kp in parent_keys) {
-                        child_vals <- tables[[child_table]][[kc]]
-                        parent_vals <- tables[[parent_table]][[kp]]
-                        if (!all(child_vals %in% parent_vals)) {
-                            set_key_problems[[paste(child_table, kc, sep=".")]] <- 
-                                paste0("Not all values present in ", parent_table, ".", kp)
+    if (nrow(keys) > 0) {
+        for (i in 1:nrow(keys)) {
+            child_table <- keys$child_table[i]
+            child_keys <- keys$child_fk_cols[[i]]
+            missing_child_keys <- setdiff(child_keys, names(tables_dm[[child_table]]))
+            if (length(missing_child_keys) > 0) {
+                missing_keys[[child_table]] <- unique(c(missing_keys[[child_table]], missing_child_keys))
+            }
+            parent_table <- keys$parent_table[i]
+            parent_keys <- keys$parent_key_cols[[i]]
+            missing_parent_keys <- setdiff(parent_keys, names(tables_dm[[parent_table]]))
+            if (length(missing_parent_keys) > 0) {
+                missing_keys[[parent_table]] <- unique(c(missing_keys[[parent_table]], missing_parent_keys))
+            }
+            if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
+                # foreign keys to set tables will not be unique before import to AnVIL
+                if (!(grepl("_set$", parent_table))) {
+                    tables_dm <- dm_add_fk(tables_dm, 
+                                           table=!!child_table, 
+                                           columns=!!child_keys,
+                                           ref_table=!!parent_table,
+                                           ref_columns=!!parent_keys)
+                } else {
+                    for (kc in child_keys) {
+                        for (kp in parent_keys) {
+                            child_vals <- tables[[child_table]][[kc]]
+                            parent_vals <- tables[[parent_table]][[kp]]
+                            if (!all(child_vals %in% parent_vals)) {
+                                set_key_problems[[paste(child_table, kc, sep=".")]] <- 
+                                    paste0("Not all values present in ", parent_table, ".", kp)
+                            }
                         }
                     }
                 }
