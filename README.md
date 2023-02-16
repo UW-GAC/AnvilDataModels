@@ -42,6 +42,7 @@ Each column object can contain the following elements. 'column' and 'data_type' 
 - description: Note string (column description) following the
     [DBML](https://www.dbml.org/docs/#column-notes) format
 
+Examples
 
 - [Example data model file](inst/extdata/data_model.json)
 - [Example data model with an automatically-generated column](inst/extdata/data_model_auto_id.json)
