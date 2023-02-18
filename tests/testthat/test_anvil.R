@@ -17,3 +17,10 @@ test_that("create set", {
                  tibble(sample_set_id="all",
                         sample_id=tables$sample$sample_id))
 })
+
+
+test_that("unnest set table", {
+    set <- readRDS(system.file("extdata", "sample_set.rds", package="AnvilDataModels"))
+    set2 <- unnest_set_table(set)
+    expect_equal(names(set2), c("sample_set_id", "sample_id"))
+})

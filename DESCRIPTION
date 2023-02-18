@@ -1,12 +1,13 @@
 Package: AnvilDataModels
-Version: 0.2.5
+Version: 0.2.6
 Type: Package
 Title: Utilities for AnVIL data models
 Description: Utilities for AnVIL data models.
 Author: Stephanie Gogarten
 Maintainer: Stephanie Gogarten <sdmorris@uw.edu>
 Depends:
-Imports: AnVIL, dm, jsonlite, dplyr, readr, stringr, lubridate, openssl, rmarkdown, methods, stats, utils
+Imports: AnVIL, dm, jsonlite, dplyr, readr, stringr, tidyr, lubridate, 
+    openssl, rmarkdown, methods, stats, utils
 Suggests: roxygen2, testthat, knitr
 VignetteBuilder: knitr
 License: MIT + file LICENSE

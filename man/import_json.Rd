@@ -53,7 +53,7 @@ Each column object can contain the following elements. 'column' and 'data_type' 
     format, or 
     2) 'from:' followed by a comma-separated list of columns used to
     automatically generate this column using a hash function.}
-  \item{description}{Note string (column description) following the
+  \item{description: }{Note string (column description) following the
     \href{https://www.dbml.org/docs/#column-notes}{DBML} format}
 }
 }

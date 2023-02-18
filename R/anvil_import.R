@@ -10,6 +10,10 @@
 #' \code{create_set_all} creates a set table containing all entities in the
 #' reference table.
 #' 
+#' \code{unnest_nest_table} takes a set table returned by \code{\link{avtable}}
+#' and formats it so it can be imported back into AnVIL with 
+#' \code{\link{avtable_import_set}}
+#' 
 #' @name anvil_import
 #' @param table Data table to import (tibble or data.frame)
 #' @param table_name Name of data table in model
@@ -92,6 +96,20 @@ create_set_all <- function(table, table_name) {
     df <- tibble(set_id="all", id=table[[entity_id]])
     names(df) <- c(set_id, entity_id)
     return(df)
+}
+
+
+#' @rdname anvil_import
+#' @param set_table set table returned by \code{\link{avtable}}
+#' @return \code{unnest_set_table} returns a tibble with a set table in
+#' long form
+#' @importFrom dplyr ends_with
+#' @importFrom tidyr unnest
+#' @export
+unnest_set_table <- function(set_table) {
+    tmp <- unnest(set_table, cols=ends_with(".items"))
+    names(tmp)[names(tmp) == "entityName"] <- paste0(tmp$entityType[1], "_id")
+    select(tmp, -!!"entityType", -ends_with(".itemsType"))
 }
 
 
