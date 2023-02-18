@@ -1,0 +1,21 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "t1",
+        "required": true,
+        "columns": [
+        {
+            "column": "a",
+            "data_type": "string"
+        },
+        {
+            "column": "b",
+            "data_type": "string"
+        }
+        ]
+    }
+    ]
+}

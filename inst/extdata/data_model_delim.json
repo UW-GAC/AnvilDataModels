@@ -1,0 +1,25 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "t1",
+        "columns": [
+        {
+            "column": "t1_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "value",
+            "required": true,
+            "data_type": "enumeration",
+            "enumerations": ["A", "B", "C"],
+            "multi_value_delimiter": "|"
+        }
+        ]
+    }
+    ]
+}
