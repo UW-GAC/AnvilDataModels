@@ -7,6 +7,9 @@
 #' \code{anvil_import_set} imports a set table to an AnVIL workspace. The
 #' reference table must already exist in the workspace.
 #' 
+#' \code{anvil_import_tables} imports a named list of tables, calling \code{anvil_import_table}
+#' or \code{anvil_import_set} as appropriate. Set tables are assumed to end with "_set".
+#' 
 #' \code{create_set_all} creates a set table containing all entities in the
 #' reference table.
 #' 
@@ -17,6 +20,7 @@
 #' @name anvil_import
 #' @param table Data table to import (tibble or data.frame)
 #' @param table_name Name of data table in model
+#' @param tables Named list of tables to import
 #' @param model \code{\link{dm}} object describing data model
 #' @param overwrite Logical for whether to overwrite data for existing rows
 #' @param namespace AnVIL workspace namespace
@@ -177,3 +181,25 @@ add_entity_id <- function(table, table_name, model) {
     return(table)
 }
 
+
+#' @rdname anvil_import
+#' @export
+anvil_import_tables <- function(tables, model, overwrite=FALSE, 
+                                namespace = avworkspace_namespace(), 
+                                name = avworkspace_name()) {
+    # identify set tables
+    set_flag <- grepl("_set$", names(tables))
+    sets <- names(tables)[set_flag]
+    not_sets <- names(tables)[!set_flag]
+    
+    # must write sets after other tables
+    for (t in not_sets) {
+        anvil_import_table(tables[[t]], table_name=t, model=model, overwrite=overwrite,
+                           namespace=namespace, name=name)
+    }
+    
+    for (t in sets) {
+        anvil_import_set(tables[[t]], table_name=t, overwrite=overwrite,
+                         namespace=namespace, name=name)
+    }
+}

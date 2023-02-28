@@ -3,6 +3,7 @@
 export(add_auto_columns)
 export(anvil_import_set)
 export(anvil_import_table)
+export(anvil_import_tables)
 export(check_column_names)
 export(check_column_types)
 export(check_foreign_keys)

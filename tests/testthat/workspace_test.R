@@ -105,4 +105,7 @@ test_that("set", {
   chk_set <- AnVIL::avtable(set_name)
   samples <- chk_set$samples.items[chk_set$sample_set_id == "all"][[1]]$entityName
   expect_true(sum(duplicated(samples)) == 0)
+  
+  # import all tables
+  anvil_import_tables(tables, model, overwrite=TRUE)
 })

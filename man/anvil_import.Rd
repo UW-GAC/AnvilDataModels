@@ -6,6 +6,7 @@
 \alias{anvil_import_set}
 \alias{create_set_all}
 \alias{unnest_set_table}
+\alias{anvil_import_tables}
 \title{Import data tables into AnVIL}
 \usage{
 anvil_import_table(
@@ -28,6 +29,14 @@ anvil_import_set(
 create_set_all(table, table_name)
 
 unnest_set_table(set_table)
+
+anvil_import_tables(
+  tables,
+  model,
+  overwrite = FALSE,
+  namespace = avworkspace_namespace(),
+  name = avworkspace_name()
+)
 }
 \arguments{
 \item{table}{Data table to import (tibble or data.frame)}
@@ -43,6 +52,8 @@ unnest_set_table(set_table)
 \item{name}{AnVIL workspace name}
 
 \item{set_table}{set table returned by \code{\link{avtable}}}
+
+\item{tables}{Named list of tables to import}
 }
 \value{
 \code{create_set_all} returns a tibble with one set, 'all',
@@ -59,6 +70,9 @@ Import data tables into AnVIL
 
 \code{anvil_import_set} imports a set table to an AnVIL workspace. The
 reference table must already exist in the workspace.
+
+\code{anvil_import_tables} imports a named list of tables, calling \code{anvil_import_table}
+or \code{anvil_import_set} as appropriate. Set tables are assumed to end with "_set".
 
 \code{create_set_all} creates a set table containing all entities in the
 reference table.
