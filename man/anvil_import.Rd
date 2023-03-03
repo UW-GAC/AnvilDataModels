@@ -77,7 +77,7 @@ or \code{anvil_import_set} as appropriate. Set tables are assumed to end with "_
 \code{create_set_all} creates a set table containing all entities in the
 reference table.
 
-\code{unnest_nest_table} takes a set table returned by \code{\link{avtable}}
+\code{unnest_set_table} takes a set table returned by \code{\link{avtable}}
 and formats it so it can be imported back into AnVIL with 
 \code{\link{avtable_import_set}}
 }
