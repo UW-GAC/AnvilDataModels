@@ -109,3 +109,13 @@ test_that("set", {
   # import all tables
   anvil_import_tables(tables, model, overwrite=TRUE)
 })
+
+test_that("import in blocks", {
+    json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    table_name <- "subject"
+    file <- system.file("extdata", paste0(table_name, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(file, table_name, quiet=TRUE)
+    x <- tables[[table_name]]
+    anvil_import_table(x, table_name, model, overwrite=TRUE, n_max=5)
+})

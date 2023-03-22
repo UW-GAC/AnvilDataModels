@@ -25,16 +25,30 @@
 #' @param overwrite Logical for whether to overwrite data for existing rows
 #' @param namespace AnVIL workspace namespace
 #' @param name AnVIL workspace name
+#' @param n_max maximum number of rows to import at once. Due to AnVIL's restrictions on size of imports, if \code{nrow(table) > n_max}, the import will happen in blocks.
 #' 
 #' @import AnVIL
 #' @export
 anvil_import_table <- function(table, table_name, model, overwrite=FALSE,
                                namespace = avworkspace_namespace(),
-                               name = avworkspace_name()) {
+                               name = avworkspace_name(),
+                               n_max = 100000) {
     # add entity id first, so we can compare to anvil
     table <- add_entity_id(table, table_name, model)
-    .anvil_import_table(table, table_name, overwrite,
-                        namespace=namespace, name=name)
+    
+    # can't import >100k rows at once
+    n <- nrow(table)
+    if (n <= n_max) {
+        .anvil_import_table(table, table_name, overwrite,
+                            namespace=namespace, name=name)
+    } else {
+        blocks <- ((1:n) - 1) %/% n_max
+        for (i in unique(blocks)) {
+            xtable <- table[blocks == i,]
+            .anvil_import_table(xtable, table_name, overwrite,
+                                namespace=namespace, name=name)
+        }
+    }
 }
 
 
