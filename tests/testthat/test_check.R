@@ -52,21 +52,23 @@ test_that("check column types", {
     
     # incompatible boolean values
     x <- tables
+    set.seed(10)
     x$subject$dbgap_submission <- sample(1:2, nrow(x$subject), replace=TRUE)
     expect_equal(check_column_types(x, model)$subject$dbgap_submission,
-                 "Some values of subject.dbgap_submission not compatible with boolean type")
+                 "Some values of subject.dbgap_submission not compatible with boolean type: 2")
     
     # char instead of int
     x <- tables
-    x$sample$age_at_sample_collection <- "a"
+    set.seed(10)
+    x$sample$age_at_sample_collection <- sample(c("a", "b"), nrow(x$sample), replace=TRUE)
     expect_equal(check_column_types(x, model)$sample$age_at_sample_collection,
-                 "Some values of sample.age_at_sample_collection not compatible with integer type")
+                 "Some values of sample.age_at_sample_collection not compatible with integer type: a, b")
     
     # float instead of int
     x <- tables
     x$sample$age_at_sample_collection <- 10.5
     expect_equal(check_column_types(x, model)$sample$age_at_sample_collection,
-                 "Some values of sample.age_at_sample_collection not compatible with integer type")
+                 "Some values of sample.age_at_sample_collection not compatible with integer type: 10.5")
     
     # int instead of float - should be ok
     x <- tables
@@ -77,25 +79,25 @@ test_that("check column types", {
     x <- tables
     x$sample$date_of_sample_processing <- "a"
     expect_equal(check_column_types(x, model)$sample$date_of_sample_processing,
-                 "Some values of sample.date_of_sample_processing not compatible with date type")
+                 "Some values of sample.date_of_sample_processing not compatible with date type: a")
     
     # not a datetime
     x <- tables
     x$file$file_timestamp <- "2000-01-01"
     expect_equal(check_column_types(x, model)$file$file_timestamp,
-                 "Some values of file.file_timestamp not compatible with datetime type")
+                 "Some values of file.file_timestamp not compatible with datetime type: 2000-01-01")
     
     # wrong levels for enum
     x <- tables
     x$subject$reported_sex <- "A"
     expect_equal(check_column_types(x, model)$subject$reported_sex,
-                 "Some values of subject.reported_sex not compatible with enum type")
+                 "Some values of subject.reported_sex not compatible with enum type: A. Allowed values: F, M, X")
     
     # integer instead of factor
     x <- tables
     x$subject$reported_sex <- 1L
     expect_equal(check_column_types(x, model)$subject$reported_sex,
-                 "Some values of subject.reported_sex not compatible with enum type")
+                 "Some values of subject.reported_sex not compatible with enum type: 1. Allowed values: F, M, X")
 })
 
 
@@ -305,7 +307,7 @@ test_that("enumeration with delimiter", {
     dat <- tibble(t1_id=1:3,
                   value=c("A", "A|D", "A|B|C"))
     chk <- check_column_types(tables=list(t1=dat), model=x)
-    expect_equal("Some values of t1.value not compatible with enum type", chk$t1$value)
+    expect_equal("Some values of t1.value not compatible with enum type: D. Allowed values: A, B, C", chk$t1$value)
     
     dat <- tibble(t1_id=1:3,
                   value=NA)

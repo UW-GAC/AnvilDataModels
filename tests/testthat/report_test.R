@@ -34,6 +34,7 @@ pass <- custom_render_markdown("data_model_report", argv$out_prefix,
 
 
 # create some errors to report
+model_file <- system.file("extdata", "data_model.json", package="AnvilDataModels")
 table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
 table_files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
 names(table_files) <- table_names

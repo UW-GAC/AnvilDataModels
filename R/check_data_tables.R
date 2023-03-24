@@ -144,15 +144,20 @@ check_column_names <- function(tables, model) {
 
 .try_conversion <- function(x, name, type, FUN, na_only=FALSE) {
     err_string <- paste("Some values of", name, "not compatible with", type, "type")
+    err_fn <- function(a) {
+        ac <- suppressWarnings(FUN(a))
+        conv_fails <-  paste(setdiff(a, ac), collapse=", ")
+        return(paste(err_string, conv_fails, sep=": "))
+    }
     tryCatch({
         if (na_only & all(is.na(FUN(x)) == is.na(x))) {
             return(NULL)
         } else if (all(FUN(x) == x)) {
             return(NULL)
         } else {
-            return(err_string)
+            return(err_fn(x))
         }
-    }, warning=function(w) err_string, error=function(e) err_string)    
+    }, warning=function(w) err_fn(x), error=function(w) err_fn(x))
 }
 
 #' @rdname check_data_tables
@@ -195,8 +200,13 @@ check_column_types <- function(tables, model) {
             } else if (is.timepoint(cm)) {
                 .try_conversion(ct, name=name, type="datetime", FUN=ymd_hms, na_only=TRUE)
             } else if (is.factor(cm)) {
-                .try_conversion(ct, name=name, type="enum", 
+                conv <- .try_conversion(ct, name=name, type="enum", 
                                 FUN=function(x) factor(x, levels=levels(cm)))
+                if (!is.null(conv)) {
+                    return(paste0(conv, ". Allowed values: ", paste(levels(cm), collapse=", ")))
+                } else {
+                    return(conv)
+                }
             } else {
                 stop("unrecognized data type in model for ", t, ".", c)
             }
