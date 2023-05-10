@@ -15,8 +15,7 @@ anvil_import_table(
   model,
   overwrite = FALSE,
   namespace = avworkspace_namespace(),
-  name = avworkspace_name(),
-  n_max = 1e+05
+  name = avworkspace_name()
 )
 
 anvil_import_set(
@@ -51,8 +50,6 @@ anvil_import_tables(
 \item{namespace}{AnVIL workspace namespace}
 
 \item{name}{AnVIL workspace name}
-
-\item{n_max}{maximum number of rows to import at once. Due to AnVIL's restrictions on size of imports, if \code{nrow(table) > n_max}, the import will happen in blocks.}
 
 \item{set_table}{set table returned by \code{\link{avtable}}}
 

@@ -44,7 +44,7 @@ tables$sample$tissue_source <- NULL
 tables$sample$hat <- "a"
 tables$sample$shoe <- "b"
 tables$sample$age_at_sample_collection <- "a"
-tables$subject$reported_sex <- "A"
+tables$subject$reported_sex <- sample(LETTERS, nrow(tables$subject), replace=TRUE)
 tables$sample$sample_id[1] <- tables$sample$sample_id[2]
 tables$sample$date_of_sample_processing[1] <- "a"
 tables$subject <- filter(tables$subject, subject_id != "subject1")
