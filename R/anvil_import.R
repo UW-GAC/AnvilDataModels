@@ -28,11 +28,13 @@
 #' 
 #' @import AnVIL
 #' @export
-anvil_import_table <- function(table, table_name, model, overwrite=FALSE,
+anvil_import_table <- function(table, table_name, model=NULL, overwrite=FALSE,
                                namespace = avworkspace_namespace(),
                                name = avworkspace_name()) {
-    # add entity id first, so we can compare to anvil
-    table <- add_entity_id(table, table_name, model)
+    if (!is.null(model)) {
+        # add entity id first, so we can compare to anvil
+        table <- add_entity_id(table, table_name, model)
+    }
     
     .anvil_import_table(table, table_name, overwrite,
                         namespace=namespace, name=name)
