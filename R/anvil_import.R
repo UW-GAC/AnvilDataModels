@@ -204,7 +204,7 @@ add_entity_id <- function(table, table_name, model) {
 
 #' @rdname anvil_import
 #' @export
-anvil_import_tables <- function(tables, model, overwrite=FALSE, 
+anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE, 
                                 namespace = avworkspace_namespace(), 
                                 name = avworkspace_name()) {
     # identify set tables
