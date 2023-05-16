@@ -182,6 +182,23 @@ add_entity_id <- function(table, table_name, model) {
     return(table)
 }
 
+.wait_for_upload <- function(job_status) {
+    if (length(job_status) == 0) return(job_status)
+    js <- bind_rows(job_status)$status
+    while (!all(js == "Done")) {
+        if (any(js == "Failed")) {
+            print(job_status)
+            stop("Import failed")
+        }
+        Sys.sleep(60)
+        for (t in names(job_status)) {
+            job_status[[t]] <- avtable_import_status(job_status[[t]])
+        }
+        js <- bind_rows(job_status)$status
+    }
+    job_status
+}
+
 
 #' @rdname anvil_import
 #' @export
@@ -193,14 +210,20 @@ anvil_import_tables <- function(tables, model, overwrite=FALSE,
     sets <- names(tables)[set_flag]
     not_sets <- names(tables)[!set_flag]
     
-    # must write sets after other tables
+    # must write sets after other tables have successfully imported
+    job_status <- list()
     for (t in not_sets) {
-        anvil_import_table(tables[[t]], table_name=t, model=model, overwrite=overwrite,
-                           namespace=namespace, name=name)
+        job_status[[t]] <- anvil_import_table(tables[[t]], table_name=t, model=model, 
+                                              overwrite=overwrite,
+                                              namespace=namespace, name=name)
     }
+    .wait_for_upload(job_status)
     
+    job_status <- list()
     for (t in sets) {
-        anvil_import_set(tables[[t]], table_name=t, overwrite=overwrite,
-                         namespace=namespace, name=name)
+        job_status[[t]] <- anvil_import_set(tables[[t]], table_name=t, 
+                                            overwrite=overwrite, 
+                                            namespace=namespace, name=name)
     }
+    .wait_for_upload(job_status)
 }

@@ -1,5 +1,5 @@
 Package: AnvilDataModels
-Version: 0.2.9
+Version: 0.3.0
 Type: Package
 Title: Utilities for AnVIL data models
 Description: Utilities for AnVIL data models.
