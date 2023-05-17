@@ -184,7 +184,7 @@ add_entity_id <- function(table, table_name, model) {
     return(table)
 }
 
-.wait_for_upload <- function(job_status) {
+.wait_for_upload <- function(job_status, namespace, name) {
     if (length(job_status) == 0) return(job_status)
     js <- bind_rows(job_status)$status
     while (!all(js == "Done")) {
@@ -195,7 +195,9 @@ add_entity_id <- function(table, table_name, model) {
         Sys.sleep(60)
         for (t in names(job_status)) {
             print(job_status[[t]])
-            job_status[[t]] <- avtable_import_status(job_status[[t]])
+            job_status[[t]] <- avtable_import_status(job_status[[t]],
+                                                     namespace=namespace, 
+                                                     name=name)
         }
         js <- bind_rows(job_status)$status
     }
@@ -220,7 +222,7 @@ anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE,
                                               overwrite=overwrite,
                                               namespace=namespace, name=name)
     }
-    .wait_for_upload(job_status)
+    .wait_for_upload(job_status, namespace=namespace, name=name)
     
     job_status <- list()
     for (t in sets) {
@@ -228,5 +230,5 @@ anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE,
                                             overwrite=overwrite, 
                                             namespace=namespace, name=name)
     }
-    .wait_for_upload(job_status)
+    .wait_for_upload(job_status, namespace=namespace, name=name)
 }
