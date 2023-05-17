@@ -194,6 +194,7 @@ add_entity_id <- function(table, table_name, model) {
         }
         Sys.sleep(60)
         for (t in names(job_status)) {
+            print(job_status[[t]])
             job_status[[t]] <- avtable_import_status(job_status[[t]])
         }
         js <- bind_rows(job_status)$status
