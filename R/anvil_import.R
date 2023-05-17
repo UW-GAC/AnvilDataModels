@@ -28,11 +28,13 @@
 #' 
 #' @import AnVIL
 #' @export
-anvil_import_table <- function(table, table_name, model, overwrite=FALSE,
+anvil_import_table <- function(table, table_name, model=NULL, overwrite=FALSE,
                                namespace = avworkspace_namespace(),
                                name = avworkspace_name()) {
-    # add entity id first, so we can compare to anvil
-    table <- add_entity_id(table, table_name, model)
+    if (!is.null(model)) {
+        # add entity id first, so we can compare to anvil
+        table <- add_entity_id(table, table_name, model)
+    }
     
     .anvil_import_table(table, table_name, overwrite,
                         namespace=namespace, name=name)
@@ -182,10 +184,27 @@ add_entity_id <- function(table, table_name, model) {
     return(table)
 }
 
+.wait_for_upload <- function(job_status) {
+    if (length(job_status) == 0) return(job_status)
+    js <- bind_rows(job_status)$status
+    while (!all(js == "Done")) {
+        if (any(js == "Failed")) {
+            print(job_status)
+            stop("Import failed")
+        }
+        Sys.sleep(60)
+        for (t in names(job_status)) {
+            job_status[[t]] <- avtable_import_status(job_status[[t]])
+        }
+        js <- bind_rows(job_status)$status
+    }
+    job_status
+}
+
 
 #' @rdname anvil_import
 #' @export
-anvil_import_tables <- function(tables, model, overwrite=FALSE, 
+anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE, 
                                 namespace = avworkspace_namespace(), 
                                 name = avworkspace_name()) {
     # identify set tables
@@ -193,14 +212,20 @@ anvil_import_tables <- function(tables, model, overwrite=FALSE,
     sets <- names(tables)[set_flag]
     not_sets <- names(tables)[!set_flag]
     
-    # must write sets after other tables
+    # must write sets after other tables have successfully imported
+    job_status <- list()
     for (t in not_sets) {
-        anvil_import_table(tables[[t]], table_name=t, model=model, overwrite=overwrite,
-                           namespace=namespace, name=name)
+        job_status[[t]] <- anvil_import_table(tables[[t]], table_name=t, model=model, 
+                                              overwrite=overwrite,
+                                              namespace=namespace, name=name)
     }
+    .wait_for_upload(job_status)
     
+    job_status <- list()
     for (t in sets) {
-        anvil_import_set(tables[[t]], table_name=t, overwrite=overwrite,
-                         namespace=namespace, name=name)
+        job_status[[t]] <- anvil_import_set(tables[[t]], table_name=t, 
+                                            overwrite=overwrite, 
+                                            namespace=namespace, name=name)
     }
+    .wait_for_upload(job_status)
 }
