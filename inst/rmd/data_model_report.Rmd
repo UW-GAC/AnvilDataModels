@@ -56,6 +56,17 @@ if (nrow(res) > 0) {
 if (length(unlist(lapply(chk, function(x) x$missing_required_columns))) > 0) return_value <- FALSE
 ```
 
+```{r}
+chk <- check_missing_values(tables, model)
+res <- parse_column_type_check(chk)
+if (nrow(res) > 0) {
+    return_value <- FALSE
+    knitr::kable(res)
+} else {
+    cat("No missing values in required columns.")
+}
+```
+
 ## Column types
 
 ```{r}
