@@ -45,8 +45,10 @@ tables$sample$hat <- "a"
 tables$sample$shoe <- "b"
 tables$sample$age_at_sample_collection <- "a"
 tables$subject$reported_sex <- sample(LETTERS, nrow(tables$subject), replace=TRUE)
+tables$subject$consent_code[1:5] <- NA
 tables$sample$sample_id[1] <- tables$sample$sample_id[2]
 tables$sample$date_of_sample_processing[1] <- "a"
+tables$sample$subject_id[2:3] <- NA
 tables$subject <- filter(tables$subject, subject_id != "subject1")
 tables$phenotype$visit_id <- NULL
 tables$sample_set$sample_id <- NULL

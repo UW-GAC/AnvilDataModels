@@ -101,6 +101,20 @@ test_that("check column types", {
 })
 
 
+test_that("check missing values", {
+    tables <- .tables()
+    model <- .model()
+    req <- lapply(model, attr, "required")
+    expect_equal(check_missing_values(tables, model), 
+                 lapply(req, function(x) setNames(lapply(x, function(y) NULL), x)))
+    
+    x <- tables
+    x$subject$reported_sex[1:5] <- NA
+    expect_equal(check_missing_values(x, model)$subject$reported_sex,
+                 "5 missing values in required column subject.reported_sex")
+})
+
+
 test_that("check primary keys", {
     tables <- .tables()
     model <- .model()

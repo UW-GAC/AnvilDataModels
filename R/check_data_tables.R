@@ -219,6 +219,38 @@ check_column_types <- function(tables, model) {
 }
 
 
+
+#' @rdname check_data_tables
+#' @return \code{check_missing_values} returns a list of all tables in common between data 
+#'     and model. Each table element is a list of all required columns in common between table and 
+#'     model. Each column element is \code{NULL} if the column has no missing values, or 
+#'     the number of missing values in the column.
+#'     
+#' @export
+check_missing_values <- function(tables, model) {
+    common <- intersect(names(tables), names(model))
+    chk <- lapply(common, function(t) {
+        cols <- intersect(names(tables[[t]]), names(model[[t]]))
+        req <- .parse_required_columns(tables[[t]], model[[t]])
+        cols <- intersect(cols, req$required)
+        chk2 <- lapply(cols, function(c) {
+            name <- paste(t, c, sep=".")
+            ct <- tables[[t]][[c]]
+            missing <- sum(is.na(ct))
+            if (missing > 0) {
+                return(paste(missing, "missing values in required column", name))
+            } else {
+                return(NULL)
+            }
+        })
+        names(chk2) <- cols
+        return(chk2)
+    })
+    names(chk) <- common
+    return(chk)
+}
+
+
 #' @rdname check_data_tables
 #' @return \code{check_primary_keys} returns a list with two elements:
 #' \itemize{
