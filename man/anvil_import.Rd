@@ -12,7 +12,7 @@
 anvil_import_table(
   table,
   table_name,
-  model,
+  model = NULL,
   overwrite = FALSE,
   namespace = avworkspace_namespace(),
   name = avworkspace_name()
@@ -32,7 +32,7 @@ unnest_set_table(set_table)
 
 anvil_import_tables(
   tables,
-  model,
+  model = NULL,
   overwrite = FALSE,
   namespace = avworkspace_namespace(),
   name = avworkspace_name()

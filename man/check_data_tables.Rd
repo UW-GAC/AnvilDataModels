@@ -6,6 +6,7 @@
 \alias{check_table_names}
 \alias{check_column_names}
 \alias{check_column_types}
+\alias{check_missing_values}
 \alias{check_primary_keys}
 \alias{check_foreign_keys}
 \alias{parse_column_name_check}
@@ -19,6 +20,8 @@ check_table_names(tables, model)
 check_column_names(tables, model)
 
 check_column_types(tables, model)
+
+check_missing_values(tables, model)
 
 check_primary_keys(tables, model)
 
@@ -64,6 +67,11 @@ parse_column_type_check(chk)
     and model. Each table element is a list of all columns in common between table and 
     model. Each column element is \code{NULL} if values in column are a compatible type 
     with the data model, or a string describing the mismatch.
+
+\code{check_missing_values} returns a list of all tables in common between data 
+    and model. Each table element is a list of all required columns in common between table and 
+    model. Each column element is \code{NULL} if the column has no missing values, or 
+    the number of missing values in the column.
 
 \code{check_primary_keys} returns a list with two elements:
 \itemize{
