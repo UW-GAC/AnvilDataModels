@@ -264,7 +264,7 @@ check_primary_keys <- function(tables, model) {
     # don't check these
     common <- intersect(names(tables), names(model))
     no_sets <- common[!(grepl("_set$", common))]
-    keys <- dm_get_all_pks(model, table=no_sets)
+    keys <- dm_get_all_pks(model, table=!!no_sets)
     tables_dm <- as_dm(tables)
     missing_keys <- list()
     if (nrow(keys) > 0) {
