@@ -167,7 +167,7 @@ anvil_get_table_columns <- function(namespace = avworkspace_namespace(),
 
 
 add_entity_id <- function(table, table_name, model) {
-    pk <- dm_get_all_pks(model, table=table_name)$pk_col
+    pk <- dm_get_all_pks(model, table=!!table_name)$pk_col
     if (length(pk) == 0) stop("no primary key defined")
     if (length(pk) > 1) stop("invalid model; >1 primary key")
     pk <- pk[[1]]
