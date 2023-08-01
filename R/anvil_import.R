@@ -184,12 +184,14 @@ add_entity_id <- function(table, table_name, model) {
     return(table)
 }
 
-.wait_for_upload <- function(job_status, namespace, name) {
+.wait_for_upload <- function(job_status, namespace, name, timeout=3600) {
+    start <- Sys.time()
     if (length(job_status) == 0) return(job_status)
-    js <- bind_rows(job_status)$status
-    while (!all(js == "Done")) {
-        if (any(js %in% c("Failed", "Error"))) {
+    js <- bind_rows(job_status)
+    while (!all(js$status == "Done")) {
+        if (any(js$status %in% c("Failed", "Error"))) {
             print(job_status)
+            print(setdiff(js$message, NA))
             stop("Import failed")
         }
         Sys.sleep(60)
@@ -200,17 +202,23 @@ add_entity_id <- function(table, table_name, model) {
                                                      namespace=namespace, 
                                                      name=name)
         }
-        js <- bind_rows(job_status)$status
+        js <- bind_rows(job_status)
+        # timeout if uploads haven't completed
+        if (Sys.time() - start > timeout) {
+            stop("Timeout: upload took longer than ", timeout, " seconds")
+        }
     }
     job_status
 }
 
 
 #' @rdname anvil_import
+#' @param timeout Number of seconds to wait for import to complete before timing out
 #' @export
 anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE, 
                                 namespace = avworkspace_namespace(), 
-                                name = avworkspace_name()) {
+                                name = avworkspace_name(),
+                                timeout = 3600) {
     # identify set tables
     set_flag <- grepl("_set$", names(tables))
     sets <- names(tables)[set_flag]
@@ -223,7 +231,7 @@ anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE,
                                               overwrite=overwrite,
                                               namespace=namespace, name=name)
     }
-    .wait_for_upload(job_status, namespace=namespace, name=name)
+    .wait_for_upload(job_status, namespace=namespace, name=name, timeout=timeout)
     
     job_status <- list()
     for (t in sets) {
@@ -231,5 +239,5 @@ anvil_import_tables <- function(tables, model=NULL, overwrite=FALSE,
                                             overwrite=overwrite, 
                                             namespace=namespace, name=name)
     }
-    .wait_for_upload(job_status, namespace=namespace, name=name)
+    .wait_for_upload(job_status, namespace=namespace, name=name, timeout=timeout)
 }
