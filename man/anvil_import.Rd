@@ -35,7 +35,8 @@ anvil_import_tables(
   model = NULL,
   overwrite = FALSE,
   namespace = avworkspace_namespace(),
-  name = avworkspace_name()
+  name = avworkspace_name(),
+  timeout = 3600
 )
 }
 \arguments{
@@ -54,6 +55,8 @@ anvil_import_tables(
 \item{set_table}{set table returned by \code{\link{avtable}}}
 
 \item{tables}{Named list of tables to import}
+
+\item{timeout}{Number of seconds to wait for import to complete before timing out}
 }
 \value{
 \code{create_set_all} returns a tibble with one set, 'all',
