@@ -187,10 +187,11 @@ add_entity_id <- function(table, table_name, model) {
 .wait_for_upload <- function(job_status, namespace, name) {
     if (length(job_status) == 0) return(job_status)
     js <- bind_rows(job_status)$status
+    jm <- bind_rows(job_status)$message
     while (!all(js == "Done")) {
         if (any(js %in% c("Failed", "Error"))) {
             print(job_status)
-            print(na.omit(js$message))
+            print(na.omit(jm))
             stop("Import failed")
         }
         Sys.sleep(60)
