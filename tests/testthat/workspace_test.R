@@ -113,9 +113,9 @@ test_that("set", {
 test_that("upload error", {
     json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
     model <- json_to_dm(json)
-    table_name <- "subject"
-    file <- system.file("extdata", paste0(table_name, ".tsv"), package="AnvilDataModels")
-    table <- read_data_tables(file, table_name, quiet=TRUE)
-    table$subject$subject_id[1] <- "a+b" # illegal character for primary key
-    status <- anvil_import_tables(table, model, overwrite=TRUE)
+    table_names <- c("subject", "sample")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names, quiet=TRUE)
+    tables$subject$subject_id[1] <- "a+b" # illegal character for primary key
+    expect_error(anvil_import_tables(tables, model, overwrite=TRUE), "Import failed")
 })
