@@ -186,12 +186,11 @@ add_entity_id <- function(table, table_name, model) {
 
 .wait_for_upload <- function(job_status, namespace, name) {
     if (length(job_status) == 0) return(job_status)
-    js <- bind_rows(job_status)$status
-    jm <- bind_rows(job_status)$message
-    while (!all(js == "Done")) {
-        if (any(js %in% c("Failed", "Error"))) {
+    js <- bind_rows(job_status)
+    while (!all(js$status == "Done")) {
+        if (any(js$status %in% c("Failed", "Error"))) {
             print(job_status)
-            print(na.omit(jm))
+            print(na.omit(js$message))
             stop("Import failed")
         }
         Sys.sleep(60)
@@ -202,7 +201,7 @@ add_entity_id <- function(table, table_name, model) {
                                                      namespace=namespace, 
                                                      name=name)
         }
-        js <- bind_rows(job_status)$status
+        js <- bind_rows(job_status)
     }
     job_status
 }
