@@ -190,6 +190,7 @@ add_entity_id <- function(table, table_name, model) {
     while (!all(js == "Done")) {
         if (any(js %in% c("Failed", "Error"))) {
             print(job_status)
+            print(na.omit(js$message))
             stop("Import failed")
         }
         Sys.sleep(60)
