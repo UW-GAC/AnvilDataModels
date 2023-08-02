@@ -96,6 +96,23 @@ if (length(chk$missing_keys) == 0) {
 if (any(chk$found_keys$problem != "")) return_value <- FALSE
 ```
 
+AnVIL requires that each table has an entity_id named \<table_name\>_id. Entity ids may only contain alphanumeric characters, underscores, dashes, and periods.
+
+```{r, message=TRUE}
+chk <- check_valid_entity_id(tables, model)
+res <- lapply(names(chk), function(x) {
+    if (!is.null(chk[[x]])) {
+        return(tibble(table=x, error=chk[[x]]))
+    } else {
+        return(NULL)
+    }
+}) %>% bind_rows()
+if (nrow(res) > 0) {
+    return_value <- FALSE
+    knitr::kable(res)
+}
+```
+
 ## Cross-table references
 
 ```{r, message=TRUE}

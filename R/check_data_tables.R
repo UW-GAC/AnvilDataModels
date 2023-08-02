@@ -273,8 +273,7 @@ check_valid_entity_id <- function(tables, model) {
             chk2 <- .invalid_characters(entity_col)
             if (any(chk2)) {
                 fails <- paste(unique(entity_col[chk2]), collapse=", ")
-                return(paste0("Invalid characters in ", entity_id, ": ", fails, "\n",
-                             "Entity ids may only contain alphanumeric characters, underscores, dashes, and periods."))
+                return(paste0("Invalid characters in ", entity_id, ": ", fails))
             } else {
                 return(NULL)
             }

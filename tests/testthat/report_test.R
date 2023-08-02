@@ -52,6 +52,7 @@ tables$sample$subject_id[2:3] <- NA
 tables$subject <- filter(tables$subject, subject_id != "subject1")
 tables$phenotype$visit_id <- NULL
 tables$sample_set$sample_id <- NULL
+tables$subject$subject_id[1] <- "subject2@"
 
 table_files <- sapply(tables, function(t) {
     tmp <- tempfile()

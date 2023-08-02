@@ -359,7 +359,6 @@ test_that("check invalid characters", {
     
     tables1$sample$sample_id[1:2] <- c("a+b", "a&b")
     expect_equal(check_valid_entity_id(tables1, model)$sample,
-                  paste0("Invalid characters in sample_id: a+b, a&b", "\n",
-                        "Entity ids may only contain alphanumeric characters, underscores, dashes, and periods."))
+                 "Invalid characters in sample_id: a+b, a&b")
 })
 
