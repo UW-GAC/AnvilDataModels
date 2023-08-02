@@ -340,3 +340,25 @@ test_that("no keys", {
     expect_equal(length(chk$found_keys$problem), 0)
     expect_equal(length(chk$missing_keys), 0)
 })
+
+test_that("invalid characters", {
+    x <- c("abc", "ab_c", "ab-c", "ab.c", "123")
+    expect_equal(.invalid_characters(x), rep(FALSE, length(x)))
+    x <- c("a+b", "a%b", "a&b", "a?b")
+    expect_equal(.invalid_characters(x), rep(TRUE, length(x)))
+})
+
+
+test_that("check invalid characters", {
+    tables <- .tables()
+    model <- .model()
+    tables1 <- tables[c("subject", "sample")]
+    expect_equal(check_valid_entity_id(tables1, model), lapply(tables1, function(x) NULL))
+    expect_equal(check_valid_entity_id(tables["phenotype"], model), 
+                 list("phenotype"="Expected column phenotype_id not found"))
+    
+    tables1$sample$sample_id[1:2] <- c("a+b", "a&b")
+    expect_equal(check_valid_entity_id(tables1, model)$sample,
+                 "Invalid characters in sample_id: a+b, a&b")
+})
+
