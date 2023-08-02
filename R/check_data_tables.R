@@ -251,6 +251,43 @@ check_missing_values <- function(tables, model) {
 }
 
 
+
+#' @importFrom stringr str_detect
+.invalid_characters <- function(x) {
+    str_detect(x, "[^[:alnum:]_\\-\\.]")
+}
+
+
+#' @rdname check_data_tables
+#' @return \code{check_valid_entity_id} returns a list of all tables in common between data 
+#'     and model. Each table element is \code{NULL} if the table has a valid AnVIL entity_id, or 
+#'     a string describing the error.
+#'     
+#' @export
+check_valid_entity_id <- function(tables, model) {
+    common <- intersect(names(tables), names(model))
+    chk <- lapply(common, function(t) {
+        entity_id <- intersect(names(tables[[t]]), paste0(t, "_id"))
+        if (length(entity_id) > 0) {
+            entity_col <- tables[[t]][[entity_id]]
+            chk2 <- .invalid_characters(entity_col)
+            if (any(chk2)) {
+                fails <- paste(unique(entity_col[chk2]), collapse=", ")
+                return(paste0("Invalid characters in ", entity_id, ": ", fails, "\n",
+                             "Entity ids may only contain alphanumeric characters, underscores, dashes, and periods."))
+            } else {
+                return(NULL)
+            }
+        } else {
+            return(paste0("Expected column ", t, "_id not found"))
+        }
+    })
+    names(chk) <- common
+    return(chk)
+}
+
+
+
 #' @rdname check_data_tables
 #' @return \code{check_primary_keys} returns a list with two elements:
 #' \itemize{
