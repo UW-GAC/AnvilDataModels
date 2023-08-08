@@ -89,7 +89,7 @@ test_that("conditional tables", {
     json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     expect_equal(attr(x, "required"), "t1")
-    expect_equal(attr(x, "conditions"), c(t3="t2"))
+    expect_equal(attr(x, "conditions"), list(t3="t2", t4=c("t2", "t3")))
 })
 
 

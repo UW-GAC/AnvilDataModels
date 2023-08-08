@@ -42,18 +42,14 @@ read_data_tables <- function(files, table_names=names(files), quiet=TRUE) {
 
 .parse_required_tables <- function(table_names, model) {
     required <- attr(model, "required")
-    optional <- character()
     cond <- attr(model, "conditions")
     for (c in names(cond)) {
         # if condition is met, add to 'required'
-        if (cond[[c]] %in% table_names) {
+        if (any(cond[[c]] %in% table_names)) {
             required <- c(required, c)
-        } else {
-            # if condition not met, add to 'optional'
-            optional <- c(optional, c)
         }
     }
-    optional <- unique(c(optional, setdiff(names(model), required)))
+    optional <- setdiff(names(model), required)
     return(list(required=required, optional=optional))
 }
 
@@ -92,7 +88,6 @@ check_table_names <- function(tables, model) {
 
 .parse_required_columns <- function(table, model) {
     required <- attr(model, "required")
-    optional <- character()
     cond <- attr(model, "conditions")
     # for all columns in names(cond)
     for (c in names(cond)) {
@@ -102,12 +97,9 @@ check_table_names <- function(tables, model) {
         # if condition is met, add to 'required'
         if (any(table[[column]] == value)) {
             required <- c(required, c)
-        } else {
-        # if condition not met, add to 'optional'
-            optional <- c(optional, c)
         }
     }
-    optional <- unique(c(optional, setdiff(names(model), required)))
+    optional <- setdiff(names(model), required)
     return(list(required=required, optional=optional))
 }
 

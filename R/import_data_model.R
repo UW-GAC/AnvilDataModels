@@ -216,7 +216,7 @@ json_to_dbml <- function(json, dbml) {
 
 
 # parses required column to separate logical from conditional
-#' @importFrom stringr str_extract_all
+#' @importFrom stringr str_extract_all str_split_1
 .parse_requirements <- function(x, type=c("column", "table")) {
     type <- match.arg(type)
     if (type == "column") {
@@ -230,7 +230,9 @@ json_to_dbml <- function(json, dbml) {
     req <- names(req)[req]
     cond <- col[ind]
     if (length(cond) > 0) {
-        cond <- setNames(unlist(str_extract_all(cond, "(?<=\\().+?(?=\\))")), names(cond))
+        cond <- str_extract_all(cond, "(?<=\\().+?(?=\\))") %>%
+            lapply(str_split_1, "\\s*,\\s*") %>%
+            setNames(names(cond))
     }
     return(list(required=req, conditions=cond))
 }

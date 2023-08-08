@@ -273,12 +273,24 @@ test_that("conditional tables - parsing", {
     json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     chk <- .parse_required_tables(c("t1", "t2", "t3"), x)
-    expect_setequal(chk$required, c("t1", "t3"))
+    expect_setequal(chk$required, c("t1", "t3", "t4"))
     expect_setequal(chk$optional, c("t2"))
     
     chk <- .parse_required_tables(c("t1"), x)
     expect_setequal(chk$required, c("t1"))
+    expect_setequal(chk$optional, c("t2", "t3", "t4"))
+    
+    chk <- .parse_required_tables(c("t2"), x)
+    expect_setequal(chk$required, c("t1", "t3", "t4"))
+    expect_setequal(chk$optional, c("t2"))
+    
+    chk <- .parse_required_tables(c("t3"), x)
+    expect_setequal(chk$required, c("t1", "t4"))
     expect_setequal(chk$optional, c("t2", "t3"))
+    
+    chk <- .parse_required_tables(c("t4"), x)
+    expect_setequal(chk$required, c("t1"))
+    expect_setequal(chk$optional, c("t2", "t3", "t4"))
 })
 
 test_that("conditional tables - check", {
@@ -286,13 +298,13 @@ test_that("conditional tables - check", {
     x <- json_to_dm(json)
     chk <- check_table_names(tables=list(t1=tibble()), model=x)
     expect_setequal(chk$missing_required_tables, character())
-    expect_setequal(chk$missing_optional_tables, c("t2", "t3"))
+    expect_setequal(chk$missing_optional_tables, c("t2", "t3", "t4"))
     
     chk <- check_table_names(tables=list(t1=tibble(), t2=tibble()), model=x)
-    expect_setequal(chk$missing_required_tables, c("t3"))
+    expect_setequal(chk$missing_required_tables, c("t3", "t4"))
     expect_setequal(chk$missing_optional_tables, character())
     
-    chk <- check_table_names(tables=list(t1=tibble(), t2=tibble(), t3=tibble()), model=x)
+    chk <- check_table_names(tables=list(t1=tibble(), t2=tibble(), t3=tibble(), t4=tibble()), model=x)
     expect_null(chk)
 })
 

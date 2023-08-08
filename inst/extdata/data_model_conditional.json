@@ -70,6 +70,22 @@
             "data_type": "string"
         }
         ]
+    },
+    {
+        "table": "t4",
+        "required": "CONDITIONAL (t2, t3)",
+        "columns": [
+        {
+            "column": "t4_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "something",
+            "data_type": "string"
+        }
+        ]
     }
     ]
 }
