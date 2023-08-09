@@ -243,6 +243,62 @@ check_missing_values <- function(tables, model) {
 }
 
 
+#' @rdname check_data_tables
+#' @return \code{check_unique} returns a list of all tables in common between data 
+#'     and model. Each table element is a list of all columns in common between table and 
+#'     model also defined as unique by the model. Each column element is \code{NULL} if 
+#'     the column is unique, or a string listing duplicated elements.
+#' @export
+check_unique <- function(tables, model) {
+    common <- intersect(names(tables), names(model))
+    chk <- lapply(common, function(t) {
+        cols <- intersect(names(tables[[t]]), attr(model[[t]], "unique"))
+        chk2 <- lapply(cols, function(c) {
+            name <- paste(t, c, sep=".")
+            ct <- tables[[t]][[c]]
+            dups <- ct[duplicated(ct)]
+            if (length(dups) > 0) {
+                dup_str <- paste(dups, collapse=", ")
+                return(paste0("Duplicated values in unique column ", name, ": ", dup_str))
+            } else {
+                return(NULL)
+            }
+        })
+        names(chk2) <- cols
+        return(chk2)
+    })
+    names(chk) <- common
+    return(chk)
+}
+
+
+#' @rdname check_data_tables
+#' @return \code{check_bucket_paths} returns a list of all tables in common between data 
+#'     and model. Each table element is
+#' @export
+check_bucket_paths <- function(tables, model) {
+    common <- intersect(names(tables), names(model))
+    chk <- lapply(common, function(t) {
+        cols <- intersect(names(tables[[t]]), attr(model[[t]], "bucket_path"))
+        chk2 <- lapply(cols, function(c) {
+            name <- paste(t, c, sep=".")
+            ct <- tables[[t]][[c]]
+            exists <- gsutil_exists(ct)
+            if (all(exists)) {
+                return(NULL)
+            } else {
+                missing <- names(exists)[!exists]
+                miss_str <- paste(missing, collapse=", ")
+                return(paste0("Bucket paths in ", name, " do not exist: ", miss_str))
+            }
+        })
+        names(chk2) <- cols
+        return(chk2)
+    })
+    names(chk) <- common
+    return(chk)
+}
+
 
 #' @importFrom stringr str_detect
 .invalid_characters <- function(x) {
