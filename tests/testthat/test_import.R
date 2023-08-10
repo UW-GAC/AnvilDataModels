@@ -98,3 +98,11 @@ test_that("delimiter", {
     x <- json_to_dm(json)
     expect_equal(attr(x$t1, "multi_value_delimiters"), c("value"="|"))
 })
+
+
+test_that("bucket path", {
+    json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    expect_equal(attr(x$t1, "bucket_path"), c("file1", "file2"))
+    expect_equal(attr(x$t1, "unique"), c("t1_id", "file1"))
+})

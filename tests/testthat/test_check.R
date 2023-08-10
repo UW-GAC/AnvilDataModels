@@ -374,3 +374,19 @@ test_that("check invalid characters", {
                  "Invalid characters in sample_id: a+b, a&b")
 })
 
+
+test_that("unique columns", {
+    json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:5,
+                  file1=c("a", "b", "b", "c", "c"),
+                  file2=c("a", "b", "b", "b", "b"),
+                  x=c("a", "b", "b", "d", "d"))
+    chk <- check_unique(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$t1_id)
+    expect_equal(chk$t1$file1, "Duplicated values in unique column t1.file1: b, c")
+    
+    dat$file1 <- letters[1:5]
+    chk <- check_unique(tables=list(t1=dat), model=x)
+    expect_equal(chk, list(t1=list(t1_id=NULL, file1=NULL)))
+})

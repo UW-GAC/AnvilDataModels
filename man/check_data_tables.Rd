@@ -7,6 +7,8 @@
 \alias{check_column_names}
 \alias{check_column_types}
 \alias{check_missing_values}
+\alias{check_unique}
+\alias{check_bucket_paths}
 \alias{check_valid_entity_id}
 \alias{check_primary_keys}
 \alias{check_foreign_keys}
@@ -23,6 +25,10 @@ check_column_names(tables, model)
 check_column_types(tables, model)
 
 check_missing_values(tables, model)
+
+check_unique(tables, model)
+
+check_bucket_paths(tables, model)
 
 check_valid_entity_id(tables, model)
 
@@ -75,6 +81,14 @@ parse_column_type_check(chk)
     and model. Each table element is a list of all required columns in common between table and 
     model. Each column element is \code{NULL} if the column has no missing values, or 
     the number of missing values in the column.
+
+\code{check_unique} returns a list of all tables in common between data 
+    and model. Each table element is a list of all columns in common between table and 
+    model also defined as unique by the model. Each column element is \code{NULL} if 
+    the column is unique, or a string listing duplicated elements.
+
+\code{check_bucket_paths} returns a list of all tables in common between data 
+    and model. Each table element is
 
 \code{check_valid_entity_id} returns a list of all tables in common between data 
     and model. Each table element is \code{NULL} if the table has a valid AnVIL entity_id, or 

@@ -80,6 +80,24 @@ if (nrow(res) > 0) {
 }
 ```
 
+```{r, message=TRUE}
+chk <- check_unique(tables, model)
+res <- parse_column_type_check(chk)
+if (nrow(res) > 0) {
+    return_value <- FALSE
+    knitr::kable(res)
+}
+```
+
+```{r, message=TRUE}
+chk <- check_bucket_paths(tables, model)
+res <- parse_column_type_check(chk)
+if (nrow(res) > 0) {
+    return_value <- FALSE
+    knitr::kable(res)
+}
+```
+
 ## Primary keys
 
 ```{r, message=TRUE}
@@ -100,18 +118,13 @@ AnVIL requires that each table has an entity_id named \<table_name\>_id. Entity 
 
 ```{r, message=TRUE}
 chk <- check_valid_entity_id(tables, model)
-res <- lapply(names(chk), function(x) {
-    if (!is.null(chk[[x]])) {
-        return(tibble(table=x, error=chk[[x]]))
-    } else {
-        return(NULL)
-    }
-}) %>% bind_rows()
+res <- parse_column_type_check(chk)
 if (nrow(res) > 0) {
     return_value <- FALSE
     knitr::kable(res)
 }
 ```
+
 
 ## Cross-table references
 

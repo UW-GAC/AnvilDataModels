@@ -67,3 +67,20 @@ pass <- custom_render_markdown("data_model_report", argv$out_prefix,
                                parameters=argv[c("tables", "model")])
 
 unlink(table_files)
+
+
+# check google bucket files
+model_file <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
+bucket <- "gs://fc-efda2373-416d-45db-bde6-b3ad08bf9d79"
+dat <- tibble(t1_id=1:2,
+              file1=file.path(bucket, c("file.tsv", "foo")))
+tmp <- tempfile()
+readr::write_tsv(dat, tmp)
+table_files <- c(t1=tmp)
+
+#params <- list(tables=table_files, model=model_file)
+argv <- list(out_prefix="test", tables=table_files, model=model_file)
+
+pass <- custom_render_markdown("data_model_report", argv$out_prefix, 
+                               parameters=argv[c("tables", "model")])
+unlink(table_files)

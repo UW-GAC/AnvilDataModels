@@ -119,3 +119,21 @@ test_that("upload error", {
     tables$subject$subject_id[1] <- "a+b" # illegal character for primary key
     expect_error(anvil_import_tables(tables, model, overwrite=TRUE), "Import failed")
 })
+
+
+test_that("bucket paths exist", {
+    json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    file1 <- system.file("extdata", "file.tsv", package="AnvilDataModels")
+    bucket <- "gs://fc-efda2373-416d-45db-bde6-b3ad08bf9d79"
+    bucket_path <- file.path(bucket, basename(file1))
+    #AnVIL::gsutil_cp(file1, bucket_path)
+    dat <- tibble(t1_id=1:2,
+                  file1=c(bucket_path, file.path(bucket, "foo")))
+    chk <- check_bucket_paths(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$file1, paste("Bucket paths in t1.file1 do not exist:", file.path(bucket, "foo")))
+    
+    dat <- dat[1,]
+    chk <- check_bucket_paths(tables=list(t1=dat), model=x)
+    expect_equal(chk, list(t1=list(file1=NULL)))
+})

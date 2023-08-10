@@ -97,6 +97,10 @@ json_to_dm <- function(json) {
         attr(tib, "conditions") <- req$conditions
         attr(tib, "multi_value_delimiters") <- 
             .named_elements(t$columns, "column", "multi_value_delimiter")
+        bp <- .named_elements(t$columns, "column", "is_bucket_path")
+        attr(tib, "bucket_path") <- names(bp)[bp]
+        u <- .named_elements(t$columns, "column", "is_unique")
+        attr(tib, "unique") <- names(u)[u]
         return(tib)
     })
     names(table_list) <- sapply(tables, function(t) t$table)
