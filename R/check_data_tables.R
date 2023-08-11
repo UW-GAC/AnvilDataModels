@@ -294,7 +294,7 @@ check_bucket_paths <- function(tables, model) {
                 return(NULL)
             } else {
                 missing <- names(exists)[!exists]
-                miss_str <- paste(missing, collapse=", ")
+                miss_str <- paste(unique(missing), collapse=", ")
                 return(paste0("Bucket paths in ", name, " do not exist: ", miss_str))
             }
         })
