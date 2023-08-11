@@ -386,7 +386,15 @@ test_that("unique columns", {
     expect_null(chk$t1$t1_id)
     expect_equal(chk$t1$file1, "Duplicated values in unique column t1.file1: b, c")
     
+    dat$file1 <- dat$file2
+    chk <- check_unique(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$file1, "Duplicated values in unique column t1.file1: b")
+    
     dat$file1 <- letters[1:5]
+    chk <- check_unique(tables=list(t1=dat), model=x)
+    expect_equal(chk, list(t1=list(t1_id=NULL, file1=NULL)))
+    
+    dat$file1 <- NA
     chk <- check_unique(tables=list(t1=dat), model=x)
     expect_equal(chk, list(t1=list(t1_id=NULL, file1=NULL)))
 })

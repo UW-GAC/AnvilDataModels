@@ -255,10 +255,10 @@ check_unique <- function(tables, model) {
         cols <- intersect(names(tables[[t]]), attr(model[[t]], "unique"))
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
-            ct <- tables[[t]][[c]]
+            ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
             dups <- ct[duplicated(ct)]
             if (length(dups) > 0) {
-                dup_str <- paste(dups, collapse=", ")
+                dup_str <- paste(unique(dups), collapse=", ")
                 return(paste0("Duplicated values in unique column ", name, ": ", dup_str))
             } else {
                 return(NULL)
@@ -282,7 +282,8 @@ check_bucket_paths <- function(tables, model) {
         cols <- intersect(names(tables[[t]]), attr(model[[t]], "bucket_path"))
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
-            ct <- tables[[t]][[c]]
+            ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
+            if (length(ct) == 0) return(NULL)
             exists <- gsutil_exists(ct)
             if (all(exists)) {
                 return(NULL)

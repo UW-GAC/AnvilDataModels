@@ -136,4 +136,9 @@ test_that("bucket paths exist", {
     dat <- dat[1,]
     chk <- check_bucket_paths(tables=list(t1=dat), model=x)
     expect_equal(chk, list(t1=list(file1=NULL)))
+    
+    dat <- tibble(t1_id=1:2,
+                  file1=NA)
+    chk <- check_bucket_paths(tables=list(t1=dat), model=x)
+    expect_equal(chk, list(t1=list(file1=NULL)))
 })
