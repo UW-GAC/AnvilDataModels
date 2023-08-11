@@ -284,7 +284,12 @@ check_bucket_paths <- function(tables, model) {
             name <- paste(t, c, sep=".")
             ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
             if (length(ct) == 0) return(NULL)
-            exists <- gsutil_exists(ct)
+            exists <- sapply(ct, function(uri) {
+                tryCatch({
+                    gsutil_exists(uri)
+                }, warning=function(w) w, error=function(e) FALSE)
+            }, USE.NAMES = FALSE)
+            names(exists) <- ct
             if (all(exists)) {
                 return(NULL)
             } else {
