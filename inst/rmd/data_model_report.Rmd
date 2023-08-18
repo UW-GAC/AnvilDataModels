@@ -28,10 +28,10 @@ Data model version: `r attr(model, "data_model_version")`
 ```{r}
 chk <- check_table_names(tables, model)
 res <- tibble(a=c("Required tables in data model missing from input",
-                  "Optional tables in data model missing from input",
+                  #"Optional tables in data model missing from input",
            "Extra tables not in data model"),
        b=c(paste(chk$missing_required_tables, collapse=", "),
-           paste(chk$missing_optional_tables, collapse=", "),
+           #paste(chk$missing_optional_tables, collapse=", "),
            paste(chk$extra_tables, collapse=", "))
        ) %>%
     filter(b != "")
