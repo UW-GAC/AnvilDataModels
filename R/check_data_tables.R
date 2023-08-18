@@ -282,7 +282,7 @@ check_bucket_paths <- function(tables, model) {
         cols <- intersect(names(tables[[t]]), attr(model[[t]], "bucket_path"))
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
-            ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
+            ct <- unique(na.omit(tables[[t]][[c]])) # only check unique non-missing values
             if (length(ct) == 0) return(NULL)
             exists <- sapply(ct, function(uri) {
                 tryCatch({
@@ -294,7 +294,7 @@ check_bucket_paths <- function(tables, model) {
                 return(NULL)
             } else {
                 missing <- names(exists)[!exists]
-                miss_str <- paste(unique(missing), collapse=", ")
+                miss_str <- paste(missing, collapse=", ")
                 return(paste0("Bucket paths in ", name, " do not exist: ", miss_str))
             }
         })
