@@ -274,9 +274,63 @@ check_unique <- function(tables, model) {
 
 #' @rdname check_data_tables
 #' @return \code{check_bucket_paths} returns a list of all tables in common between data 
-#'     and model. Each table element is
+#'     and model. Each table element is a list of all columns in common between table and 
+#'     model also defined as containing bucket paths by the model. Each column element is \code{NULL} if 
+#'     all paths exist, or a string listing paths that do not exist.
+#' @importFrom stringr str_extract str_detect
 #' @export
 check_bucket_paths <- function(tables, model) {
+    # identify all the file paths in the data model
+    common <- intersect(names(tables), names(model))
+    bucket_cols <- lapply(common, function(t) {
+        intersect(names(tables[[t]]), attr(model[[t]], "bucket_path"))
+    })
+    names(bucket_cols) <- common
+    bucket_cols <- bucket_cols[!sapply(bucket_cols, is.null, USE.NAMES=FALSE)]
+    
+    # get the unique set of buckets
+    buckets <- lapply(names(bucket_cols), function(t) {
+        sapply(bucket_cols[[t]], function(c) {
+            ct <- unique(na.omit(tables[[t]][[c]]))
+            unique(na.omit(str_extract(ct, "gs://[[:alnum:]-]+/")))
+        }, USE.NAMES = FALSE)
+    }) %>% unlist() %>% unique()
+    
+    # gsutil_ls on each bucket, combine to create files_in_buckets
+    files_in_buckets <- lapply(buckets, function(b) {
+        top_level <- gsutil_ls(b, recursive=FALSE)
+        subdirs <- top_level[str_detect(top_level, "/$")]
+        subdirs <- subdirs[!str_detect(subdirs, "notebooks|submissions")]
+        sub_levels <- lapply(subdirs, function(f) gsutil_ls(paste0(f, "**"), recursive=TRUE))
+        c(top_level, unlist(sub_levels))
+    }) %>% unlist()
+    
+    # then a simple check like all(df$file_path %in% files_in_buckets)
+    chk <- lapply(names(bucket_cols), function(t) {
+        chk2 <- lapply(bucket_cols[[t]], function(c) {
+            name <- paste(t, c, sep=".")
+            ct <- unique(na.omit(tables[[t]][[c]])) # only check unique non-missing values
+            if (length(ct) == 0) return(NULL)
+            exists <- ct %in% files_in_buckets
+            names(exists) <- ct
+            if (all(exists)) {
+                return(NULL)
+            } else {
+                missing <- names(exists)[!exists]
+                miss_str <- paste(missing, collapse=", ")
+                return(paste0("Bucket paths in ", name, " do not exist: ", miss_str))
+            }
+        })
+        names(chk2) <- bucket_cols[[t]]
+        return(chk2)
+    })
+    names(chk) <- names(bucket_cols)
+    return(chk)
+}
+
+# alternate method for checking bucket paths using gsutil_exists
+# too slow for large tables; gsutil_exists takes ~4 sec per file
+check_bucket_paths_indiv <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     chk <- lapply(common, function(t) {
         cols <- intersect(names(tables[[t]]), attr(model[[t]], "bucket_path"))
@@ -289,6 +343,7 @@ check_bucket_paths <- function(tables, model) {
                     gsutil_exists(uri)
                 }, warning=function(w) w, error=function(e) FALSE)
             }, USE.NAMES = FALSE)
+            
             names(exists) <- ct
             if (all(exists)) {
                 return(NULL)

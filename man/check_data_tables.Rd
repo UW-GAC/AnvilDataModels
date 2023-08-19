@@ -88,7 +88,9 @@ parse_column_type_check(chk)
     the column is unique, or a string listing duplicated elements.
 
 \code{check_bucket_paths} returns a list of all tables in common between data 
-    and model. Each table element is
+    and model. Each table element is a list of all columns in common between table and 
+    model also defined as containing bucket paths by the model. Each column element is \code{NULL} if 
+    all paths exist, or a string listing paths that do not exist.
 
 \code{check_valid_entity_id} returns a list of all tables in common between data 
     and model. Each table element is \code{NULL} if the table has a valid AnVIL entity_id, or 

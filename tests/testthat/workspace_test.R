@@ -150,4 +150,14 @@ test_that("bucket paths exist", {
                   file1=NA)
     chk <- check_bucket_paths(tables=list(t1=dat), model=x)
     expect_equal(chk, list(t1=list(file1=NULL)))
+    
+    # multiple buckets and multiple tables
+    dat <- tibble(t1_id=1:2,
+                  file1=c(bucket_path, file.path(bucket, "foo")),
+                  file2=file.path("gs://fc-995e5705-8dcb-410b-987e-c05b47d0c580",
+                                  c("TEST_populations.tsv", "TEST_populations.txt")))
+    tables <- list(t1=dat, t2=tibble(t1_id=1:2))
+    chk <- check_bucket_paths(tables=tables, model=x)
+    expect_equal(names(chk), "t1")
+    expect_equal(chk$t1$file1, paste("Bucket paths in t1.file1 do not exist:", file.path(bucket, "foo")))
 })
