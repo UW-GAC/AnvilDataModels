@@ -150,4 +150,22 @@ test_that("bucket paths exist", {
                   file1=NA)
     chk <- check_bucket_paths(tables=list(t1=dat), model=x)
     expect_equal(chk, list(t1=list(file1=NULL)))
+    
+    # multiple buckets and multiple tables
+    dat <- tibble(t1_id=1:2,
+                  file1=c(bucket_path, file.path(bucket, "foo")),
+                  file2=file.path("gs://fc-995e5705-8dcb-410b-987e-c05b47d0c580",
+                                  c("TEST_populations.tsv", "TEST_populations.txt")))
+    tables <- list(t1=dat, t2=tibble(t1_id=1:2))
+    chk <- check_bucket_paths(tables=tables, model=x)
+    expect_equal(names(chk), "t1")
+    expect_equal(chk$t1$file1, paste("Bucket paths in t1.file1 do not exist:", file.path(bucket, "foo")))
+    
+    # check submissions dir
+    bucket <- "gs://fc-78a7b775-81f3-4c54-a9fb-da182178a827/"
+    dat <- tibble(t1_id=1:2,
+                  file1=paste0(bucket, c("HapMap_subject_table.tsv", 
+                     "submissions/48cd646d-2e8f-4a5a-8f37-0e9a98c1b6da/genotype_report/ae1df9d6-424d-422c-bd42-c875be6133fd/call-results/cacheCopy/results.log")))
+    chk <- check_bucket_paths(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$file1)
 })
