@@ -296,11 +296,23 @@ check_bucket_paths <- function(tables, model) {
         }, USE.NAMES = FALSE)
     }) %>% unlist() %>% unique()
     
+    # get any buckets with a file in the submissions directory
+    submissions <- lapply(names(bucket_cols), function(t) {
+        sapply(bucket_cols[[t]], function(c) {
+            ct <- unique(na.omit(tables[[t]][[c]]))
+            sub("submissions/$", "", unique(na.omit(str_extract(ct, "gs://[[:alnum:]-]+/submissions/"))))
+        }, USE.NAMES = FALSE)
+    }) %>% unlist() %>% unique()
+    
     # gsutil_ls on each bucket, combine to create files_in_buckets
     files_in_buckets <- lapply(buckets, function(b) {
         top_level <- gsutil_ls(b, recursive=FALSE)
         subdirs <- top_level[str_detect(top_level, "/$")]
-        subdirs <- subdirs[!str_detect(subdirs, "notebooks|submissions")]
+        subdirs <- subdirs[!str_detect(subdirs, "notebooks")]
+        # only check submissions directory if we have to
+        if (!(b %in% submissions)) {
+            subdirs <- subdirs[!str_detect(subdirs, "submissions")]
+        }
         sub_levels <- lapply(subdirs, function(f) gsutil_ls(paste0(f, "**"), recursive=TRUE))
         c(top_level, unlist(sub_levels))
     }) %>% unlist()
