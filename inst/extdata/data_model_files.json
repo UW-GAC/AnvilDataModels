@@ -1,0 +1,48 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "t1",
+        "columns": [
+        {
+            "column": "t1_id",
+            "primary_key": true,
+            "required": true,
+            "is_unique": true,
+            "data_type": "string"
+        },
+        {
+            "column": "file1",
+            "is_bucket_path": true,
+            "is_unique": true,
+            "data_type": "string"
+        },
+        {
+            "column": "file2",
+            "is_bucket_path": true,
+            "data_type": "string"
+        },
+        {
+            "column": "x",
+            "is_bucket_path": false,
+            "is_unique": false,
+            "data_type": "string"
+        }
+        ]
+    },
+    {
+        "table": "t2",
+        "columns": [
+        {
+            "column": "t2_id",
+            "primary_key": true,
+            "required": true,
+            "is_unique": true,
+            "data_type": "string"
+        }
+        ]
+    }
+    ]
+}
