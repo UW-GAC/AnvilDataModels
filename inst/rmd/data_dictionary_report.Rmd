@@ -17,7 +17,7 @@ library(dplyr)
 
 ```{r}
 tables <- params$tables
-model <- json_to_dm(params$model)
+model <- params$model
 return_value <- TRUE # returned to render function to indicate T/F passing checks
 ```
 
