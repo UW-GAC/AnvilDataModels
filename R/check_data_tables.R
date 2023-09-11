@@ -380,12 +380,14 @@ check_bucket_paths_indiv <- function(tables, model) {
 
 
 #' @rdname check_data_tables
+#' @param report_missing_id A logical indicating whether the absence of an entity id is
+#'     regarded as an error.
 #' @return \code{check_valid_entity_id} returns a list of all tables in common between data 
 #'     and model. Each table element is \code{NULL} if the table has a valid AnVIL entity_id, or 
 #'     a string describing the error.
 #'     
 #' @export
-check_valid_entity_id <- function(tables, model) {
+check_valid_entity_id <- function(tables, model, report_missing_id=FALSE) {
     common <- intersect(names(tables), names(model))
     chk <- lapply(common, function(t) {
         entity_id <- intersect(names(tables[[t]]), paste0(t, "_id"))
@@ -399,7 +401,11 @@ check_valid_entity_id <- function(tables, model) {
                 return(NULL)
             }
         } else {
-            return(paste0("Expected column ", t, "_id not found"))
+            if (report_missing_id) {
+                return(paste0("Expected column ", t, "_id not found"))
+            } else {
+                return(NULL)
+            }
         }
     })
     names(chk) <- common

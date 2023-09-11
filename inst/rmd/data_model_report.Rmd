@@ -114,13 +114,13 @@ if (length(chk$missing_keys) == 0) {
 if (any(chk$found_keys$problem != "")) return_value <- FALSE
 ```
 
-AnVIL requires that each table has an entity_id named \<table_name\>_id. Entity ids may only contain alphanumeric characters, underscores, dashes, and periods.
 
 ```{r, message=TRUE}
 chk <- check_valid_entity_id(tables, model)
 res <- parse_column_type_check(chk)
 if (nrow(res) > 0) {
     return_value <- FALSE
+    cat("AnVIL requires that each table has an entity_id named <table_name>_id. Entity ids may only contain alphanumeric characters, underscores, dashes, and periods.")
     knitr::kable(res)
 }
 ```

@@ -366,8 +366,10 @@ test_that("check invalid characters", {
     model <- .model()
     tables1 <- tables[c("subject", "sample")]
     expect_equal(check_valid_entity_id(tables1, model), lapply(tables1, function(x) NULL))
-    expect_equal(check_valid_entity_id(tables["phenotype"], model), 
+    expect_equal(check_valid_entity_id(tables["phenotype"], model, report_missing_id=TRUE), 
                  list("phenotype"="Expected column phenotype_id not found"))
+    expect_equal(check_valid_entity_id(tables["phenotype"], model, report_missing_id=FALSE), 
+                 list("phenotype"=NULL))
     
     tables1$sample$sample_id[1:2] <- c("a+b", "a&b")
     expect_equal(check_valid_entity_id(tables1, model)$sample,

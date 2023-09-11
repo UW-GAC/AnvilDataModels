@@ -30,7 +30,7 @@ check_unique(tables, model)
 
 check_bucket_paths(tables, model)
 
-check_valid_entity_id(tables, model)
+check_valid_entity_id(tables, model, report_missing_id = FALSE)
 
 check_primary_keys(tables, model)
 
@@ -50,6 +50,9 @@ parse_column_type_check(chk)
 \item{tables}{Named list of data tables}
 
 \item{model}{\code{\link{dm}} object describing data model}
+
+\item{report_missing_id}{A logical indicating whether the absence of an entity id is
+regarded as an error.}
 
 \item{chk}{output of \code{check_column_names} or \code{check_column_types}}
 }
