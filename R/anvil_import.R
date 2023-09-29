@@ -204,7 +204,7 @@ add_entity_id <- function(table, table_name, model) {
         }
         js <- bind_rows(job_status)
         # timeout if uploads haven't completed
-        if (Sys.time() - start > timeout) {
+        if (difftime(Sys.time(), start, units="secs") > timeout) {
             stop("Timeout: upload took longer than ", timeout, " seconds")
         }
     }
