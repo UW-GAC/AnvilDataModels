@@ -392,7 +392,7 @@ check_valid_entity_id <- function(tables, model, report_missing_id=FALSE) {
     chk <- lapply(common, function(t) {
         entity_id <- intersect(names(tables[[t]]), paste0(t, "_id"))
         if (length(entity_id) > 0) {
-            entity_col <- tables[[t]][[entity_id]]
+            entity_col <- na.omit(tables[[t]][[entity_id]]) # only check non-missing values
             chk2 <- .invalid_characters(entity_col)
             if (any(chk2)) {
                 fails <- paste(unique(entity_col[chk2]), collapse=", ")
