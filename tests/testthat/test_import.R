@@ -106,3 +106,12 @@ test_that("bucket path", {
     expect_equal(attr(x$t1, "bucket_path"), c("file1", "file2"))
     expect_equal(attr(x$t1, "unique"), c("t1_id", "file1"))
 })
+
+
+test_that("min max", {
+    json <- system.file("extdata", "data_model.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    expect_equal(attr(x$phenotype, "min"), c("height"=0, "weight"=0))
+    expect_equal(attr(x$phenotype, "max"), c("height"=300, "weight"=200))
+})
+

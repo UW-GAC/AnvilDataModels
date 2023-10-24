@@ -60,12 +60,16 @@
         {
             "column": "height",
             "description": "height in cm",
-            "data_type": "float"
+            "data_type": "float",
+            "min": 0,
+            "max": 300
         },
         {
             "column": "weight",
             "description": "weight in kg",
-            "data_type": "float"
+            "data_type": "float",
+            "min": 0,
+            "max": 200
         }
         ]
     },

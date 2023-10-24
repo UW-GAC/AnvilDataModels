@@ -134,6 +134,17 @@ check_column_names <- function(tables, model) {
 }
 
 
+#' @importFrom stringr str_trim
+.parse_delim <- function(x, table_name, column_name, model) {
+    delim <- attr(model[[table_name]], "multi_value_delimiters")
+    if (column_name %in% names(delim) & length(x) > 0) {
+        x <- tryCatch({
+            str_trim(unlist(strsplit(x, delim[column_name], fixed=TRUE)))
+        }, warning=function(w) w, error=function(e) e)
+    }
+    return(x)
+}
+
 .try_conversion <- function(x, name, type, FUN, na_only=FALSE) {
     err_string <- paste("Some values of", name, "not compatible with", type, "type")
     err_fn <- function(a) {
@@ -160,7 +171,6 @@ check_column_names <- function(tables, model) {
 #'     
 #' @importFrom lubridate is.Date is.timepoint ymd ymd_hms
 #' @importFrom methods is
-#' @importFrom stringr str_trim
 #' @export
 check_column_types <- function(tables, model) {
     common <- intersect(names(tables), names(model))
@@ -169,16 +179,11 @@ check_column_types <- function(tables, model) {
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
             ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
-            cm <- model[[t]][[c]]
-            delim <- attr(model[[t]], "multi_value_delimiters")
-            if (c %in% names(delim) & length(ct) > 0) {
-                ct <- tryCatch({
-                    str_trim(unlist(strsplit(ct, delim[c], fixed=TRUE)))
-                }, warning=function(w) w, error=function(e) e)
-                if (is(ct, "error")) {
-                    return(paste("Error extracting delimited strings from", name, "\n", ct))
-                }
+            ct <- .parse_delim(ct, t, c, model)
+            if (is(ct, "error")) {
+                return(paste("Error extracting delimited strings from", name, "\n", ct))
             }
+            cm <- model[[t]][[c]]
             if (is.character(cm)) {
                 .try_conversion(ct, name=name, type="character", FUN=as.character)
             } else if (is.logical(cm)) {
@@ -210,6 +215,58 @@ check_column_types <- function(tables, model) {
     return(chk)
 }
 
+
+#' @rdname check_data_tables
+#' @return \code{check_column_types} returns a list of all tables in common between data 
+#'     and model. Each table element is a list of all columns in common between table and 
+#'     model that have min and/or max values. 
+#'     Each column element is \code{NULL} if values in column are between min and max, 
+#'     or a string describing the mismatch.
+#'     
+#' @export
+check_column_min_max <- function(tables, model) {
+    common <- intersect(names(tables), names(model))
+    chk <- lapply(common, function(t) {
+        min <- attr(model[[t]], "min")
+        max <- attr(model[[t]], "max")
+        if (is.null(min) & is.null(max)) return(NULL)
+        cols <- intersect(names(tables[[t]]), union(names(min), names(max)))
+        chk2 <- lapply(cols, function(c) {
+            name <- paste(t, c, sep=".")
+            ct <- na.omit(tables[[t]][[c]]) # only check non-missing values
+            ct <- .parse_delim(ct, t, c, model)
+            if (is(ct, "error")) {
+                return(paste("Error extracting delimited strings from", name, "\n", ct))
+            }
+            ct <- tryCatch({
+                as.numeric(ct)
+            }, warning=function(w) w, error=function(e) e)
+            if (is(ct, "error") | is(ct, "warning")) {
+                return(paste("Error coercing", name, "to numeric \n", ct))
+            }
+            lt_min <- unique(ct[ct < min[c]])
+            gt_max <- unique(ct[ct > max[c]])
+            err_string <- character()
+            if (length(lt_min) > 0) {
+                err_string["min"] <- paste("Values of", name, "<", min[c], ":", 
+                                           paste(lt_min, collapse=", "))
+            }
+            if (length(gt_max) > 0) {
+                err_string["max"] <- paste("Values of", name, ">", max[c], ":", 
+                                           paste(gt_max, collapse=", "))
+            }
+            if (length(err_string > 0)) {
+             return(paste(err_string, collapse=". "))
+            } else {
+                return(NULL)
+            }
+        })
+        names(chk2) <- cols
+        return(chk2)
+    })
+    names(chk) <- common
+    return(chk)
+}
 
 
 #' @rdname check_data_tables

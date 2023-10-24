@@ -54,6 +54,7 @@ tables$subject <- filter(tables$subject, subject_id != "subject1")
 tables$phenotype$visit_id <- NULL
 tables$sample_set$sample_id <- NULL
 tables$subject$subject_id[1] <- "subject2@"
+tables$phenotype$height[1:3] <- c(-1, -2, 500)
 
 table_files <- sapply(tables, function(t) {
     tmp <- tempfile()
