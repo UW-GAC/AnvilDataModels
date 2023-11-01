@@ -247,11 +247,11 @@ check_column_min_max <- function(tables, model) {
             lt_min <- unique(ct[ct < min[c]])
             gt_max <- unique(ct[ct > max[c]])
             err_string <- character()
-            if (length(lt_min) > 0) {
+            if (!is.na(min[c]) & length(lt_min) > 0) {
                 err_string["min"] <- paste("Values of", name, "<", min[c], ":", 
                                            paste(lt_min, collapse=", "))
             }
-            if (length(gt_max) > 0) {
+            if (!is.na(max[c]) & length(gt_max) > 0) {
                 err_string["max"] <- paste("Values of", name, ">", max[c], ":", 
                                            paste(gt_max, collapse=", "))
             }
