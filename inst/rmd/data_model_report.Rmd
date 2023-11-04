@@ -80,6 +80,19 @@ if (nrow(res) > 0) {
 }
 ```
 
+```{r}
+chk <- check_column_min_max(tables, model)
+if (any(!sapply(chk, is.null))) {
+    res <- parse_column_type_check(chk)
+    if (nrow(res) > 0) {
+        return_value <- FALSE
+        knitr::kable(res)
+    } else {
+        cat("All column values are within specified min and max range.")
+    }
+}
+```
+
 ```{r, message=TRUE}
 chk <- check_unique(tables, model)
 res <- parse_column_type_check(chk)

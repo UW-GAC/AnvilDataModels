@@ -101,6 +101,22 @@ test_that("check column types", {
 })
 
 
+test_that("check min max", {
+    tables <- .tables()
+    model <- .model()
+    expect_equal(check_column_min_max(tables, model)$phenotype, 
+                 list(height=NULL, weight=NULL))
+    
+    x <- tables
+    x$phenotype$height[1:2] <- c(-1, -2)
+    x$phenotype$weight[1] <- -100
+    x$phenotype$weight[2] <- 1000
+    expect_equal(check_column_min_max(x, model)$phenotype, 
+                 list(height="Values of phenotype.height < 0 : -1, -2", 
+                      weight="Values of phenotype.weight < 0 : -100. Values of phenotype.weight > 200 : 1000"))
+})
+    
+
 test_that("check missing values", {
     tables <- .tables()
     model <- .model()

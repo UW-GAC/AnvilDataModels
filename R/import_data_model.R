@@ -101,6 +101,8 @@ json_to_dm <- function(json) {
         attr(tib, "bucket_path") <- names(bp)[bp]
         u <- .named_elements(t$columns, "column", "is_unique")
         attr(tib, "unique") <- names(u)[u]
+        attr(tib, "min") <- .named_elements(t$columns, "column", "min")
+        attr(tib, "max") <- .named_elements(t$columns, "column", "max")
         return(tib)
     })
     names(table_list) <- sapply(tables, function(t) t$table)
