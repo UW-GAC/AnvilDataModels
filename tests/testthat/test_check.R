@@ -416,3 +416,14 @@ test_that("unique columns", {
     chk <- check_unique(tables=list(t1=dat), model=x)
     expect_equal(chk, list(t1=list(t1_id=NULL, file1=NULL)))
 })
+
+
+test_that("drs_bucket_paths", {
+    json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:5,
+                  file1=paste0("drs://", letters[1:5]),
+                  file2=paste0("gs://", letters[1:5]))
+    chk <- check_bucket_paths(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$file1)
+})
