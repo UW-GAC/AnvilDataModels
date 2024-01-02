@@ -379,6 +379,7 @@ check_bucket_paths <- function(tables, model) {
         chk2 <- lapply(bucket_cols[[t]], function(c) {
             name <- paste(t, c, sep=".")
             ct <- unique(na.omit(tables[[t]][[c]])) # only check unique non-missing values
+            ct <- ct[!grepl("^drs://", ct)] # don't check drs ids
             if (length(ct) == 0) return(NULL)
             exists <- ct %in% files_in_buckets
             names(exists) <- ct
