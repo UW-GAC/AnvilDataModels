@@ -95,7 +95,11 @@ check_table_names <- function(tables, model) {
         column <- cond_parsed$column
         value <- cond_parsed$value
         # if condition is met, add to 'required'
-        if (any(table[[column]] == value)) {
+        if (!is.na(value) & any(table[[column]] == value)) {
+            required <- c(required, c)
+        }
+        # if value is NA, only requirement is column is non-missing
+        if (is.na(value) & any(!is.na(table[[column]]))) {
             required <- c(required, c)
         }
     }
@@ -279,12 +283,24 @@ check_column_min_max <- function(tables, model) {
 check_missing_values <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     chk <- lapply(common, function(t) {
+        cond <- attr(model[[t]], "conditions")
         cols <- intersect(names(tables[[t]]), names(model[[t]]))
         req <- .parse_required_columns(tables[[t]], model[[t]])
         cols <- intersect(cols, req$required)
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
             ct <- tables[[t]][[c]]
+            # if we have a condition, only check values where condition is met
+            if (c %in% names(cond)) {
+                ref_value <- tables[[t]][[cond[[c]]]]
+                cond_parsed <- .parse_condition(cond[[c]])
+                value_req <- cond_parsed$value
+                if (is.na(value_req)) {
+                    ct <- ct[!is.na(ref_value)]
+                } else {
+                    ct <- ct[ct %in% ref_value]
+                }
+            }
             missing <- sum(is.na(ct))
             if (missing > 0) {
                 return(paste(missing, "missing values in required column", name))
