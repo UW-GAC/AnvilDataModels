@@ -277,7 +277,8 @@ check_column_min_max <- function(tables, model) {
 #' @return \code{check_missing_values} returns a list of all tables in common between data 
 #'     and model. Each table element is a list of all required columns in common between table and 
 #'     model. Each column element is \code{NULL} if the column has no missing values, or 
-#'     the number of missing values in the column.
+#'     the number of missing values in the column. If a condition is set on a column, missing values 
+#'     are only checked for rows where the condition is met.
 #'     
 #' @export
 check_missing_values <- function(tables, model) {

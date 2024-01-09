@@ -30,7 +30,8 @@ Each column object can contain the following elements. 'column' and 'data_type' 
 - multi_value_delimiter: if data values may be delimited, this contains the delimiter value
 - required: TRUE indicates the column is required, FALSE or missing if the column
    is optional. 'CONDITIONAL (column = value)' indicates a requirement only if any element of 
-   'column' contains 'value'.
+   'column' contains 'value'. 'CONDITIONAL (column)' indicates a requirement only if any element
+   of 'column' is non-missing.
 - primary_key: logical where TRUE indicates the column is a primary key, 
     other values may be FALSE or missing
 - references: Reference to other columns in the data model. Either of
