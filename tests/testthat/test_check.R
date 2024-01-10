@@ -470,4 +470,10 @@ test_that("check foreign keys with multi-value delimiters", {
     chk <- check_foreign_keys(tables, model)
     expect_equal(chk$set_key_problems, 
                  list("table2.sample_id"="Some values not present in sample.sample_id: sample100, sample200"))
+    
+    
+    tables[["table2"]] <- tibble("table2_id"=1:3,
+                                 "sample_id"=NA)
+    chk <- check_foreign_keys(tables, model)
+    expect_equal(length(chk$set_key_problems), 0)
 })

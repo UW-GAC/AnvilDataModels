@@ -568,7 +568,7 @@ check_foreign_keys <- function(tables, model) {
                 } else if (any(child_keys %in% names(attr(model[[child_table]], "multi_value_delimiters")))) {
                     for (kc in child_keys) {
                         for (kp in parent_keys) {
-                            child_vals <- .parse_delim(tables[[child_table]][[kc]], 
+                            child_vals <- .parse_delim(na.omit(tables[[child_table]][[kc]]), 
                                                        table_name = child_table,
                                                        column_name = kc,
                                                        model = model)
