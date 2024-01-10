@@ -1,0 +1,60 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "sample",
+        "required": true,
+        "columns": [
+        {
+            "column": "sample_id",
+            "primary_key": true,
+            "required": true,
+            "description": "sample identifier",
+            "data_type": "string"
+        },
+        {
+            "column": "subject_id",
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "tissue_source",
+            "required": true,
+            "description": "tissue type of sample",
+            "data_type": "string"
+        },
+        {
+            "column": "age_at_sample_collection",
+            "description": "age of subject when sample was collected",
+            "data_type": "integer"
+        },
+        {
+            "column": "date_of_sample_processing",
+            "description": "date sample was processed in the lab",
+            "data_type": "date"
+        }
+        ]
+    },
+    {
+        "table": "table2",
+        "required": true,
+        "columns": [
+        {
+            "column": "table2_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "sample_id",
+            "required": true,
+            "data_type": "string",
+            "references": "> sample.sample_id",
+            "multi_value_delimiter": "|"
+        }
+        ]
+    }
+    ]
+}

@@ -454,3 +454,20 @@ test_that("check missing values with conditional requirements", {
     expect_equal(chk$t1$if_something, 
                  "1 missing values in required column t1.if_something")
 })
+
+
+test_that("check foreign keys with multi-value delimiters", {
+    json <- system.file("extdata", "data_model_multi_fk.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    
+    table_names <- c("sample")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+    tables[["table2"]] <- tibble("table2_id"=1:3,
+                                 "sample_id"=c("sample1", "sample1 | sample2 | sample3",
+                                               "sample4 | sample100"))
+    
+    chk <- check_foreign_keys(tables, model)
+    expect_equal(chk$set_key_problems, 
+                 list("table2.sample_id"="Not all values present in sample.sample_id"))
+})

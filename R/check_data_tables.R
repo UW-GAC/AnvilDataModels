@@ -552,13 +552,7 @@ check_foreign_keys <- function(tables, model) {
             }
             if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
                 # foreign keys to set tables will not be unique before import to AnVIL
-                if (!(grepl("_set$", parent_table))) {
-                    tables_dm <- dm_add_fk(tables_dm, 
-                                           table=!!child_table, 
-                                           columns=!!child_keys,
-                                           ref_table=!!parent_table,
-                                           ref_columns=!!parent_keys)
-                } else {
+                if (grepl("_set$", parent_table)) {
                     for (kc in child_keys) {
                         for (kp in parent_keys) {
                             child_vals <- tables[[child_table]][[kc]]
@@ -569,6 +563,27 @@ check_foreign_keys <- function(tables, model) {
                             }
                         }
                     }
+                # need to expand multi-value delimiters before comparing to parent table
+                } else if (any(child_keys %in% names(attr(model[[child_table]], "multi_value_delimiters")))) {
+                    for (kc in child_keys) {
+                        for (kp in parent_keys) {
+                            child_vals <- .parse_delim(tables[[child_table]][[kc]], 
+                                                       table_name = child_table,
+                                                       column_name = kc,
+                                                       model = model)
+                            parent_vals <- tables[[parent_table]][[kp]]
+                            if (!all(child_vals %in% parent_vals)) {
+                                set_key_problems[[paste(child_table, kc, sep=".")]] <- 
+                                    paste0("Not all values present in ", parent_table, ".", kp)
+                            }
+                        }
+                    }
+                } else {
+                    tables_dm <- dm_add_fk(tables_dm, 
+                                           table=!!child_table, 
+                                           columns=!!child_keys,
+                                           ref_table=!!parent_table,
+                                           ref_columns=!!parent_keys)
                 }
             }
         }
