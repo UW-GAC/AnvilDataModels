@@ -558,8 +558,9 @@ check_foreign_keys <- function(tables, model) {
                             child_vals <- tables[[child_table]][[kc]]
                             parent_vals <- tables[[parent_table]][[kp]]
                             if (!all(child_vals %in% parent_vals)) {
+                                miss_str <-  paste(setdiff(child_vals, parent_vals), collapse=", ")
                                 set_key_problems[[paste(child_table, kc, sep=".")]] <- 
-                                    paste0("Not all values present in ", parent_table, ".", kp)
+                                    paste0("Some values not present in ", parent_table, ".", kp, ": ", miss_str)
                             }
                         }
                     }
@@ -573,8 +574,9 @@ check_foreign_keys <- function(tables, model) {
                                                        model = model)
                             parent_vals <- tables[[parent_table]][[kp]]
                             if (!all(child_vals %in% parent_vals)) {
+                                miss_str <-  paste(setdiff(child_vals, parent_vals), collapse=", ")
                                 set_key_problems[[paste(child_table, kc, sep=".")]] <- 
-                                    paste0("Not all values present in ", parent_table, ".", kp)
+                                    paste0("Some values not present in ", parent_table, ".", kp, ": ", miss_str)
                             }
                         }
                     }

@@ -339,7 +339,7 @@ test_that("foreign keys with sets", {
     chk <- check_foreign_keys(tables, model)
     expect_setequal(chk$found_keys$problem, "")
     expect_equal(chk$set_key_problems, 
-                 list("file_multi.sample_set_id"="Not all values present in sample_set.sample_set_id"))
+                 list("file_multi.sample_set_id"="Some values not present in sample_set.sample_set_id: missing_set"))
 })
 
 test_that("enumeration with delimiter", {
@@ -464,10 +464,10 @@ test_that("check foreign keys with multi-value delimiters", {
     files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
     tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
     tables[["table2"]] <- tibble("table2_id"=1:3,
-                                 "sample_id"=c("sample1", "sample1 | sample2 | sample3",
-                                               "sample4 | sample100"))
+                                 "sample_id"=c("sample100", "sample1 | sample2 | sample3",
+                                               "sample4 | sample200"))
     
     chk <- check_foreign_keys(tables, model)
     expect_equal(chk$set_key_problems, 
-                 list("table2.sample_id"="Not all values present in sample.sample_id"))
+                 list("table2.sample_id"="Some values not present in sample.sample_id: sample100, sample200"))
 })
