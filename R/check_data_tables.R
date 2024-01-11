@@ -293,13 +293,13 @@ check_missing_values <- function(tables, model) {
             ct <- tables[[t]][[c]]
             # if we have a condition, only check values where condition is met
             if (c %in% names(cond)) {
-                ref_value <- tables[[t]][[cond[[c]]]]
                 cond_parsed <- .parse_condition(cond[[c]])
+                ref_value <- tables[[t]][[cond_parsed$column]]
                 value_req <- cond_parsed$value
                 if (is.na(value_req)) {
                     ct <- ct[!is.na(ref_value)]
                 } else {
-                    ct <- ct[ct %in% ref_value]
+                    ct <- ct[ref_value %in% value_req]
                 }
             }
             missing <- sum(is.na(ct))

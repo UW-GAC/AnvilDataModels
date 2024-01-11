@@ -444,6 +444,11 @@ test_that("check missing values with conditional requirements", {
     chk <- check_missing_values(tables=list(t1=dat), model=x)
     expect_equal(chk$t1, lapply(dat, function(x) NULL))
     
+    dat$if_variable[1] <- NA
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$if_variable, 
+                 "1 missing values in required column t1.if_variable")
+    
     dat$something <- c("a", NA)
     dat$if_something <- c("b", NA)
     chk <- check_missing_values(tables=list(t1=dat), model=x)
@@ -470,7 +475,6 @@ test_that("check foreign keys with multi-value delimiters", {
     chk <- check_foreign_keys(tables, model)
     expect_equal(chk$set_key_problems, 
                  list("table2.sample_id"="Some values not present in sample.sample_id: sample100, sample200"))
-    
     
     tables[["table2"]] <- tibble("table2_id"=1:3,
                                  "sample_id"=NA)
