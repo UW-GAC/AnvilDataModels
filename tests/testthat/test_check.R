@@ -251,13 +251,13 @@ test_that("conditional columns - parsing", {
                   if_variable=c("a", "b"))
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, names(dat))
-    expect_equal(chk$optional, "something")
+    expect_equal(chk$optional, c("something", "if_something"))
     
     dat$condition[1] <- FALSE
     dat$variable[1] <- "no"
     dat$something <- "a"
     chk <- .parse_required_columns(dat, x$t1)
-    expect_setequal(chk$required, c("t1_id", "condition", "variable"))
+    expect_setequal(chk$required, c("t1_id", "condition", "variable", "if_something"))
     expect_setequal(chk$optional, c("if_condition", "if_variable", "something"))
 })
 
@@ -271,16 +271,20 @@ test_that("conditional columns - check", {
                   if_variable=c("a", "b"))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
-    expect_setequal(chk$t1$missing_optional_columns, "something")
+    expect_setequal(chk$t1$missing_optional_columns, c("something", "if_something"))
     
     dat2 <- tibble(t1_id=1:2,
                   condition=c(FALSE, FALSE),
                   variable=c("no", "no"))
     chk <- check_column_names(tables=list(t1=dat2), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
-    expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "if_variable", "something"))
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "if_variable", "something", "if_something"))
     
     dat$something <- "a"
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, "if_something")
+    
+    dat$if_something <- "b"
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_null(chk$t1)
 })
@@ -335,7 +339,7 @@ test_that("foreign keys with sets", {
     chk <- check_foreign_keys(tables, model)
     expect_setequal(chk$found_keys$problem, "")
     expect_equal(chk$set_key_problems, 
-                 list("file_multi.sample_set_id"="Not all values present in sample_set.sample_set_id"))
+                 list("file_multi.sample_set_id"="Some values not present in sample_set.sample_set_id: missing_set"))
 })
 
 test_that("enumeration with delimiter", {
@@ -426,4 +430,54 @@ test_that("drs_bucket_paths", {
                   file2=paste0("gs://", letters[1:5]))
     chk <- check_bucket_paths(tables=list(t1=dat), model=x)
     expect_null(chk$t1$file1)
+})
+
+
+test_that("check missing values with conditional requirements", {
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:2,
+                  condition=c(TRUE, FALSE),
+                  if_condition=c("a", "b"),
+                  variable=c("yes", "no"),
+                  if_variable=c("a", "b"))
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1, lapply(dat, function(x) NULL))
+    
+    dat$if_variable[1] <- NA
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$if_variable, 
+                 "1 missing values in required column t1.if_variable")
+    
+    dat$something <- c("a", NA)
+    dat$if_something <- c("b", NA)
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$if_something)
+    
+    dat$if_something <- NA
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$if_something, 
+                 "1 missing values in required column t1.if_something")
+})
+
+
+test_that("check foreign keys with multi-value delimiters", {
+    json <- system.file("extdata", "data_model_multi_fk.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    
+    table_names <- c("sample")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+    tables[["table2"]] <- tibble("table2_id"=1:3,
+                                 "sample_id"=c("sample100", "sample1 | sample2 | sample3",
+                                               "sample4 | sample200"))
+    
+    chk <- check_foreign_keys(tables, model)
+    expect_equal(chk$set_key_problems, 
+                 list("table2.sample_id"="Some values not present in sample.sample_id: sample100, sample200"))
+    
+    tables[["table2"]] <- tibble("table2_id"=1:3,
+                                 "sample_id"=NA)
+    chk <- check_foreign_keys(tables, model)
+    expect_equal(length(chk$set_key_problems), 0)
 })

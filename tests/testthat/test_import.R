@@ -79,7 +79,7 @@ test_that("conditional columns", {
     json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     expect_setequal(attr(x$t1, "required"), c("t1_id", "condition", "variable"))
-    expect_setequal(attr(x$t1, "conditions"), c("condition = TRUE", "variable = yes"))
+    expect_setequal(attr(x$t1, "conditions"), c("condition = TRUE", "variable = yes", "something"))
     expect_setequal(attr(x$t2, "required"), "t2_id")
     expect_setequal(attr(x$t2, "conditions"), character())
 })

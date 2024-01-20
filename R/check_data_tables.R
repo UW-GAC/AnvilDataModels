@@ -95,7 +95,11 @@ check_table_names <- function(tables, model) {
         column <- cond_parsed$column
         value <- cond_parsed$value
         # if condition is met, add to 'required'
-        if (any(table[[column]] == value)) {
+        if (!is.na(value) & any(table[[column]] == value)) {
+            required <- c(required, c)
+        }
+        # if value is NA, only requirement is column is non-missing
+        if (is.na(value) & any(!is.na(table[[column]]))) {
             required <- c(required, c)
         }
     }
@@ -273,18 +277,31 @@ check_column_min_max <- function(tables, model) {
 #' @return \code{check_missing_values} returns a list of all tables in common between data 
 #'     and model. Each table element is a list of all required columns in common between table and 
 #'     model. Each column element is \code{NULL} if the column has no missing values, or 
-#'     the number of missing values in the column.
+#'     the number of missing values in the column. If a condition is set on a column, missing values 
+#'     are only checked for rows where the condition is met.
 #'     
 #' @export
 check_missing_values <- function(tables, model) {
     common <- intersect(names(tables), names(model))
     chk <- lapply(common, function(t) {
+        cond <- attr(model[[t]], "conditions")
         cols <- intersect(names(tables[[t]]), names(model[[t]]))
         req <- .parse_required_columns(tables[[t]], model[[t]])
         cols <- intersect(cols, req$required)
         chk2 <- lapply(cols, function(c) {
             name <- paste(t, c, sep=".")
             ct <- tables[[t]][[c]]
+            # if we have a condition, only check values where condition is met
+            if (c %in% names(cond)) {
+                cond_parsed <- .parse_condition(cond[[c]])
+                ref_value <- tables[[t]][[cond_parsed$column]]
+                value_req <- cond_parsed$value
+                if (is.na(value_req)) {
+                    ct <- ct[!is.na(ref_value)]
+                } else {
+                    ct <- ct[ref_value %in% value_req]
+                }
+            }
             missing <- sum(is.na(ct))
             if (missing > 0) {
                 return(paste(missing, "missing values in required column", name))
@@ -535,23 +552,40 @@ check_foreign_keys <- function(tables, model) {
             }
             if (length(c(missing_child_keys, missing_parent_keys)) == 0) {
                 # foreign keys to set tables will not be unique before import to AnVIL
-                if (!(grepl("_set$", parent_table))) {
-                    tables_dm <- dm_add_fk(tables_dm, 
-                                           table=!!child_table, 
-                                           columns=!!child_keys,
-                                           ref_table=!!parent_table,
-                                           ref_columns=!!parent_keys)
-                } else {
+                if (grepl("_set$", parent_table)) {
                     for (kc in child_keys) {
                         for (kp in parent_keys) {
                             child_vals <- tables[[child_table]][[kc]]
                             parent_vals <- tables[[parent_table]][[kp]]
                             if (!all(child_vals %in% parent_vals)) {
+                                miss_str <-  paste(setdiff(child_vals, parent_vals), collapse=", ")
                                 set_key_problems[[paste(child_table, kc, sep=".")]] <- 
-                                    paste0("Not all values present in ", parent_table, ".", kp)
+                                    paste0("Some values not present in ", parent_table, ".", kp, ": ", miss_str)
                             }
                         }
                     }
+                # need to expand multi-value delimiters before comparing to parent table
+                } else if (any(child_keys %in% names(attr(model[[child_table]], "multi_value_delimiters")))) {
+                    for (kc in child_keys) {
+                        for (kp in parent_keys) {
+                            child_vals <- .parse_delim(na.omit(tables[[child_table]][[kc]]), 
+                                                       table_name = child_table,
+                                                       column_name = kc,
+                                                       model = model)
+                            parent_vals <- tables[[parent_table]][[kp]]
+                            if (!all(child_vals %in% parent_vals)) {
+                                miss_str <-  paste(setdiff(child_vals, parent_vals), collapse=", ")
+                                set_key_problems[[paste(child_table, kc, sep=".")]] <- 
+                                    paste0("Some values not present in ", parent_table, ".", kp, ": ", miss_str)
+                            }
+                        }
+                    }
+                } else {
+                    tables_dm <- dm_add_fk(tables_dm, 
+                                           table=!!child_table, 
+                                           columns=!!child_keys,
+                                           ref_table=!!parent_table,
+                                           ref_columns=!!parent_keys)
                 }
             }
         }
