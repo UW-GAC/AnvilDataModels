@@ -248,7 +248,8 @@ test_that("conditional columns - parsing", {
                   condition=c(TRUE, FALSE),
                   if_condition=c("a", "b"),
                   variable=c("yes", "no"),
-                  if_variable=c("a", "b"))
+                  if_variable=c("a", "b"),
+                  if_variable_mult=c("a", "b"))
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, names(dat))
     expect_equal(chk$optional, c("something", "if_something"))
@@ -258,6 +259,11 @@ test_that("conditional columns - parsing", {
     dat$something <- "a"
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, c("t1_id", "condition", "variable", "if_something"))
+    expect_setequal(chk$optional, c("if_condition", "if_variable", "if_variable_mult", "something"))
+    
+    dat$variable[1] <- "maybe"
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "condition", "variable", "if_variable_mult", "if_something"))
     expect_setequal(chk$optional, c("if_condition", "if_variable", "something"))
 })
 
@@ -268,7 +274,8 @@ test_that("conditional columns - check", {
                   condition=c(TRUE, FALSE),
                   if_condition=c("a", "b"),
                   variable=c("yes", "no"),
-                  if_variable=c("a", "b"))
+                  if_variable=c("a", "b"),
+                  if_variable_mult=c("a", "b"))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
     expect_setequal(chk$t1$missing_optional_columns, c("something", "if_something"))
@@ -278,6 +285,13 @@ test_that("conditional columns - check", {
                   variable=c("no", "no"))
     chk <- check_column_names(tables=list(t1=dat2), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "if_variable", "if_variable_mult", "something", "if_something"))
+    
+    dat3 <- tibble(t1_id=1:2,
+                   condition=c(FALSE, FALSE),
+                   variable=c("maybe", "no"))
+    chk <- check_column_names(tables=list(t1=dat3), model=x)
+    expect_setequal(chk$t1$missing_required_columns, c("if_variable_mult"))
     expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "if_variable", "something", "if_something"))
     
     dat$something <- "a"

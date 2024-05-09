@@ -35,6 +35,11 @@
             "data_type": "string"
         },
         {
+            "column": "if_variable_mult",
+            "required": "CONDITIONAL (variable = yes, variable = maybe)",
+            "data_type": "string"
+        },
+        {
             "column": "something",
             "data_type": "string"
         },

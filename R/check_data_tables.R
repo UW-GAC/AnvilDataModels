@@ -91,16 +91,18 @@ check_table_names <- function(tables, model) {
     cond <- attr(model, "conditions")
     # for all columns in names(cond)
     for (c in names(cond)) {
-        cond_parsed <- .parse_condition(cond[[c]])
-        column <- cond_parsed$column
-        value <- cond_parsed$value
-        # if condition is met, add to 'required'
-        if (!is.na(value) & any(table[[column]] == value)) {
-            required <- c(required, c)
-        }
-        # if value is NA, only requirement is column is non-missing
-        if (is.na(value) & any(!is.na(table[[column]]))) {
-            required <- c(required, c)
+        for (v in cond[[c]]) {
+            cond_parsed <- .parse_condition(v)
+            column <- cond_parsed$column
+            value <- cond_parsed$value
+            # if condition is met, add to 'required'
+            if (!is.na(value) & any(table[[column]] == value)) {
+                required <- c(required, c)
+            }
+            # if value is NA, only requirement is column is non-missing
+            if (is.na(value) & any(!is.na(table[[column]]))) {
+                required <- c(required, c)
+            }
         }
     }
     optional <- setdiff(names(model), required)
