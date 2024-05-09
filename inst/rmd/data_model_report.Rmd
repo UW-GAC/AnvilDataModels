@@ -7,6 +7,7 @@ output:
 params:
     tables: ""
     model: ""
+    check_bucket_paths: "TRUE"
 ---
 
 ```{r setup, include=FALSE}
@@ -18,6 +19,7 @@ library(dplyr)
 ```{r}
 tables <- read_data_tables(params$tables)
 model <- json_to_dm(params$model)
+bucket_flag <- as.logical(params$check_bucket_paths)
 return_value <- TRUE # returned to render function to indicate T/F passing checks
 ```
 
@@ -103,11 +105,13 @@ if (nrow(res) > 0) {
 ```
 
 ```{r, message=TRUE}
-chk <- check_bucket_paths(tables, model)
-res <- parse_column_type_check(chk)
-if (nrow(res) > 0) {
-    return_value <- FALSE
-    knitr::kable(res)
+if (bucket_flag) {
+    chk <- check_bucket_paths(tables, model)
+    res <- parse_column_type_check(chk)
+    if (nrow(res) > 0) {
+        return_value <- FALSE
+        knitr::kable(res)
+    }
 }
 ```
 
