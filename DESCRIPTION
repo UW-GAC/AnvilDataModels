@@ -1,5 +1,5 @@
 Package: AnvilDataModels
-Version: 0.5.1
+Version: 0.6.0
 Type: Package
 Title: Utilities for AnVIL data models
 Description: Utilities for AnVIL data models.
@@ -11,4 +11,4 @@ Imports: AnVIL, dm, jsonlite, dplyr, readr, stringr, tidyr, lubridate,
 Suggests: roxygen2, testthat, knitr
 VignetteBuilder: knitr
 License: MIT + file LICENSE
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
