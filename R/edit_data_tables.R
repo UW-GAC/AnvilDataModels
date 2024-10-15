@@ -28,12 +28,16 @@ delete_rows <- function(pk_value, table_name, pk_name=paste0(table_name, "_id"),
     fks <- dm_get_all_fks(model)
     
     for (k in 1:nrow(pks)) {
-        tables_dm <- dm_add_pk(tables_dm, !!pks$table[k], !!pks$pk_col[[k]])
+        if (pks$table[k] %in% names(tables_dm)) {
+            tables_dm <- dm_add_pk(tables_dm, !!pks$table[k], !!pks$pk_col[[k]])
+        }
     }
     for (k in 1:nrow(fks)) {
-        tables_dm <- dm_add_fk(tables_dm, 
-                               !!fks$child_table[k], !!fks$child_fk_cols[[k]],
-                               !!fks$parent_table[k], !!fks$parent_key_cols[[k]])
+        if (fks$child_table[k] %in% names(tables_dm) & fks$parent_table[k] %in% names(tables_dm)) {
+            tables_dm <- dm_add_fk(tables_dm, 
+                                   !!fks$child_table[k], !!fks$child_fk_cols[[k]],
+                                   !!fks$parent_table[k], !!fks$parent_key_cols[[k]])
+        }
     }
     tables_dm
 }
