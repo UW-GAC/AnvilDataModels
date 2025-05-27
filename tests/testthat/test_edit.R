@@ -73,3 +73,60 @@ test_that("remove rows - sets with reference", {
     filtered_tables <- delete_rows(pk_value="sample1", table_name="sample", tables=tables, model=model)
     for (t in names(xt)) expect_equal(filtered_tables[[t]], xt[[t]])
 })
+
+
+
+test_that("keep rows - no sets", {
+    table_names <- c("subject", "phenotype", "sample", "file")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+    json <- system.file("extdata", "data_model_no_sets.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    
+    xt <- list(
+        subject = filter(tables$subject, subject_id == "subject1"),
+        phenotype = filter(tables$phenotype, subject_id == "subject1"),
+        sample = filter(tables$sample, subject_id == "subject1"),
+        file = filter(tables$file, (sample_id %in% c("sample1", "sample1a")))
+    )
+    
+    filtered_tables <- keep_rows(pk_value="subject1", table_name="subject", tables=tables, model=model)
+    for (t in names(xt)) expect_equal(filtered_tables[[t]], xt[[t]])
+})
+
+
+test_that("keep rows - sets", {
+    tables <- .tables()
+    model <- .model()
+    
+    xt <- list(
+        subject = filter(tables$subject, subject_id == "subject1"),
+        phenotype = filter(tables$phenotype, subject_id == "subject1"),
+        sample = filter(tables$sample, subject_id == "subject1"),
+        sample_set = filter(tables$sample_set, sample_id == "sample1"),
+        file = filter(tables$file, (sample_id %in% c("sample1", "sample1a")))
+    )
+    
+    filtered_tables <- keep_rows(pk_value="subject1", table_name="subject", tables=tables, model=model)
+    for (t in names(xt)) expect_equal(filtered_tables[[t]], xt[[t]])
+})
+
+
+test_that("keep rows - sets with reference", {
+    json <- system.file("extdata", "data_model_set_fk.json", package="AnvilDataModels")
+    model <- json_to_dm(json)
+    
+    table_names <- c("sample", "sample_set", "file_multi")
+    files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
+    tables <- read_data_tables(files, table_names=table_names, quiet=TRUE)
+    tables$file_multi <- tables$file_multi[1:2,]
+    
+    xt <- list(
+        sample = filter(tables$sample, sample_id == "sample1"),
+        sample_set = filter(tables$sample_set, sample_id == "sample1"),
+        file_multi = filter(tables$file_multi, sample_set_id == "set1")
+    )
+    
+    filtered_tables <- keep_rows(pk_value="sample1", table_name="sample", tables=tables, model=model)
+    for (t in names(xt)) expect_equal(filtered_tables[[t]], xt[[t]])
+})
