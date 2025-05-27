@@ -2,23 +2,33 @@
 #' 
 #' Edit a set of data tables while maintaining consistency among foreign keys
 #' 
-#' When calling \code{delete_rows}, a side effect is that only rows that are
+#' When calling \code{delete_rows} and \code{keep_rows}, a side effect is that only rows that are
 #' related via foreign keys to rows in \code{table_name} are kept. Therefore,
 #' \code{table_name} should always be the primary table.
 #' 
 #' @name edit_data_tables
-#' @param pk_value Value of the primary key to delete
-#' @param table_name Name of the table to delete from 
+#' @param pk_value Value of the primary key to filter on (either to keep or delete)
+#' @param table_name Name of the table to filter 
 #' @param pk_name Name of the primary key column. Defaults to the table name + "_id".
 #' @param tables Named list of data tables
 #' @param model \code{\link{dm}} object describing data model
 #' @return \code{\link{dm}} object with filtered tables
-#' @importFrom dplyr filter sym
+#' @importFrom dplyr filter sym 
+#' @importFrom rlang :=
 #' @export
 delete_rows <- function(pk_value, table_name, pk_name=paste0(table_name, "_id"), tables, model) {
     tables_dm <- .create_dm_object(tables, model)
     filtered_tables <- dm_filter(tables_dm, {{table_name}} := (!(!!sym(pk_name) %in% pk_value)))
     .filter_set_tables(filtered_tables, tables_dm)
+}
+
+
+#' @name edit_data_tables
+#' @export
+keep_rows <- function(pk_value, table_name, pk_name=paste0(table_name, "_id"), tables, model) {
+    tables_dm <- .create_dm_object(tables, model)
+    filtered_tables <- dm_filter(tables_dm, {{table_name}} := (!!sym(pk_name) %in% pk_value))
+    filtered_tables
 }
 
 

@@ -3,6 +3,7 @@
 \name{edit_data_tables}
 \alias{edit_data_tables}
 \alias{delete_rows}
+\alias{keep_rows}
 \title{Edit data tables}
 \usage{
 delete_rows(
@@ -12,11 +13,19 @@ delete_rows(
   tables,
   model
 )
+
+keep_rows(
+  pk_value,
+  table_name,
+  pk_name = paste0(table_name, "_id"),
+  tables,
+  model
+)
 }
 \arguments{
-\item{pk_value}{Value of the primary key to delete}
+\item{pk_value}{Value of the primary key to filter on (either to keep or delete)}
 
-\item{table_name}{Name of the table to delete from}
+\item{table_name}{Name of the table to filter}
 
 \item{pk_name}{Name of the primary key column. Defaults to the table name + "_id".}
 
@@ -31,7 +40,7 @@ delete_rows(
 Edit a set of data tables while maintaining consistency among foreign keys
 }
 \details{
-When calling \code{delete_rows}, a side effect is that only rows that are
+When calling \code{delete_rows} and \code{keep_rows}, a side effect is that only rows that are
 related via foreign keys to rows in \code{table_name} are kept. Therefore,
 \code{table_name} should always be the primary table.
 }
