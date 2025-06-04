@@ -303,6 +303,46 @@ test_that("conditional columns - check", {
     expect_null(chk$t1)
 })
 
+test_that("conditional columns - condition on optional column", {
+    json <- system.file("extdata", "data_model_conditional_optcol.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:2,
+                  condition=c(TRUE, FALSE),
+                  if_condition=c("a", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition"))
+    expect_setequal(chk$optional, c("condition"))
+    
+    dat <- tibble(t1_id=1:2,
+                  condition=c(FALSE, FALSE))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    expect_setequal(chk$optional, c("condition", "if_condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition"))
+    
+    dat <- tibble(t1_id=1:2)
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    expect_setequal(chk$optional, c("condition", "if_condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("condition", "if_condition"))
+    
+    dat <- tibble(t1_id=1:2,
+                  condition=c(TRUE, FALSE))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, c("if_condition"))
+    expect_setequal(chk$t1$missing_optional_columns, character())
+    
+    dat <- tibble(t1_id=1:2,
+                  if_condition=c("a", "b"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("condition"))
+})
+
 test_that("conditional tables - parsing", {
     json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
     x <- json_to_dm(json)
