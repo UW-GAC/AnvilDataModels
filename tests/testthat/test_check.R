@@ -311,36 +311,59 @@ test_that("conditional columns - condition on optional column", {
                   if_condition=c("a", "b"))
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, c("t1_id", "if_condition"))
-    expect_setequal(chk$optional, c("condition"))
+    expect_setequal(chk$optional, c("condition", "condition2", "if_condition2"))
     
     dat <- tibble(t1_id=1:2,
                   condition=c(FALSE, FALSE))
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, c("t1_id"))
-    expect_setequal(chk$optional, c("condition", "if_condition"))
+    expect_setequal(chk$optional, c("condition", "if_condition", "condition2", "if_condition2"))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
-    expect_setequal(chk$t1$missing_optional_columns, c("if_condition"))
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition", "condition2", "if_condition2"))
     
     dat <- tibble(t1_id=1:2)
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, c("t1_id"))
-    expect_setequal(chk$optional, c("condition", "if_condition"))
+    expect_setequal(chk$optional, c("condition", "if_condition", "condition2", "if_condition2"))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
-    expect_setequal(chk$t1$missing_optional_columns, c("condition", "if_condition"))
+    expect_setequal(chk$t1$missing_optional_columns, c("condition", "if_condition", "condition2", "if_condition2"))
     
     dat <- tibble(t1_id=1:2,
                   condition=c(TRUE, FALSE))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, c("if_condition"))
-    expect_setequal(chk$t1$missing_optional_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("condition2", "if_condition2"))
     
     dat <- tibble(t1_id=1:2,
                   if_condition=c("a", "b"))
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
-    expect_setequal(chk$t1$missing_optional_columns, c("condition"))
+    expect_setequal(chk$t1$missing_optional_columns, c("condition", "condition2", "if_condition2"))
+    
+    dat <- tibble(t1_id=1:2,
+                  condition2=c("a", "b"),
+                  if_condition2=c("a", NA))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition2"))
+    expect_setequal(chk$optional, c("condition", "if_condition", "condition2"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    
+    dat <- tibble(t1_id=1:2,
+                  condition2=c("a", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition2"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, c("if_condition2"))
+    
+    dat <- tibble(t1_id=1:2,
+                  condition2=c("b", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_optional_columns, c("condition", "if_condition", "if_condition2"))
 })
 
 test_that("conditional tables - parsing", {

@@ -22,6 +22,16 @@
             "column": "if_condition",
             "required": "CONDITIONAL (condition = TRUE)",
             "data_type": "string"
+        },
+        {
+            "column": "condition2",
+            "required": false,
+            "data_type": "string"
+        },
+        {
+            "column": "if_condition2",
+            "required": "CONDITIONAL (condition2 = a)",
+            "data_type": "string"
         }
         ]
     }
