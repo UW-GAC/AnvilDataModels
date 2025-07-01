@@ -96,7 +96,7 @@ check_table_names <- function(tables, model) {
             column <- cond_parsed$column
             value <- cond_parsed$value
             # if condition is met, add to 'required'
-            if (!is.na(value) & any(table[[column]] == value)) {
+            if (!is.na(value) & any(!is.na(table[[column]]) & table[[column]] == value)) {
                 required <- c(required, c)
             }
             # if value is NA, only requirement is column is non-missing

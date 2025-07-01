@@ -352,6 +352,15 @@ test_that("conditional columns - condition on optional column", {
     expect_setequal(chk$t1$missing_required_columns, character())
     
     dat <- tibble(t1_id=1:2,
+                  condition2=c(NA, NA),
+                  if_condition2=c("a", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    expect_setequal(chk$optional, c("condition", "if_condition", "condition2", "if_condition2"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    
+    dat <- tibble(t1_id=1:2,
                   condition2=c("a", "b"))
     chk <- .parse_required_columns(dat, x$t1)
     expect_setequal(chk$required, c("t1_id", "if_condition2"))
