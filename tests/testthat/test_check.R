@@ -567,3 +567,60 @@ test_that("check foreign keys with multi-value delimiters", {
     chk <- check_foreign_keys(tables, model)
     expect_equal(length(chk$set_key_problems), 0)
 })
+
+
+test_that("conditional columns - condition on inequality", {
+    json <- system.file("extdata", "data_model_conditional_noteq.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:2,
+                  condition=c("a", "b"),
+                  if_condition=c(NA, "a"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition"))
+    expect_setequal(chk$optional, c("condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_null(chk$t1)
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$if_condition)
+
+    dat <- tibble(t1_id=1:2,
+                  condition=c("a", "a"),
+                  if_condition=c(NA, "a"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    expect_setequal(chk$optional, c("condition", "if_condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_null(chk$t1)
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$if_condition)
+
+    dat <- tibble(t1_id=1:2,
+                  condition=c("a", "a"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id"))
+    expect_setequal(chk$optional, c("condition", "if_condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, character())
+    expect_setequal(chk$t1$missing_optional_columns, c("if_condition"))
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_null(chk$t1$if_condition)
+
+    dat <- tibble(t1_id=1:2,
+                  condition=c("a", "b"))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition"))
+    expect_setequal(chk$optional, c("condition"))
+    chk <- check_column_names(tables=list(t1=dat), model=x)
+    expect_setequal(chk$t1$missing_required_columns, c("if_condition"))
+    expect_setequal(chk$t1$missing_optional_columns, character())
+
+    dat <- tibble(t1_id=1:2,
+                  condition=c("a", "b"),
+                  if_condition=c("a", NA))
+    chk <- .parse_required_columns(dat, x$t1)
+    expect_setequal(chk$required, c("t1_id", "if_condition"))
+    expect_setequal(chk$optional, c("condition"))
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$if_condition,
+                 "1 missing values in required column t1.if_condition")
+})

@@ -80,10 +80,11 @@ check_table_names <- function(tables, model) {
 
 #' @importFrom stringr str_trim
 .parse_condition <- function(x) {
-    tmp <- unlist(strsplit(x, "="))
+    tmp <- unlist(strsplit(x, "!?="))
     column <- str_trim(tmp[1])
     value <- str_trim(tmp[2])
-    return(list(column=column, value=value))
+    equality <- !str_detect(x, "!=")
+    return(list(column=column, value=value, equality=equality))
 }
 
 .parse_required_columns <- function(table, model) {
@@ -95,8 +96,12 @@ check_table_names <- function(tables, model) {
             cond_parsed <- .parse_condition(v)
             column <- cond_parsed$column
             value <- cond_parsed$value
+            equality <- cond_parsed$equality
             # if condition is met, add to 'required'
-            if (!is.na(value) & any(!is.na(table[[column]]) & table[[column]] == value)) {
+            if (!is.na(value) & any(!is.na(table[[column]]) & equality & table[[column]] == value)) {
+                required <- c(required, c)
+            }
+            if (!is.na(value) & any(!is.na(table[[column]]) & !equality & table[[column]] != value)) {
                 required <- c(required, c)
             }
             # if value is NA, only requirement is column is non-missing
@@ -298,10 +303,15 @@ check_missing_values <- function(tables, model) {
                 cond_parsed <- .parse_condition(cond[[c]])
                 ref_value <- tables[[t]][[cond_parsed$column]]
                 value_req <- cond_parsed$value
+                equality <- cond_parsed$equality
                 if (is.na(value_req)) {
                     ct <- ct[!is.na(ref_value)]
                 } else {
-                    ct <- ct[ref_value %in% value_req]
+                    if (equality) {
+                        ct <- ct[ref_value %in% value_req]
+                    } else {
+                        ct <- ct[!(ref_value %in% value_req)]
+                    }
                 }
             }
             missing <- sum(is.na(ct))

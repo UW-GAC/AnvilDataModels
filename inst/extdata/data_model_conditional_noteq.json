@@ -1,0 +1,29 @@
+{
+    "name": "test data model",
+    "description": "test data model",
+    "version": "0",
+    "tables": [
+    {
+        "table": "t1",
+        "required": true,
+        "columns": [
+        {
+            "column": "t1_id",
+            "primary_key": true,
+            "required": true,
+            "data_type": "string"
+        },
+        {
+            "column": "condition",
+            "required": false,
+            "data_type": "string"
+        },
+        {
+            "column": "if_condition",
+            "required": "CONDITIONAL (condition != a)",
+            "data_type": "string"
+        }
+        ]
+    }
+    ]
+}
