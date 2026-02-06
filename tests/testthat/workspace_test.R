@@ -1,10 +1,11 @@
 context("tests that can only be run on AnVIL")
+library(AnVIL)
 
 test_that("upload example files", {
   table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
   files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
-  bucket <- AnVIL::avstorage()
-  lapply(files, AnVIL::avcopy, bucket)
+  bucket <- avstorage()
+  lapply(files, avcopy, bucket)
 })
 
 test_that("table with primary key matching table name", {
@@ -16,7 +17,7 @@ test_that("table with primary key matching table name", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- AnVIL::avtable(table_name)
+  chk <- avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(chk[[pk]], x[[pk]])
   # avtable reads logical as character
@@ -36,7 +37,7 @@ test_that("table with primary key not matching table name", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- AnVIL::avtable(table_name)
+  chk <- avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(names(chk), c(pk, names(x)))
   expect_equal(chk[[pk]], chk$md5)
@@ -51,7 +52,7 @@ test_that("table with >1 primary key", {
   x <- tables[[table_name]]
   anvil_import_table(x, table_name, model, overwrite=TRUE)
   
-  chk <- AnVIL::avtable(table_name)
+  chk <- avtable(table_name)
   pk <- paste0(table_name, "_id")
   expect_setequal(names(chk), c(pk, names(x)))
   expect_equal(chk[[pk]], paste(chk$subject_id, chk$visit_id, sep="_"))
@@ -73,8 +74,8 @@ test_that("set", {
                "Name of set table must end in '_set'")
   
   # can't import set without table
-  chk <- AnVIL::avtable(table_name)
-  AnVIL::avtable_delete_values("sample", chk$sample_id)
+  chk <- avtable(table_name)
+  avtable_delete_values("sample", chk$sample_id)
   expect_error(anvil_import_set(set, set_name, overwrite=TRUE), 
                "Must import table sample before set table sample_set")
   
@@ -86,14 +87,14 @@ test_that("set", {
                "Some entities in set table not present in sample")
   
   anvil_import_set(set, set_name, overwrite=TRUE)
-  chk <- AnVIL::avtable(table_name)
-  chk_set <- AnVIL::avtable(set_name)
+  chk <- avtable(table_name)
+  chk_set <- avtable(set_name)
   samples <- dplyr::bind_rows(chk_set$samples.items)$entityName
   expect_true(all(samples %in% chk$sample_id))
   
   set_all <- create_set_all(x, table_name)
   anvil_import_set(set_all, set_name, overwrite=TRUE)
-  chk_set <- AnVIL::avtable(set_name)
+  chk_set <- avtable(set_name)
   expect_setequal(chk_set$sample_set_id, c("set1", "set2", "all"))
   
   # can't overwrite existing set
@@ -102,7 +103,7 @@ test_that("set", {
   
   # overwriting set doesn't duplicate values
   anvil_import_set(set_all, set_name, overwrite=TRUE)
-  chk_set <- AnVIL::avtable(set_name)
+  chk_set <- avtable(set_name)
   samples <- chk_set$samples.items[chk_set$sample_set_id == "all"][[1]]$entityName
   expect_true(sum(duplicated(samples)) == 0)
   
@@ -127,7 +128,7 @@ test_that("bucket paths exist", {
     file1 <- system.file("extdata", "file.tsv", package="AnvilDataModels")
     bucket <- "gs://fc-3cce3376-ad17-4dde-adba-5af31b55e56a"
     bucket_path <- file.path(bucket, basename(file1))
-    #AnVIL::avcopy(file1, bucket_path)
+    #avcopy(file1, bucket_path)
     
     # valid uri but file does not exist
     dat <- tibble(t1_id=1:2,

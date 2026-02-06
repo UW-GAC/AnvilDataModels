@@ -6,7 +6,7 @@ Description: Utilities for AnVIL data models.
 Author: Stephanie Gogarten
 Maintainer: Stephanie Gogarten <sdmorris@uw.edu>
 Depends:
-Imports: AnVIL, dm, jsonlite, dplyr, readr, stringr, tidyr, lubridate, 
+Imports: AnVIL, AnVILGCP, dm, jsonlite, dplyr, readr, stringr, tidyr, lubridate, 
     openssl, rmarkdown, methods, stats, utils, rlang
 Suggests: roxygen2, testthat, knitr
 VignetteBuilder: knitr
