@@ -126,9 +126,9 @@ test_that("bucket paths exist", {
     json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     file1 <- system.file("extdata", "file.tsv", package="AnvilDataModels")
-    bucket <- "gs://fc-3cce3376-ad17-4dde-adba-5af31b55e56a"
+    bucket <- avstorage()
     bucket_path <- file.path(bucket, basename(file1))
-    #avcopy(file1, bucket_path)
+    avcopy(file1, bucket_path)
     
     # valid uri but file does not exist
     dat <- tibble(t1_id=1:2,
@@ -155,8 +155,8 @@ test_that("bucket paths exist", {
     # multiple buckets and multiple tables
     dat <- tibble(t1_id=1:2,
                   file1=c(bucket_path, file.path(bucket, "foo")),
-                  file2=file.path("gs://fc-3cce3376-ad17-4dde-adba-5af31b55e56a",
-                                  c("TEST_populations.tsv", "TEST_populations.txt")))
+                  file2=file.path(bucket,
+                                  c("subject.tsv", "sample.tsv")))
     tables <- list(t1=dat, t2=tibble(t1_id=1:2))
     chk <- check_bucket_paths(tables=tables, model=x)
     expect_equal(names(chk), "t1")
