@@ -3,8 +3,8 @@ context("tests that can only be run on AnVIL")
 test_that("upload example files", {
   table_names <- c("subject", "phenotype", "sample", "sample_set", "file")
   files <- system.file("extdata", paste0(table_names, ".tsv"), package="AnvilDataModels")
-  bucket <- AnVIL::avbucket()
-  lapply(files, AnVIL::gsutil_cp, bucket)
+  bucket <- AnVIL::avstorage()
+  lapply(files, AnVIL::avcopy, bucket)
 })
 
 test_that("table with primary key matching table name", {
@@ -125,9 +125,9 @@ test_that("bucket paths exist", {
     json <- system.file("extdata", "data_model_files.json", package="AnvilDataModels")
     x <- json_to_dm(json)
     file1 <- system.file("extdata", "file.tsv", package="AnvilDataModels")
-    bucket <- "gs://fc-efda2373-416d-45db-bde6-b3ad08bf9d79"
+    bucket <- "gs://fc-3cce3376-ad17-4dde-adba-5af31b55e56a"
     bucket_path <- file.path(bucket, basename(file1))
-    #AnVIL::gsutil_cp(file1, bucket_path)
+    #AnVIL::avcopy(file1, bucket_path)
     
     # valid uri but file does not exist
     dat <- tibble(t1_id=1:2,
@@ -154,7 +154,7 @@ test_that("bucket paths exist", {
     # multiple buckets and multiple tables
     dat <- tibble(t1_id=1:2,
                   file1=c(bucket_path, file.path(bucket, "foo")),
-                  file2=file.path("gs://fc-995e5705-8dcb-410b-987e-c05b47d0c580",
+                  file2=file.path("gs://fc-3cce3376-ad17-4dde-adba-5af31b55e56a",
                                   c("TEST_populations.tsv", "TEST_populations.txt")))
     tables <- list(t1=dat, t2=tibble(t1_id=1:2))
     chk <- check_bucket_paths(tables=tables, model=x)

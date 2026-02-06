@@ -390,16 +390,16 @@ check_bucket_paths <- function(tables, model) {
         }, USE.NAMES = FALSE)
     }) %>% unlist() %>% unique()
     
-    # gsutil_ls on each bucket, combine to create files_in_buckets
+    # avlist on each bucket, combine to create files_in_buckets
     files_in_buckets <- lapply(buckets, function(b) {
-        top_level <- gsutil_ls(b, recursive=FALSE)
+        top_level <- avlist(b, recursive=FALSE)
         subdirs <- top_level[str_detect(top_level, "/$")]
         subdirs <- subdirs[!str_detect(subdirs, "notebooks")]
         # only check submissions directory if we have to
         if (!(b %in% submissions)) {
             subdirs <- subdirs[!str_detect(subdirs, "submissions")]
         }
-        sub_levels <- lapply(subdirs, function(f) gsutil_ls(paste0(f, "**"), recursive=TRUE))
+        sub_levels <- lapply(subdirs, function(f) avlist(paste0(f, "**"), recursive=TRUE))
         c(top_level, unlist(sub_levels))
     }) %>% unlist()
     
