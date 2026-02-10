@@ -27,6 +27,7 @@
 #' @param name AnVIL workspace name
 #' 
 #' @import AnVIL
+#' @import AnVILGCP
 #' @export
 anvil_import_table <- function(table, table_name, model=NULL, overwrite=FALSE,
                                namespace = avworkspace_namespace(),
