@@ -299,22 +299,29 @@ check_missing_values <- function(tables, model) {
             name <- paste(t, c, sep=".")
             ct <- tables[[t]][[c]]
             # if we have a condition, only check values where condition is met
+            missing <- list()
             if (c %in% names(cond)) {
-                cond_parsed <- .parse_condition(cond[[c]])
-                ref_value <- tables[[t]][[cond_parsed$column]]
-                value_req <- cond_parsed$value
-                equality <- cond_parsed$equality
-                if (is.na(value_req)) {
-                    ct <- ct[!is.na(ref_value)]
-                } else {
-                    if (equality) {
-                        ct <- ct[ref_value %in% value_req]
+                for (v in cond[[c]]) {
+                    cond_parsed <- .parse_condition(v)
+                    ref_value <- tables[[t]][[cond_parsed$column]]
+                    value_req <- cond_parsed$value
+                    equality <- cond_parsed$equality
+                    ct_v <- ct
+                    if (is.na(value_req)) {
+                        ct_v <- ct_v[!is.na(ref_value)]
                     } else {
-                        ct <- ct[!(ref_value %in% value_req)]
+                        if (equality) {
+                            ct_v <- ct_v[ref_value %in% value_req]
+                        } else {
+                            ct_v <- ct_v[!(ref_value %in% value_req)]
+                        }
                     }
                 }
+                missing[[v]] <- sum(is.na(ct_v))
+            } else {
+                missing <- sum(is.na(ct))
             }
-            missing <- sum(is.na(ct))
+            missing <- sum(unlist(missing))
             if (missing > 0) {
                 return(paste(missing, "missing values in required column", name))
             } else {
