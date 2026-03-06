@@ -279,7 +279,7 @@ test_that("conditional columns - check", {
     chk <- check_column_names(tables=list(t1=dat), model=x)
     expect_setequal(chk$t1$missing_required_columns, character())
     expect_setequal(chk$t1$missing_optional_columns, c("something", "if_something"))
-    
+
     dat2 <- tibble(t1_id=1:2,
                   condition=c(FALSE, FALSE),
                   variable=c("no", "no"))
@@ -623,4 +623,20 @@ test_that("conditional columns - condition on inequality", {
     chk <- check_missing_values(tables=list(t1=dat), model=x)
     expect_equal(chk$t1$if_condition,
                  "1 missing values in required column t1.if_condition")
+})
+
+
+test_that("conditional columns - multiple conditions, missing values", {
+    json <- system.file("extdata", "data_model_conditional.json", package="AnvilDataModels")
+    x <- json_to_dm(json)
+    dat <- tibble(t1_id=1:3,
+                  condition=c(TRUE, FALSE, FALSE),
+                  if_condition=c("a", "b", "c"),
+                  variable=c("yes", "no", "maybe"),
+                  if_variable=c("a", "b", "c"),
+                  if_variable_mult=c("a", "b", NA))
+
+    chk <- check_missing_values(tables=list(t1=dat), model=x)
+    expect_equal(chk$t1$if_variable_mult,
+                 "1 missing values in required column t1.if_variable_mult")
 })
